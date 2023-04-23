@@ -5,11 +5,11 @@ if (typeof window !== "undefined") {
 }
 
 const schema = z.object({
-  GOOGLE_ID: z.string(),
-  GOOGLE_SECRET: z.string(),
+  RM_BASE_URL: z.string(),
+  SESSION_SECRET: z.string(),
 });
 
 export const serverEnv = schema.parse({
-  GOOGLE_ID: process.env.GOOGLE_ID,
-  GOOGLE_SECRET: process.env.GOOGLE_SECRET,
+  RM_BASE_URL: process.env.RM_BASE_URL,
+  SESSION_SECRET: process.env.SESSION_SECRET,
 });
