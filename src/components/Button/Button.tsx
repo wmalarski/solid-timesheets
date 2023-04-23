@@ -52,7 +52,16 @@ export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> &
 
 export const Button: Component<ButtonProps> = (props) => {
   return (
-    <button {...props} class={buttonClass({ ...props, class: props.class })} />
+    <button
+      {...props}
+      class={buttonClass({
+        class: props.class,
+        color: props.color,
+        isLoading: props.isLoading,
+        size: props.size,
+        variant: props.variant,
+      })}
+    />
   );
 };
 
@@ -76,7 +85,10 @@ export const ButtonGroup: Component<ButtonGroupProps> = (props) => {
   return (
     <div
       {...props}
-      class={buttonGroupClass({ ...props, class: props.class })}
+      class={buttonGroupClass({
+        class: props.class,
+        direction: props.direction,
+      })}
     />
   );
 };
@@ -85,5 +97,16 @@ export type LinkButtonProps = ComponentProps<typeof A> &
   VariantProps<typeof buttonClass>;
 
 export const LinkButton: Component<LinkButtonProps> = (props) => {
-  return <A {...props} class={buttonClass({ ...props, class: props.class })} />;
+  return (
+    <A
+      {...props}
+      class={buttonClass({
+        class: props.class,
+        color: props.color,
+        isLoading: props.isLoading,
+        size: props.size,
+        variant: props.variant,
+      })}
+    />
+  );
 };

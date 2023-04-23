@@ -19,6 +19,9 @@ export type DividerProps = JSX.HTMLAttributes<HTMLDivElement> &
 
 export const Divider: Component<DividerProps> = (props) => {
   return (
-    <div {...props} class={dividerClass({ ...props, class: props.class })} />
+    <div
+      {...props}
+      class={dividerClass({ class: props.class, direction: props.direction })}
+    />
   );
 };

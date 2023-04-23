@@ -32,7 +32,7 @@ export const SignIn: Component = () => {
               placeholder={t("signIn.placeholder")}
             />
             <TextFieldDescription>
-              {t("signIn.description")}
+              {t("signIn.description", {}, "")}
             </TextFieldDescription>
           </TextFieldRoot>
           <Button

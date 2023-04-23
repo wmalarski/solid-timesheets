@@ -26,7 +26,16 @@ export type CardProps = JSX.HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof cardClass>;
 
 export const Card: Component<CardProps> = (props) => {
-  return <div {...props} class={cardClass({ ...props, class: props.class })} />;
+  return (
+    <div
+      {...props}
+      class={cardClass({
+        class: props.class,
+        size: props.size,
+        variant: props.variant,
+      })}
+    />
+  );
 };
 
 export const cardTitleClass = twCva("card-title");

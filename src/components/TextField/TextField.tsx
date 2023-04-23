@@ -45,7 +45,7 @@ export const textFieldInputClass = twCva("input", {
       accent: "input-accent",
       error: "input-error",
       info: "input-info",
-      none: [],
+      none: "",
       primary: "input-primary",
       secondary: "input-secondary",
       success: "input-success",
@@ -60,7 +60,7 @@ export const textFieldInputClass = twCva("input", {
     variant: {
       bordered: "input-bordered",
       ghost: "input-ghost",
-      none: [],
+      none: "",
     },
   },
 });
@@ -72,7 +72,12 @@ export const TextFieldInput: Component<TextFieldInputProps> = (props) => {
   return (
     <input
       {...props}
-      class={textFieldInputClass({ ...props, class: props.class })}
+      class={textFieldInputClass({
+        class: props.class,
+        color: props.color,
+        size: props.size,
+        variant: props.variant,
+      })}
     />
   );
 };
@@ -85,7 +90,12 @@ export const TextFieldTextArea: Component<TextFieldTextAreaProps> = (props) => {
   return (
     <textarea
       {...props}
-      class={textFieldInputClass({ ...props, class: props.class })}
+      class={textFieldInputClass({
+        class: props.class,
+        color: props.color,
+        size: props.size,
+        variant: props.variant,
+      })}
     />
   );
 };

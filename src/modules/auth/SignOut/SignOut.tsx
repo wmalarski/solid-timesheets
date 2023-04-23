@@ -11,7 +11,7 @@ export const SignOut: Component = () => {
   return (
     <Form>
       <Button
-        isDisabled={signOut.pending}
+        disabled={signOut.pending}
         isLoading={signOut.pending}
         type="submit"
       >

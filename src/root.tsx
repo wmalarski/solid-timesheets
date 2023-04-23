@@ -20,26 +20,26 @@ export default function Root() {
   const [queryClient] = createSignal(new QueryClient());
 
   return (
-    <Html lang="en" data-theme="cyberpunk">
-      <Head>
-        <Title>SolidStart - With TailwindCSS</Title>
-        <Meta charset="utf-8" />
-        <Meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      <Body>
-        <Suspense>
-          <ErrorBoundary>
-            <I18nContext.Provider value={i18n}>
+    <I18nContext.Provider value={i18n}>
+      <Html lang="en" data-theme="cyberpunk">
+        <Head>
+          <Title>SolidStart - With TailwindCSS</Title>
+          <Meta charset="utf-8" />
+          <Meta name="viewport" content="width=device-width, initial-scale=1" />
+        </Head>
+        <Body>
+          <Suspense>
+            <ErrorBoundary>
               <QueryClientProvider client={queryClient()}>
                 <Routes>
                   <FileRoutes />
                 </Routes>
               </QueryClientProvider>
-            </I18nContext.Provider>
-          </ErrorBoundary>
-        </Suspense>
-        <Scripts />
-      </Body>
-    </Html>
+            </ErrorBoundary>
+          </Suspense>
+          <Scripts />
+        </Body>
+      </Html>
+    </I18nContext.Provider>
   );
 }

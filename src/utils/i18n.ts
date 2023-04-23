@@ -1,7 +1,10 @@
 import { createI18nContext } from "@solid-primitives/i18n";
 
 const dict = {
-  pl: {
+  en: {
+    footer: {
+      madeBy: "Made by wmalarski",
+    },
     home: {
       title: "Time Sheets",
     },
@@ -18,4 +21,4 @@ const dict = {
   },
 };
 
-export const i18n = createI18nContext(dict, "pl");
+export const i18n = createI18nContext(dict, "en");
