@@ -37,7 +37,9 @@ export type SelectProps = JSX.SelectHTMLAttributes<HTMLSelectElement> &
   VariantProps<typeof selectClass>;
 
 export const Select: Component<SelectProps> = (props) => {
-  return <select {...props} class={selectClass({ class: props.class })} />;
+  return (
+    <select {...props} class={selectClass({ ...props, class: props.class })} />
+  );
 };
 
 export type OptionProps = JSX.OptionHTMLAttributes<HTMLOptionElement>;

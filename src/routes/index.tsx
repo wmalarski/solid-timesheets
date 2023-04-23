@@ -1,3 +1,4 @@
+import { useI18n } from "@solid-primitives/i18n";
 import { useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
 import { SignIn } from "~/modules/auth/SignIn";
@@ -17,12 +18,14 @@ export const routeData = () => {
 };
 
 export default function Home() {
+  const [t] = useI18n();
+
   useRouteData<typeof routeData>();
 
   return (
-    <main class="mx-auto p-4 text-center text-gray-700">
-      <h1 class="max-6-xs my-16 text-6xl font-thin uppercase text-sky-700">
-        Hello world!
+    <main class="mx-auto flex flex-col items-center p-4 text-gray-700">
+      <h1 class="max-6-xs my-16 text-center text-6xl font-thin uppercase">
+        {t("home.title")}
       </h1>
       <SignIn />
     </main>

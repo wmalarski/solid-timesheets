@@ -7,11 +7,11 @@ module.exports = {
         light: {
           // eslint-disable-next-line @typescript-eslint/no-var-requires
           ...require("daisyui/src/colors/themes")["[data-theme=cyberpunk]"],
-          "base-100": "white",
+          "base-100": "#eeeeee",
         },
       },
     ],
   },
-  plugins: [require("daisyui"), require("@kobalte/tailwindcss")],
+  plugins: [require("daisyui")],
   theme: { extend: {} },
 };

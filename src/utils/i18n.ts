@@ -2,11 +2,15 @@ import { createI18nContext } from "@solid-primitives/i18n";
 
 const dict = {
   pl: {
+    home: {
+      title: "Time Sheets",
+    },
     signIn: {
       button: "Sign In",
       description: "Your API Token",
       label: "Token",
       placeholder: "Write",
+      title: "Sign In",
     },
     signOut: {
       button: "Sign Out",

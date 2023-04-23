@@ -3,21 +3,21 @@ import type { Component, JSX, ValidComponent } from "solid-js";
 import { Dynamic, type DynamicProps } from "solid-js/web";
 import { twCva, twCx } from "../utils/twCva";
 
-export const cardClass = twCva(["card"], {
+export const cardClass = twCva("card", {
   defaultVariants: {
     size: "none",
     variant: "none",
   },
   variants: {
     size: {
-      compact: ["card-compact"],
-      none: [],
-      normal: ["card-normal"],
-      side: ["card-side"],
+      compact: "card-compact",
+      none: "",
+      normal: "card-normal",
+      side: "card-side",
     },
     variant: {
       bordered: "card-bordered",
-      none: [],
+      none: "",
     },
   },
 });
@@ -26,8 +26,10 @@ export type CardProps = JSX.HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof cardClass>;
 
 export const Card: Component<CardProps> = (props) => {
-  return <div {...props} class={cardClass({ class: props.class })} />;
+  return <div {...props} class={cardClass({ ...props, class: props.class })} />;
 };
+
+export const cardTitleClass = twCva("card-title");
 
 export type CardTitleProps<T extends ValidComponent> = DynamicProps<T>;
 
@@ -36,21 +38,15 @@ export function CardTitle<T extends ValidComponent>(props: CardTitleProps<T>) {
     <Dynamic
       {...props}
       component={props.component}
-      class={twCx("card-title", props.class)}
+      class={cardTitleClass({ class: props.class })}
     />
   );
 }
 
-export type CardBodyProps<T extends ValidComponent> = DynamicProps<T>;
+export type CardBodyProps = JSX.HTMLAttributes<HTMLDivElement>;
 
-export function CardBody<T extends ValidComponent>(props: CardBodyProps<T>) {
-  return (
-    <Dynamic
-      {...props}
-      component={props.component}
-      class={twCx("card-body", props.class)}
-    />
-  );
+export function CardBody(props: CardBodyProps) {
+  return <div {...props} class={twCx("card-body", props.class)} />;
 }
 
 export type CardActionsProps = JSX.HTMLAttributes<HTMLDivElement>;
