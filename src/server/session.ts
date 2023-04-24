@@ -2,7 +2,7 @@ import { createCookieSessionStorage } from "solid-start";
 import { z } from "zod";
 import { serverEnv } from "./env";
 import type { Fetch } from "./fetcher";
-import { getMyAccount } from "./myAccount";
+import { getCurrentUser } from "./users";
 
 const storage = createCookieSessionStorage({
   cookie: {
@@ -60,9 +60,7 @@ export const setSessionCookie = async ({
 }: SetSessionCookieArgs) => {
   const session = await storage.getSession(request.headers.get("Cookie"));
 
-  const account = await getMyAccount({ fetch, token });
-
-  console.log({ account });
+  await getCurrentUser({ fetch, token });
 
   session.set(tokenKey, token);
 
