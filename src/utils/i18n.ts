@@ -2,6 +2,9 @@ import { createI18nContext } from "@solid-primitives/i18n";
 
 const dict = {
   en: {
+    dashboard: {
+      title: "Time Sheets",
+    },
     footer: {
       madeBy: "Made by wmalarski",
     },
