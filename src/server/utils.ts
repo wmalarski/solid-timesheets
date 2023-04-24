@@ -1,4 +1,4 @@
-import { ServerError } from "solid-start/server";
+import server$, { ServerError, useRequest } from "solid-start/server";
 import type { z } from "zod";
 
 type ZodFormParse<T extends z.ZodTypeAny> = {
@@ -19,6 +19,13 @@ export const zodFormParse = async <T extends z.ZodTypeAny>({
   }
 
   return parsed.data;
+};
+
+export const getEventContext = () => {
+  const event = useRequest();
+  const fetch = server$.fetch || event.fetch;
+  const request = server$.request || event.request;
+  return { fetch, request };
 };
 
 export const formatRequestDate = (date: Date) => {

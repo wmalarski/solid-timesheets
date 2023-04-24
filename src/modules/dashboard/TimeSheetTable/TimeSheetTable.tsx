@@ -1,5 +1,6 @@
 import { createQuery } from "@tanstack/solid-query";
 import { createEffect, createMemo, type Component } from "solid-js";
+import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
@@ -17,9 +18,15 @@ export const TimeSheetTable: Component = () => {
     groupTimeEntries(timeEntriesQuery.data?.time_entries || [])
   );
 
+  const issuesQuery = createQuery(() => ({
+    queryFn: (context) => getIssuesServerQuery(context.queryKey),
+    queryKey: getIssuesKey({}),
+    suspense: true,
+  }));
+
   createEffect(() => {
     console.log("====groups===", groups());
   });
 
-  return <pre>{JSON.stringify(timeEntriesQuery.data, null, 2)}</pre>;
+  return <pre>{JSON.stringify(issuesQuery.data, null, 2)}</pre>;
 };
