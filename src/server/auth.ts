@@ -9,10 +9,14 @@ const signInArgsSchema = z.object({
 });
 
 export const createSignInServerAction = () => {
-  return createServerAction$(async (form: FormData, { request }) => {
+  return createServerAction$(async (form: FormData, { request, fetch }) => {
     const parsed = await zodFormParse({ form, schema: signInArgsSchema });
 
-    const cookie = await setSessionCookie({ request, token: parsed.token });
+    const cookie = await setSessionCookie({
+      fetch,
+      request,
+      token: parsed.token,
+    });
 
     return redirect(paths.timeSheets, { headers: { "Set-Cookie": cookie } });
   });

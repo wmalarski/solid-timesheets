@@ -1,6 +1,8 @@
 import { createCookieSessionStorage } from "solid-start";
 import { z } from "zod";
 import { serverEnv } from "./env";
+import type { Fetch } from "./fetcher";
+import { getMyAccount } from "./myAccount";
 
 const storage = createCookieSessionStorage({
   cookie: {
@@ -46,15 +48,21 @@ export const getSession = (request: Request): Promise<Session | null> => {
 };
 
 type SetSessionCookieArgs = {
-  token: string;
+  fetch: Fetch;
   request: Request;
+  token: string;
 };
 
 export const setSessionCookie = async ({
+  fetch,
   request,
   token,
 }: SetSessionCookieArgs) => {
   const session = await storage.getSession(request.headers.get("Cookie"));
+
+  const account = await getMyAccount({ fetch, token });
+
+  console.log({ account });
 
   session.set(tokenKey, token);
 
