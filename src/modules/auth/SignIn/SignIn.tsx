@@ -1,5 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { Show, type Component } from "solid-js";
+import { Alert, AlertIcon } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import { Card, CardBody, cardTitleClass } from "~/components/Card";
 import {
@@ -21,7 +22,12 @@ export const SignIn: Component = () => {
         <h2 class={cardTitleClass()}>{t("signIn.title")}</h2>
         <Form class="flex flex-col gap-4">
           <Show when={signOut.error}>
-            {(error) => <pre>{JSON.stringify(error(), null, 2)}</pre>}
+            {(error) => (
+              <Alert variant="error">
+                <AlertIcon variant="error" />
+                {error().message}
+              </Alert>
+            )}
           </Show>
           <TextFieldRoot>
             <TextFieldLabel for="token">{t("signIn.label")}</TextFieldLabel>
