@@ -24,12 +24,14 @@ export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
     const parsed = getTimeEntriesArgs.parse(args);
 
-    const event = server$ || useRequest();
+    const event = useRequest();
+    const request = server$.request || event.request;
+    const fetch = server$.fetch || event.fetch;
 
-    const session = await getSessionOrThrow(event.request);
+    const session = await getSessionOrThrow(request);
 
     return jsonFetcher({
-      fetch: event.fetch,
+      fetch,
       path: "/time_entries.json",
       query: {
         from: parsed.from && formatRequestDate(parsed.from),

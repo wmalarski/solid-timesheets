@@ -1,6 +1,7 @@
 import { Suspense } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
+import { TimeSheetTable } from "~/modules/dashboard/TimeSheetTable";
 import { TopBar } from "~/modules/dashboard/TopBar";
 import { getSession } from "~/server/session";
 import { paths } from "~/utils/paths";
@@ -25,6 +26,7 @@ export default function TimeSheets() {
       <TopBar />
       <Suspense>
         <pre>{JSON.stringify(sessionResource(), null, 2)}</pre>
+        <TimeSheetTable />
       </Suspense>
     </main>
   );
