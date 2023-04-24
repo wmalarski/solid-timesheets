@@ -27,9 +27,3 @@ export const getEventContext = () => {
   const request = server$.request || event.request;
   return { fetch, request };
 };
-
-export const formatRequestDate = (date: Date) => {
-  const month = `${date.getMonth()}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day}`;
-};

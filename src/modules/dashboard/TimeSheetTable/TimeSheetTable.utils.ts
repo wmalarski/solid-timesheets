@@ -1,4 +1,5 @@
-import type { Project, TimeEntry } from "~/server/types";
+import type { Issue, Project, TimeEntry } from "~/server/types";
+import { formatRequestDate } from "~/utils/format";
 
 const getOrSetDefault = <K, V>(
   map: Map<K, V>,
@@ -15,8 +16,6 @@ const getOrSetDefault = <K, V>(
 };
 
 export const groupTimeEntries = (entries: TimeEntry[]) => {
-  const projectMap = new Map<number, Project>();
-
   const map = new Map<number, Map<number, Map<string, TimeEntry[]>>>();
   const fallbackProjectMap = () => new Map<number, Map<string, TimeEntry[]>>();
   const fallbackIssueMap = () => new Map<string, TimeEntry[]>();
@@ -27,12 +26,41 @@ export const groupTimeEntries = (entries: TimeEntry[]) => {
     const issue = getOrSetDefault(project, entry.issue.id, fallbackIssueMap);
     const day = getOrSetDefault(issue, entry.spent_on, fallbackDayArray);
 
-    projectMap.set(entry.project.id, entry.project);
     day.push(entry);
   });
 
+  return map;
+};
+
+export const groupIssues = (issues: Issue[]) => {
+  const projectMap = new Map<number, Project>();
+  const map = new Map<number, Issue[]>();
+
+  const fallbackArray = () => new Array<Issue>();
+
+  issues.forEach((issue) => {
+    const project = getOrSetDefault(map, issue.project.id, fallbackArray);
+
+    projectMap.set(issue.project.id, issue.project);
+    project.push(issue);
+  });
+
   return Array.from(projectMap.values()).map((project) => ({
-    issues: map.get(project.id) || fallbackProjectMap(),
+    issues: map.get(project.id) || [],
     project,
   }));
+};
+
+export const getDaysInMonth = (start: Date) => {
+  const date = new Date(start);
+  date.setUTCMonth(date.getUTCMonth() + 1);
+  date.setUTCDate(0);
+
+  return Array(date.getUTCDate())
+    .fill(0)
+    .map((_, index) => {
+      const entry = new Date(start);
+      entry.setUTCDate(index + 1);
+      return formatRequestDate(entry);
+    });
 };

@@ -1,9 +1,10 @@
 import server$ from "solid-start/server";
 import { z } from "zod";
+import { formatRequestDate } from "~/utils/format";
 import { jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
-import { formatRequestDate, getEventContext } from "./utils";
+import { getEventContext } from "./utils";
 
 const getTimeEntriesArgs = z.object({
   from: z.coerce.date().optional(),

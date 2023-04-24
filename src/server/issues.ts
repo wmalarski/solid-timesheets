@@ -2,7 +2,7 @@ import server$ from "solid-start/server";
 import { z } from "zod";
 import { jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
-import type { TimeEntry } from "./types";
+import type { Issue } from "./types";
 import { getEventContext } from "./utils";
 
 const getIssuesArgs = z.object({
@@ -16,7 +16,7 @@ const getIssuesArgs = z.object({
 });
 
 export type GetIssuesResult = {
-  time_entries: TimeEntry[];
+  issues: Issue[];
   total_count: number;
   offset: number;
   limit: number;

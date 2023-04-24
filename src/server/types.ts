@@ -20,7 +20,7 @@ export type Project = {
   name: string;
 };
 
-export type Issue = {
+export type TimeEntryIssue = {
   id: number;
 };
 
@@ -41,9 +41,57 @@ export type TimeEntry = {
   custom_fields: CustomField[];
   hours: number;
   id: number;
-  issue: Issue;
+  issue: TimeEntryIssue;
   project: Project;
   spent_on: string;
   updated_on: string;
   user: TimeEntryUser;
+};
+
+export type Tracker = {
+  id: number;
+  name: string;
+};
+
+export type Status = {
+  id: number;
+  name: string;
+};
+
+export type Priority = {
+  id: number;
+  name: string;
+};
+
+export type Author = {
+  id: number;
+  name: string;
+};
+
+export type AssignedTo = {
+  id: number;
+  name: string;
+};
+
+export type FixedVersion = {
+  id: number;
+  name: string;
+};
+
+export type Issue = {
+  id: number;
+  project: Project;
+  tracker: Tracker;
+  status: Status;
+  priority: Priority;
+  author: Author;
+  assigned_to: AssignedTo;
+  subject: string;
+  description?: string;
+  start_date?: string;
+  done_ratio: number;
+  custom_fields: CustomField[];
+  created_on: string;
+  updated_on: string;
+  fixed_version?: FixedVersion;
 };
