@@ -50,7 +50,16 @@ export const fetcher = async ({
 };
 
 export const jsonFetcher = async <T>(args: FetcherArgs): Promise<T> => {
-  const response = await fetcher(args);
+  const response = await fetcher({
+    ...args,
+    init: {
+      ...args.init,
+      headers: {
+        ...args.init?.headers,
+        "Content-Type": "application/json",
+      },
+    },
+  });
 
   return response.json();
 };

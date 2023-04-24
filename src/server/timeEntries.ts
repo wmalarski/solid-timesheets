@@ -5,11 +5,11 @@ import { getSessionOrThrow } from "./session";
 import { formatRequestDate } from "./utils";
 
 const getTimeEntriesArgs = z.object({
-  from: z.date().optional(),
-  limit: z.number().optional(),
-  offset: z.number().optional(),
-  projectId: z.number().optional(),
-  to: z.date().optional(),
+  from: z.coerce.date().optional(),
+  limit: z.coerce.number().optional(),
+  offset: z.coerce.number().optional(),
+  projectId: z.coerce.number().optional(),
+  to: z.coerce.date().optional(),
 });
 
 export const getTimeEntriesKey = (args: z.infer<typeof getTimeEntriesArgs>) => {
@@ -44,74 +44,85 @@ export const getTimeEntriesServerQuery = server$(
   }
 );
 
-/*
-const invoiceSchema = z.object({
-  buyer_address_1: z.string(),
-  buyer_address_2: z.string(),
-  buyer_name: z.string(),
-  buyer_nip: z.string(),
-  city: z.string(),
-  date: z.coerce.date(),
-  invoice_title: z.string(),
-  notes: z.string(),
-  payment_account: z.string(),
-  payment_bank: z.string(),
-  payment_method: z.string(),
-  seller_address1: z.string(),
-  seller_address2: z.string(),
-  seller_name: z.string(),
-  seller_nip: z.string(),
-  service_count: z.coerce.number().min(0),
-  service_payed: z.coerce.number().min(0),
-  service_price: z.coerce.number().min(0),
-  service_title: z.string(),
-  service_unit: z.string(),
+export const createTimeEntryArgs = z.object({
+  activityId: z.coerce.number().optional(),
+  comments: z.string().max(255).optional().default(""),
+  hours: z.coerce.number(),
+  issueId: z.coerce.number(),
+  spentOn: z.coerce.date().optional(),
+  userId: z.coerce.number().optional(),
 });
 
-const updateInvoiceArgs = z.intersection(
-  invoiceSchema.partial(),
+export const createTimeEntryServerMutation = server$(
+  async (data: z.infer<typeof createTimeEntryArgs>) => {
+    const parsed = createTimeEntryArgs.parse(data);
+
+    const session = await getSessionOrThrow(server$.request);
+
+    return jsonFetcher({
+      fetch: server$.fetch,
+      init: {
+        body: JSON.stringify({
+          activity_id: parsed.activityId,
+          comments: parsed.comments,
+          hours: parsed.hours,
+          issue_id: parsed.issueId,
+          spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
+          user_id: parsed.userId,
+        }),
+        method: "POST",
+      },
+      path: "/time_entries.json",
+      token: session.token,
+    });
+  }
+);
+
+export const updateTimeEntryArgs = z.intersection(
+  createTimeEntryArgs.partial(),
   z.object({ id: z.string() })
 );
 
-export const updateInvoiceServerMutation = server$(
-  async (data: z.infer<typeof updateInvoiceArgs>) => {
-    const parsed = updateInvoiceArgs.parse(data);
+export const updateTimeEntryServerMutation = server$(
+  async (data: z.infer<typeof updateTimeEntryArgs>) => {
+    const parsed = updateTimeEntryArgs.parse(data);
 
-    const user = await getUser(server$.request);
+    const session = await getSessionOrThrow(server$.request);
 
-    await updateInvoice({
-      change: parsed,
-      id: parsed.id,
-      userId: user.id,
+    return jsonFetcher({
+      fetch: server$.fetch,
+      init: {
+        body: JSON.stringify({
+          activity_id: parsed.activityId,
+          comments: parsed.comments,
+          hours: parsed.hours,
+          issue_id: parsed.issueId,
+          spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
+          user_id: parsed.userId,
+        }),
+        method: "PUT",
+      },
+      path: `/time_entries/${parsed.id}.json`,
+      token: session.token,
     });
-
-    return parsed;
   }
 );
 
-export const insertInvoiceServerMutation = server$(
-  async (data: z.infer<typeof invoiceSchema>) => {
-    const parsed = invoiceSchema.parse(data);
+const deleteTimeEntryArgs = z.object({
+  id: z.string(),
+});
 
-    const user = await getUser(server$.request);
+export const deleteTimeEntryServerMutation = server$(
+  async (data: z.infer<typeof deleteTimeEntryArgs>) => {
+    const parsed = deleteTimeEntryArgs.parse(data);
 
-    const invoice = await insertInvoice({ ...parsed, userId: user.id });
+    const session = await getSessionOrThrow(server$.request);
 
-    return invoice;
+    return jsonFetcher({
+      fetch: server$.fetch,
+      init: { method: "DELETE" },
+      path: `/time_entries/${parsed.id}.json`,
+      token: session.token,
+    });
   }
 );
-
-const deleteSchemaArgs = z.object({ id: z.string() });
-
-export const deleteInvoiceServerMutation = server$(
-  async (data: z.infer<typeof deleteSchemaArgs>) => {
-    const parsed = deleteSchemaArgs.parse(data);
-
-    const user = await getUser(server$.request);
-
-    await deleteInvoice({ id: parsed.id, userId: user.id });
-
-    return parsed.id;
-  }
-);
-*/
