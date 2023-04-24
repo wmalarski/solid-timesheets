@@ -2,6 +2,7 @@ import server$, { useRequest } from "solid-start/server";
 import { z } from "zod";
 import { jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
+import type { TimeEntry } from "./types";
 import { formatRequestDate } from "./utils";
 
 const getTimeEntriesArgs = z.object({
@@ -11,6 +12,13 @@ const getTimeEntriesArgs = z.object({
   projectId: z.coerce.number().optional(),
   to: z.coerce.date().optional(),
 });
+
+export type GetTimeEntriesResult = {
+  time_entries: TimeEntry[];
+  total_count: number;
+  offset: number;
+  limit: number;
+};
 
 export const getTimeEntriesKey = (args: z.infer<typeof getTimeEntriesArgs>) => {
   return ["getTimeEntries", args] as const;
@@ -30,7 +38,7 @@ export const getTimeEntriesServerQuery = server$(
 
     const session = await getSessionOrThrow(request);
 
-    return jsonFetcher({
+    return jsonFetcher<GetTimeEntriesResult>({
       fetch,
       path: "/time_entries.json",
       query: {

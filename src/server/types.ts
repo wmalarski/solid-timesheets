@@ -14,3 +14,36 @@ export type User = {
   lastname: string;
   login: string;
 };
+
+export type Project = {
+  id: number;
+  name: string;
+};
+
+export type Issue = {
+  id: number;
+};
+
+export type TimeEntryUser = {
+  id: number;
+  name: string;
+};
+
+export type Activity = {
+  id: number;
+  name: string;
+};
+
+export type TimeEntry = {
+  activity: Activity;
+  comments: string;
+  created_on: string;
+  custom_fields: CustomField[];
+  hours: number;
+  id: number;
+  issue: Issue;
+  project: Project;
+  spent_on: string;
+  updated_on: string;
+  user: TimeEntryUser;
+};
