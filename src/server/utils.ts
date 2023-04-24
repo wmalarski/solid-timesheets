@@ -20,3 +20,9 @@ export const zodFormParse = async <T extends z.ZodTypeAny>({
 
   return parsed.data;
 };
+
+export const formatRequestDate = (date: Date) => {
+  const month = `${date.getMonth()}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+};

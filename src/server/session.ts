@@ -17,20 +17,27 @@ const storage = createCookieSessionStorage({
 });
 
 const tokenKey = "token";
+const idKey = "id";
 
-export type Session = {
-  token: string;
-};
+const sessionSchema = z.object({
+  [idKey]: z.coerce.number(),
+  [tokenKey]: z.string(),
+});
+
+export type Session = z.infer<typeof sessionSchema>;
 
 const getSessionFromCookie = async (
   request: Request
 ): Promise<Session | null> => {
   const session = await storage.getSession(request.headers.get("Cookie"));
 
-  const parsed = z.string().safeParse(session.get(tokenKey));
+  const parsed = sessionSchema.safeParse({
+    [idKey]: session.get(idKey),
+    [tokenKey]: session.get(tokenKey),
+  });
 
   if (parsed.success) {
-    return { token: parsed.data };
+    return parsed.data;
   }
 
   return null;
@@ -47,6 +54,16 @@ export const getSession = (request: Request): Promise<Session | null> => {
   return unsafeRequest?.sessionPromise;
 };
 
+export const getSessionOrThrow = async (request: Request): Promise<Session> => {
+  const session = await getSession(request);
+
+  if (!session) {
+    throw { code: 401, message: "Unauthorized" };
+  }
+
+  return session;
+};
+
 type SetSessionCookieArgs = {
   fetch: Fetch;
   request: Request;
@@ -60,9 +77,10 @@ export const setSessionCookie = async ({
 }: SetSessionCookieArgs) => {
   const session = await storage.getSession(request.headers.get("Cookie"));
 
-  await getCurrentUser({ fetch, token });
+  const data = await getCurrentUser({ fetch, token });
 
   session.set(tokenKey, token);
+  session.set(idKey, data.user.id);
 
   return storage.commitSession(session);
 };

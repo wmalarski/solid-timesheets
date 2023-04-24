@@ -1,0 +1,117 @@
+import server$, { useRequest } from "solid-start/server";
+import { z } from "zod";
+import { jsonFetcher } from "./fetcher";
+import { getSessionOrThrow } from "./session";
+import { formatRequestDate } from "./utils";
+
+const getTimeEntriesArgs = z.object({
+  from: z.date().optional(),
+  limit: z.number().optional(),
+  offset: z.number().optional(),
+  projectId: z.number().optional(),
+  to: z.date().optional(),
+});
+
+export const getTimeEntriesKey = (args: z.infer<typeof getTimeEntriesArgs>) => {
+  return ["getTimeEntries", args] as const;
+};
+
+export const getAllTimeEntriesKey = () => {
+  return ["getTimeEntries"] as const;
+};
+
+export const getTimeEntriesServerQuery = server$(
+  async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
+    const parsed = getTimeEntriesArgs.parse(args);
+
+    const event = server$ || useRequest();
+
+    const session = await getSessionOrThrow(event.request);
+
+    return jsonFetcher({
+      fetch: event.fetch,
+      path: "/time_entries.json",
+      query: {
+        from: parsed.from && formatRequestDate(parsed.from),
+        limit: parsed.limit,
+        offset: parsed.offset,
+        project_id: parsed.projectId,
+        to: parsed.to && formatRequestDate(parsed.to),
+        user_id: session.id,
+      },
+      token: session.token,
+    });
+  }
+);
+
+/*
+const invoiceSchema = z.object({
+  buyer_address_1: z.string(),
+  buyer_address_2: z.string(),
+  buyer_name: z.string(),
+  buyer_nip: z.string(),
+  city: z.string(),
+  date: z.coerce.date(),
+  invoice_title: z.string(),
+  notes: z.string(),
+  payment_account: z.string(),
+  payment_bank: z.string(),
+  payment_method: z.string(),
+  seller_address1: z.string(),
+  seller_address2: z.string(),
+  seller_name: z.string(),
+  seller_nip: z.string(),
+  service_count: z.coerce.number().min(0),
+  service_payed: z.coerce.number().min(0),
+  service_price: z.coerce.number().min(0),
+  service_title: z.string(),
+  service_unit: z.string(),
+});
+
+const updateInvoiceArgs = z.intersection(
+  invoiceSchema.partial(),
+  z.object({ id: z.string() })
+);
+
+export const updateInvoiceServerMutation = server$(
+  async (data: z.infer<typeof updateInvoiceArgs>) => {
+    const parsed = updateInvoiceArgs.parse(data);
+
+    const user = await getUser(server$.request);
+
+    await updateInvoice({
+      change: parsed,
+      id: parsed.id,
+      userId: user.id,
+    });
+
+    return parsed;
+  }
+);
+
+export const insertInvoiceServerMutation = server$(
+  async (data: z.infer<typeof invoiceSchema>) => {
+    const parsed = invoiceSchema.parse(data);
+
+    const user = await getUser(server$.request);
+
+    const invoice = await insertInvoice({ ...parsed, userId: user.id });
+
+    return invoice;
+  }
+);
+
+const deleteSchemaArgs = z.object({ id: z.string() });
+
+export const deleteInvoiceServerMutation = server$(
+  async (data: z.infer<typeof deleteSchemaArgs>) => {
+    const parsed = deleteSchemaArgs.parse(data);
+
+    const user = await getUser(server$.request);
+
+    await deleteInvoice({ id: parsed.id, userId: user.id });
+
+    return parsed.id;
+  }
+);
+*/
