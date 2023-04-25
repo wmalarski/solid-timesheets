@@ -1,6 +1,13 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { createQuery } from "@tanstack/solid-query";
-import { For, Suspense, createMemo, type Component, type JSX } from "solid-js";
+import {
+  For,
+  Show,
+  Suspense,
+  createMemo,
+  type Component,
+  type JSX,
+} from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
@@ -85,8 +92,10 @@ const Row: Component<RowProps> = (props) => {
 
 type RowsGroupProps = {
   days: Date[];
+  isHidden: boolean;
   issueDayMap?: Map<number, Map<string, TimeEntry[]>>;
   issues: Issue[];
+  onToggle: () => void;
   project: Project;
 };
 
@@ -99,16 +108,19 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
       >
         <Badge variant="outline">{props.project.id}</Badge>
         <span>{props.project.name}</span>
+        <Button onClick={props.onToggle}>Toggle</Button>
       </TableCell>
-      <For each={props.issues}>
-        {(issue) => (
-          <Row
-            dayEntryMap={props.issueDayMap?.get(issue.id)}
-            days={props.days}
-            issue={issue}
-          />
-        )}
-      </For>
+      <Show when={!props.isHidden}>
+        <For each={props.issues}>
+          {(issue) => (
+            <Row
+              dayEntryMap={props.issueDayMap?.get(issue.id)}
+              days={props.days}
+              issue={issue}
+            />
+          )}
+        </For>
+      </Show>
     </>
   );
 };
@@ -145,19 +157,28 @@ const Header: Component<HeaderProps> = (props) => {
 
 type GridProps = {
   days: Date[];
+  hidden: number[];
   groups: ReturnType<typeof groupIssues>;
+  onProjectToggle: (projectId: number) => void;
   projectIssuesMap?: ReturnType<typeof groupTimeEntries>;
 };
 
 const Grid: Component<GridProps> = (props) => {
+  const onToggleFactory = (projectId: number) => {
+    const toggle = props.onProjectToggle;
+    return () => toggle(projectId);
+  };
+
   return (
     <For each={props.groups}>
       {(projectGroup) => (
         <RowsGroup
           days={props.days}
-          issues={projectGroup.issues}
-          project={projectGroup.project}
+          isHidden={props.hidden.includes(projectGroup.project.id)}
           issueDayMap={props.projectIssuesMap?.get(projectGroup.project.id)}
+          issues={projectGroup.issues}
+          onToggle={onToggleFactory(projectGroup.project.id)}
+          project={projectGroup.project}
         />
       )}
     </For>
@@ -167,7 +188,9 @@ const Grid: Component<GridProps> = (props) => {
 type TimeSheetGridProps = {
   args: GetTimeEntriesArgs;
   days: Date[];
+  hidden: number[];
   groups: ReturnType<typeof groupIssues>;
+  onProjectToggle: (projectId: number) => void;
 };
 
 const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
@@ -183,14 +206,17 @@ const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
   return (
     <Grid
       days={props.days}
+      hidden={props.hidden}
       groups={props.groups}
+      onProjectToggle={props.onProjectToggle}
       projectIssuesMap={timeEntryGroups()}
     />
   );
 };
 
 export const TimeSheetTable: Component = () => {
-  const { params, setNextMonth, setPreviousMonth } = useTimeSheetSearchParams();
+  const { params, setNextMonth, setPreviousMonth, toggleProject } =
+    useTimeSheetSearchParams();
 
   const timeEntriesArgs = () => {
     const from = params().date;
@@ -228,11 +254,22 @@ export const TimeSheetTable: Component = () => {
         }}
       >
         <Header days={days()} />
-        <Suspense fallback={<Grid days={days()} groups={projectGroups()} />}>
+        <Suspense
+          fallback={
+            <Grid
+              days={days()}
+              hidden={params().hidden}
+              groups={projectGroups()}
+              onProjectToggle={toggleProject}
+            />
+          }
+        >
           <TimeSheetGrid
             args={timeEntriesArgs()}
             days={days()}
+            hidden={params().hidden}
             groups={projectGroups()}
+            onProjectToggle={toggleProject}
           />
         </Suspense>
       </div>

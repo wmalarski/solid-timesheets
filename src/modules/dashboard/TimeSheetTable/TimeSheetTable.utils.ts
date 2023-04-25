@@ -73,7 +73,7 @@ defaultDate.setUTCDate(1);
 
 const paramsSchema = z.object({
   date: z.coerce.date().default(defaultDate),
-  expanded: z
+  hidden: z
     .string()
     .regex(/^(\d{1,},?)*$/)
     .default("")
@@ -87,7 +87,7 @@ const paramsSchema = z.object({
 
 const defaultParams: Required<z.infer<typeof paramsSchema>> = {
   date: defaultDate,
-  expanded: [],
+  hidden: [],
 };
 
 export const useTimeSheetSearchParams = () => {
@@ -96,7 +96,7 @@ export const useTimeSheetSearchParams = () => {
   const params = createMemo(() => {
     const parsed = paramsSchema.safeParse({
       date: searchParams.date,
-      expanded: searchParams.expanded,
+      hidden: searchParams.hidden,
     });
     return parsed.success ? parsed.data : defaultParams;
   });
@@ -104,16 +104,24 @@ export const useTimeSheetSearchParams = () => {
   const hideProject = (projectId: number) => {
     const current = params();
     setSearchParams({
-      expanded:
-        current.expanded &&
-        current.expanded.filter((id) => id !== projectId).join(","),
+      hidden: current.hidden.filter((id) => id !== projectId).join(","),
     });
   };
 
   const showProject = (projectId: number) => {
     const current = params();
     setSearchParams({
-      expanded: [...(current.expanded || []), projectId].join(","),
+      hidden: [...current.hidden, projectId].join(","),
+    });
+  };
+
+  const toggleProject = (projectId: number) => {
+    const current = params();
+    const hasProjectId = current.hidden.includes(projectId);
+    setSearchParams({
+      hidden: hasProjectId
+        ? current.hidden.filter((id) => id !== projectId).join(",")
+        : [...current.hidden, projectId].join(","),
     });
   };
 
@@ -142,5 +150,6 @@ export const useTimeSheetSearchParams = () => {
     setNextMonth,
     setPreviousMonth,
     showProject,
+    toggleProject,
   };
 };
