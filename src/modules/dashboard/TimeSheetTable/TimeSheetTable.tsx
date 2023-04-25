@@ -1,6 +1,7 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { createQuery } from "@tanstack/solid-query";
 import { For, createMemo, type Component, type JSX } from "solid-js";
+import { Badge } from "~/components/Badge";
 import { Card, CardBody } from "~/components/Card";
 import { twCx } from "~/components/utils/twCva";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
@@ -35,7 +36,7 @@ const TimeSheetCellCard: Component<TimeSheetCellCardProps> = (props) => {
   return (
     <Card variant="bordered" size="compact">
       <CardBody>
-        <span>{props.entry.id}</span>
+        <Badge variant="outline">{props.entry.id}</Badge>
         <span>{props.entry.comments}</span>
         <span>{props.entry.hours}</span>
       </CardBody>
@@ -67,7 +68,7 @@ export const TimeSheetRow: Component<TimeSheetRowProps> = (props) => {
   return (
     <>
       <TableCell class="flex w-60 flex-col gap-2 overflow-hidden p-2">
-        <span>{props.issue.id}</span>
+        <Badge variant="outline">{props.issue.id}</Badge>
         <span>{props.issue.subject}</span>
       </TableCell>
       <For each={props.days}>
@@ -94,10 +95,10 @@ export const TimeSheetRowsGroup: Component<TimeSheetRowsGroupProps> = (
   return (
     <>
       <TableCell
-        class="p-1 text-xl"
+        class="flex items-center gap-2 p-2 text-xl"
         style={{ "grid-column": `1 / span ${props.days.length + 1}` }}
       >
-        <span>{props.project.id}</span>
+        <Badge variant="outline">{props.project.id}</Badge>
         <span>{props.project.name}</span>
       </TableCell>
       <For each={props.issues}>
