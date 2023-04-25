@@ -1,7 +1,8 @@
-import { createEffect, createMemo } from "solid-js";
+import { createMemo } from "solid-js";
 import { useSearchParams } from "solid-start";
 import { z } from "zod";
 import type { Issue, Project, TimeEntry } from "~/server/types";
+import { formatRequestDate } from "~/utils/format";
 
 const getOrSetDefault = <K, V>(
   map: Map<K, V>,
@@ -55,7 +56,7 @@ export const groupIssues = (issues: Issue[]) => {
 
 export const getDaysInMonth = (start: Date) => {
   const date = new Date(start);
-  date.setMonth(date.getMonth() + 1);
+  date.setUTCMonth(date.getUTCMonth() + 1);
   date.setUTCDate(0);
 
   return Array(date.getUTCDate())
@@ -67,53 +68,37 @@ export const getDaysInMonth = (start: Date) => {
     });
 };
 
-const formatDateToSearch = (date: Date) => {
-  return `${date.getFullYear()}-${date.getMonth() + 1}`;
-};
-
 const defaultDate = new Date();
-const defaultMonth = formatDateToSearch(defaultDate);
+defaultDate.setUTCDate(1);
 
 const paramsSchema = z.object({
+  date: z.coerce.date().default(defaultDate),
   expanded: z
     .string()
-    .regex(/^(\d{1,},?)+$/)
-    .optional()
-    .transform((arg) => arg?.split(",").map((entry) => +entry)),
-  month: z
-    .string()
-    .regex(/^\d{4}-\d{1,2}$/)
-    .optional()
-    .default(defaultMonth)
-    .transform((arg) => {
-      const [year, month] = arg.split("-");
-      return new Date(+year, +month - 1);
-    }),
+    .regex(/^(\d{1,},?)*$/)
+    .default("")
+    .transform((arg) =>
+      arg
+        .split(",")
+        .filter((entry) => entry.length > 0)
+        .map((entry) => +entry)
+    ),
 });
+
+const defaultParams: Required<z.infer<typeof paramsSchema>> = {
+  date: defaultDate,
+  expanded: [],
+};
 
 export const useTimeSheetSearchParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  createEffect(() => {
-    console.log({ searchParams });
-  });
-
-  createEffect(() => {
-    console.log({
-      expanded: searchParams.expanded,
-      month: searchParams.month,
-    });
-  });
-
   const params = createMemo(() => {
     const parsed = paramsSchema.safeParse({
+      date: searchParams.date,
       expanded: searchParams.expanded,
-      month: searchParams.month,
     });
-
-    console.log({ parsed });
-
-    return parsed.success ? parsed.data : { expanded: [], month: defaultDate };
+    return parsed.success ? parsed.data : defaultParams;
   });
 
   const hideProject = (projectId: number) => {
@@ -133,22 +118,20 @@ export const useTimeSheetSearchParams = () => {
   };
 
   const setMonth = (date: Date) => {
-    const month = formatDateToSearch(date);
-    console.log("setMonth", date, month);
-    setSearchParams({ month });
+    setSearchParams({ date: formatRequestDate(date) });
   };
 
   const setPreviousMonth = () => {
     const current = params();
-    const date = new Date(current.month);
-    date.setMonth(date.getMonth() - 1);
+    const date = new Date(current.date || defaultDate);
+    date.setUTCMonth(date.getUTCMonth() - 1);
     setMonth(date);
   };
 
   const setNextMonth = () => {
     const current = params();
-    const date = new Date(current.month);
-    date.setMonth(date.getMonth() + 1);
+    const date = new Date(current.date || defaultDate);
+    date.setUTCMonth(date.getUTCMonth() + 1);
     setMonth(date);
   };
 

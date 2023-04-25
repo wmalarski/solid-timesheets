@@ -1,12 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { createQuery } from "@tanstack/solid-query";
-import {
-  For,
-  createEffect,
-  createMemo,
-  type Component,
-  type JSX,
-} from "solid-js";
+import { For, Suspense, createMemo, type Component, type JSX } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
@@ -155,13 +149,16 @@ const TimeSheetHeader: Component<TimeSheetHeaderProps> = (props) => {
 export const TimeSheetTable: Component = () => {
   const { params, setNextMonth, setPreviousMonth } = useTimeSheetSearchParams();
 
-  createEffect(() => {
-    console.log({ params: params() });
-  });
+  const timeEntriesArgs = () => {
+    const from = params().date;
+    const to = new Date(from);
+    to.setUTCMonth(to.getUTCMonth() + 1);
+    return { from, limit: 100, to };
+  };
 
   const timeEntriesQuery = createQuery(() => ({
     queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
-    queryKey: getTimeEntriesKey({}),
+    queryKey: getTimeEntriesKey({ ...timeEntriesArgs() }),
     suspense: true,
   }));
 
@@ -183,31 +180,36 @@ export const TimeSheetTable: Component = () => {
     groupIssues(issuesQuery.data?.issues || [])
   );
 
-  const days = createMemo(() => getDaysInMonth(new Date()));
+  const days = createMemo(() => getDaysInMonth(params().date));
 
   return (
     <div class="flex flex-col">
       <div>
         <Button onClick={setPreviousMonth}>-</Button>
-        <pre>{JSON.stringify(params(), null, 2)}</pre>
+        {/* <pre>{JSON.stringify(params(), null, 2)}</pre> */}
+        <span>{formatRequestDate(params().date)}</span>
         <Button onClick={setNextMonth}>+</Button>
       </div>
-      <div
-        class="grid"
-        style={{ "grid-template-columns": `repeat(${days().length + 1}, 1fr)` }}
-      >
-        <TimeSheetHeader days={days()} />
-        <For each={projectGroups()}>
-          {(projectGroup) => (
-            <TimeSheetRowsGroup
-              days={days()}
-              issues={projectGroup.issues}
-              project={projectGroup.project}
-              issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
-            />
-          )}
-        </For>
-      </div>
+      <Suspense>
+        <div
+          class="grid"
+          style={{
+            "grid-template-columns": `repeat(${days().length + 1}, 1fr)`,
+          }}
+        >
+          <TimeSheetHeader days={days()} />
+          <For each={projectGroups()}>
+            {(projectGroup) => (
+              <TimeSheetRowsGroup
+                days={days()}
+                issues={projectGroup.issues}
+                project={projectGroup.project}
+                issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
+              />
+            )}
+          </For>
+        </div>
+      </Suspense>
     </div>
   );
 };
