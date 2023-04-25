@@ -1,5 +1,4 @@
 import type { Issue, Project, TimeEntry } from "~/server/types";
-import { formatRequestDate } from "~/utils/format";
 
 const getOrSetDefault = <K, V>(
   map: Map<K, V>,
@@ -61,6 +60,6 @@ export const getDaysInMonth = (start: Date) => {
     .map((_, index) => {
       const entry = new Date(start);
       entry.setUTCDate(index + 1);
-      return formatRequestDate(entry);
+      return entry;
     });
 };
