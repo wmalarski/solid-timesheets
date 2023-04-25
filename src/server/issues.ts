@@ -37,13 +37,6 @@ export const getIssuesServerQuery = server$(
     const fetch = server$.fetch || event.fetch;
     const request = server$.request || event.request;
 
-    console.log("issues", {
-      ef: Boolean(event.fetch),
-      er: Boolean(event.request),
-      sf: Boolean(server$.fetch),
-      sr: Boolean(server$.request),
-    });
-
     const session = await getSessionOrThrow(request);
 
     return jsonFetcher<GetIssuesResult>({

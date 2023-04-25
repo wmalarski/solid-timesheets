@@ -5,13 +5,15 @@ import { jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
 
-const getTimeEntriesArgs = z.object({
+export const getTimeEntriesArgs = z.object({
   from: z.coerce.date().optional(),
   limit: z.coerce.number().optional(),
   offset: z.coerce.number().optional(),
   projectId: z.coerce.number().optional(),
   to: z.coerce.date().optional(),
 });
+
+export type GetTimeEntriesArgs = z.infer<typeof getTimeEntriesArgs>;
 
 export type GetTimeEntriesResult = {
   time_entries: TimeEntry[];
@@ -20,7 +22,7 @@ export type GetTimeEntriesResult = {
   limit: number;
 };
 
-export const getTimeEntriesKey = (args: z.infer<typeof getTimeEntriesArgs>) => {
+export const getTimeEntriesKey = (args: GetTimeEntriesArgs) => {
   return ["getTimeEntries", args] as const;
 };
 
@@ -35,13 +37,6 @@ export const getTimeEntriesServerQuery = server$(
     const event = useRequest();
     const fetch = server$.fetch || event.fetch;
     const request = server$.request || event.request;
-
-    console.log("issues", {
-      ef: Boolean(event.fetch),
-      er: Boolean(event.request),
-      sf: Boolean(server$.fetch),
-      sr: Boolean(server$.request),
-    });
 
     const session = await getSessionOrThrow(request);
 

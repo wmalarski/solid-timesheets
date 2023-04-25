@@ -9,6 +9,7 @@ import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
+  type GetTimeEntriesArgs,
 } from "~/server/timeEntries";
 import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
@@ -30,11 +31,11 @@ const TableCell: Component<TableCellProps> = (props) => {
   );
 };
 
-type TimeSheetCellCardProps = {
+type TimeEntryCardProps = {
   entry: TimeEntry;
 };
 
-const TimeSheetCellCard: Component<TimeSheetCellCardProps> = (props) => {
+const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
   return (
     <Card variant="bordered" size="compact">
       <CardBody>
@@ -46,27 +47,27 @@ const TimeSheetCellCard: Component<TimeSheetCellCardProps> = (props) => {
   );
 };
 
-type TimeSheetCellProps = {
+type CellProps = {
   entries?: TimeEntry[];
 };
 
-const TimeSheetCell: Component<TimeSheetCellProps> = (props) => {
+const Cell: Component<CellProps> = (props) => {
   return (
     <TableCell class="flex flex-col gap-2 p-2">
       <For each={props.entries}>
-        {(entry) => <TimeSheetCellCard entry={entry} />}
+        {(entry) => <TimeEntryCard entry={entry} />}
       </For>
     </TableCell>
   );
 };
 
-type TimeSheetRowProps = {
+type RowProps = {
   dayEntryMap?: Map<string, TimeEntry[]>;
   days: Date[];
   issue: Issue;
 };
 
-export const TimeSheetRow: Component<TimeSheetRowProps> = (props) => {
+const Row: Component<RowProps> = (props) => {
   return (
     <>
       <TableCell class="flex w-60 flex-col gap-2 overflow-hidden p-2">
@@ -75,25 +76,21 @@ export const TimeSheetRow: Component<TimeSheetRowProps> = (props) => {
       </TableCell>
       <For each={props.days}>
         {(day) => (
-          <TimeSheetCell
-            entries={props.dayEntryMap?.get(formatRequestDate(day))}
-          />
+          <Cell entries={props.dayEntryMap?.get(formatRequestDate(day))} />
         )}
       </For>
     </>
   );
 };
 
-type TimeSheetRowsGroupProps = {
+type RowsGroupProps = {
   days: Date[];
   issueDayMap?: Map<number, Map<string, TimeEntry[]>>;
   issues: Issue[];
   project: Project;
 };
 
-export const TimeSheetRowsGroup: Component<TimeSheetRowsGroupProps> = (
-  props
-) => {
+const RowsGroup: Component<RowsGroupProps> = (props) => {
   return (
     <>
       <TableCell
@@ -105,7 +102,7 @@ export const TimeSheetRowsGroup: Component<TimeSheetRowsGroupProps> = (
       </TableCell>
       <For each={props.issues}>
         {(issue) => (
-          <TimeSheetRow
+          <Row
             dayEntryMap={props.issueDayMap?.get(issue.id)}
             days={props.days}
             issue={issue}
@@ -116,11 +113,11 @@ export const TimeSheetRowsGroup: Component<TimeSheetRowsGroupProps> = (
   );
 };
 
-type TimeSheetHeaderProps = {
+type HeaderProps = {
   days: Date[];
 };
 
-const TimeSheetHeader: Component<TimeSheetHeaderProps> = (props) => {
+const Header: Component<HeaderProps> = (props) => {
   const [, { locale }] = useI18n();
 
   const dayFormat = createMemo(() => {
@@ -146,6 +143,52 @@ const TimeSheetHeader: Component<TimeSheetHeaderProps> = (props) => {
   );
 };
 
+type GridProps = {
+  days: Date[];
+  groups: ReturnType<typeof groupIssues>;
+  projectIssuesMap?: ReturnType<typeof groupTimeEntries>;
+};
+
+const Grid: Component<GridProps> = (props) => {
+  return (
+    <For each={props.groups}>
+      {(projectGroup) => (
+        <RowsGroup
+          days={props.days}
+          issues={projectGroup.issues}
+          project={projectGroup.project}
+          issueDayMap={props.projectIssuesMap?.get(projectGroup.project.id)}
+        />
+      )}
+    </For>
+  );
+};
+
+type TimeSheetGridProps = {
+  args: GetTimeEntriesArgs;
+  days: Date[];
+  groups: ReturnType<typeof groupIssues>;
+};
+
+const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
+  const timeEntriesQuery = createQuery(() => ({
+    queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
+    queryKey: getTimeEntriesKey(props.args),
+  }));
+
+  const timeEntryGroups = createMemo(() =>
+    groupTimeEntries(timeEntriesQuery.data?.time_entries || [])
+  );
+
+  return (
+    <Grid
+      days={props.days}
+      groups={props.groups}
+      projectIssuesMap={timeEntryGroups()}
+    />
+  );
+};
+
 export const TimeSheetTable: Component = () => {
   const { params, setNextMonth, setPreviousMonth } = useTimeSheetSearchParams();
 
@@ -156,16 +199,6 @@ export const TimeSheetTable: Component = () => {
     return { from, limit: 100, to };
   };
 
-  const timeEntriesQuery = createQuery(() => ({
-    queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
-    queryKey: getTimeEntriesKey({ ...timeEntriesArgs() }),
-    suspense: true,
-  }));
-
-  const timeEntryGroups = createMemo(() =>
-    groupTimeEntries(timeEntriesQuery.data?.time_entries || [])
-  );
-
   const issuesQuery = createQuery(() => ({
     queryFn: (context) => getIssuesServerQuery(context.queryKey),
     queryKey: getIssuesKey({
@@ -173,7 +206,6 @@ export const TimeSheetTable: Component = () => {
       sort: "project",
       statusId: "open",
     }),
-    suspense: true,
   }));
 
   const projectGroups = createMemo(() =>
@@ -186,30 +218,24 @@ export const TimeSheetTable: Component = () => {
     <div class="flex flex-col">
       <div>
         <Button onClick={setPreviousMonth}>-</Button>
-        {/* <pre>{JSON.stringify(params(), null, 2)}</pre> */}
         <span>{formatRequestDate(params().date)}</span>
         <Button onClick={setNextMonth}>+</Button>
       </div>
-      <Suspense>
-        <div
-          class="grid"
-          style={{
-            "grid-template-columns": `repeat(${days().length + 1}, 1fr)`,
-          }}
-        >
-          <TimeSheetHeader days={days()} />
-          <For each={projectGroups()}>
-            {(projectGroup) => (
-              <TimeSheetRowsGroup
-                days={days()}
-                issues={projectGroup.issues}
-                project={projectGroup.project}
-                issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
-              />
-            )}
-          </For>
-        </div>
-      </Suspense>
+      <div
+        class="grid"
+        style={{
+          "grid-template-columns": `repeat(${days().length + 1}, 1fr)`,
+        }}
+      >
+        <Header days={days()} />
+        <Suspense fallback={<Grid days={days()} groups={projectGroups()} />}>
+          <TimeSheetGrid
+            args={timeEntriesArgs()}
+            days={days()}
+            groups={projectGroups()}
+          />
+        </Suspense>
+      </div>
     </div>
   );
 };
