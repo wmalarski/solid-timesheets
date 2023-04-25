@@ -1,7 +1,14 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { createQuery } from "@tanstack/solid-query";
-import { For, createMemo, type Component, type JSX } from "solid-js";
+import {
+  For,
+  createEffect,
+  createMemo,
+  type Component,
+  type JSX,
+} from "solid-js";
 import { Badge } from "~/components/Badge";
+import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { twCx } from "~/components/utils/twCva";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
@@ -15,6 +22,7 @@ import {
   getDaysInMonth,
   groupIssues,
   groupTimeEntries,
+  useTimeSheetSearchParams,
 } from "./TimeSheetTable.utils";
 
 type TableCellProps = JSX.HTMLAttributes<HTMLDivElement>;
@@ -114,8 +122,42 @@ export const TimeSheetRowsGroup: Component<TimeSheetRowsGroupProps> = (
   );
 };
 
-export const TimeSheetTable: Component = () => {
+type TimeSheetHeaderProps = {
+  days: Date[];
+};
+
+const TimeSheetHeader: Component<TimeSheetHeaderProps> = (props) => {
   const [, { locale }] = useI18n();
+
+  const dayFormat = createMemo(() => {
+    return Intl.DateTimeFormat(locale(), { day: "numeric" }).format;
+  });
+
+  const weekdayFormat = createMemo(() => {
+    return Intl.DateTimeFormat(locale(), { weekday: "long" }).format;
+  });
+
+  return (
+    <>
+      <TableCell />
+      <For each={props.days}>
+        {(day) => (
+          <TableCell class="flex flex-col p-2">
+            <span class="text-3xl">{dayFormat()(day)}</span>
+            <span>{weekdayFormat()(day)}</span>
+          </TableCell>
+        )}
+      </For>
+    </>
+  );
+};
+
+export const TimeSheetTable: Component = () => {
+  const { params, setNextMonth, setPreviousMonth } = useTimeSheetSearchParams();
+
+  createEffect(() => {
+    console.log({ params: params() });
+  });
 
   const timeEntriesQuery = createQuery(() => ({
     queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
@@ -144,33 +186,28 @@ export const TimeSheetTable: Component = () => {
   const days = createMemo(() => getDaysInMonth(new Date()));
 
   return (
-    <div
-      class="grid"
-      style={{ "grid-template-columns": `repeat(${days().length + 1}, 1fr)` }}
-    >
-      <TableCell>+</TableCell>
-      <For each={days()}>
-        {(day) => (
-          <TableCell class="flex flex-col p-2">
-            <span class="text-3xl">
-              {Intl.DateTimeFormat(locale(), { day: "numeric" }).format(day)}
-            </span>
-            <span>
-              {Intl.DateTimeFormat(locale(), { weekday: "long" }).format(day)}
-            </span>
-          </TableCell>
-        )}
-      </For>
-      <For each={projectGroups()}>
-        {(projectGroup) => (
-          <TimeSheetRowsGroup
-            days={days()}
-            issues={projectGroup.issues}
-            project={projectGroup.project}
-            issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
-          />
-        )}
-      </For>
+    <div class="flex flex-col">
+      <div>
+        <Button onClick={setPreviousMonth}>-</Button>
+        <pre>{JSON.stringify(params(), null, 2)}</pre>
+        <Button onClick={setNextMonth}>+</Button>
+      </div>
+      <div
+        class="grid"
+        style={{ "grid-template-columns": `repeat(${days().length + 1}, 1fr)` }}
+      >
+        <TimeSheetHeader days={days()} />
+        <For each={projectGroups()}>
+          {(projectGroup) => (
+            <TimeSheetRowsGroup
+              days={days()}
+              issues={projectGroup.issues}
+              project={projectGroup.project}
+              issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
+            />
+          )}
+        </For>
+      </div>
     </div>
   );
 };

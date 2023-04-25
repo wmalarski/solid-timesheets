@@ -19,13 +19,12 @@ export const routeData = () => {
 };
 
 export default function TimeSheets() {
-  const sessionResource = useRouteData<typeof routeData>();
+  useRouteData<typeof routeData>();
 
   return (
     <main class="mx-auto flex flex-col text-gray-700">
       <TopBar />
       <Suspense>
-        <pre>{JSON.stringify(sessionResource(), null, 2)}</pre>
         <TimeSheetTable />
       </Suspense>
     </main>

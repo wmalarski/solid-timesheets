@@ -1,9 +1,8 @@
-import server$ from "solid-start/server";
+import server$, { useRequest } from "solid-start/server";
 import { z } from "zod";
 import { jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { Issue } from "./types";
-import { getEventContext } from "./utils";
 
 const getIssuesArgs = z.object({
   assignedToId: z.union([z.coerce.number(), z.literal("me")]).optional(),
@@ -34,7 +33,17 @@ export const getIssuesServerQuery = server$(
   async ([, args]: ReturnType<typeof getIssuesKey>) => {
     const parsed = getIssuesArgs.parse(args);
 
-    const { fetch, request } = getEventContext();
+    const event = useRequest();
+    const fetch = server$.fetch || event.fetch;
+    const request = server$.request || event.request;
+
+    console.log("issues", {
+      ef: Boolean(event.fetch),
+      er: Boolean(event.request),
+      sf: Boolean(server$.fetch),
+      sr: Boolean(server$.request),
+    });
+
     const session = await getSessionOrThrow(request);
 
     return jsonFetcher<GetIssuesResult>({

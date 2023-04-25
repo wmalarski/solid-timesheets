@@ -1,10 +1,9 @@
-import server$ from "solid-start/server";
+import server$, { useRequest } from "solid-start/server";
 import { z } from "zod";
 import { formatRequestDate } from "~/utils/format";
 import { jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
-import { getEventContext } from "./utils";
 
 const getTimeEntriesArgs = z.object({
   from: z.coerce.date().optional(),
@@ -33,7 +32,17 @@ export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
     const parsed = getTimeEntriesArgs.parse(args);
 
-    const { fetch, request } = getEventContext();
+    const event = useRequest();
+    const fetch = server$.fetch || event.fetch;
+    const request = server$.request || event.request;
+
+    console.log("issues", {
+      ef: Boolean(event.fetch),
+      er: Boolean(event.request),
+      sf: Boolean(server$.fetch),
+      sr: Boolean(server$.request),
+    });
+
     const session = await getSessionOrThrow(request);
 
     return jsonFetcher<GetTimeEntriesResult>({
