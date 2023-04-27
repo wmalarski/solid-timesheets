@@ -22,8 +22,9 @@ import { formatRequestDate } from "~/utils/format";
 import { TimeEntryCard } from "./TimeEntryCard/TimeEntryCard";
 import {
   getDaysInMonth,
-  groupIssues,
+  groupIssuesByProject,
   groupTimeEntries,
+  sumTimeEntriesHoursByDay,
   useTimeSheetSearchParams,
 } from "./TimeSheetTable.utils";
 
@@ -55,7 +56,7 @@ const Header: Component<HeaderProps> = (props) => {
 
   return (
     <>
-      <TableCell class="bg-base-100 sticky top-0 z-20 flex p-2" />
+      <TableCell class="bg-base-100 sticky left-0 top-0 z-30 flex p-2" />
       <For each={props.days}>
         {(day) => (
           <TableCell class="bg-base-100 sticky top-0 z-20 flex flex-col p-2">
@@ -145,13 +146,15 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
 
 type GridProps = {
   days: Date[];
+  groups: ReturnType<typeof groupIssuesByProject>;
   hidden: number[];
-  groups: ReturnType<typeof groupIssues>;
   onProjectToggle: (projectId: number) => void;
-  projectIssuesMap?: ReturnType<typeof groupTimeEntries>;
+  timeEntries: TimeEntry[];
 };
 
 const Grid: Component<GridProps> = (props) => {
+  const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
+
   const onToggleFactory = (projectId: number) => {
     const toggle = props.onProjectToggle;
     return () => toggle(projectId);
@@ -163,7 +166,7 @@ const Grid: Component<GridProps> = (props) => {
         <RowsGroup
           days={props.days}
           isHidden={props.hidden.includes(projectGroup.project.id)}
-          issueDayMap={props.projectIssuesMap?.get(projectGroup.project.id)}
+          issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
           issues={projectGroup.issues}
           onToggle={onToggleFactory(projectGroup.project.id)}
           project={projectGroup.project}
@@ -173,11 +176,35 @@ const Grid: Component<GridProps> = (props) => {
   );
 };
 
+type FooterProps = {
+  days: Date[];
+  timeEntries: TimeEntry[];
+};
+
+const Footer: Component<FooterProps> = (props) => {
+  const timeEntryDayGroups = createMemo(() => {
+    return sumTimeEntriesHoursByDay(props.timeEntries);
+  });
+
+  return (
+    <>
+      <TableCell class="bg-base-100 sticky bottom-0 left-0 z-30 flex border-t-[1px] p-2" />
+      <For each={props.days}>
+        {(day) => (
+          <TableCell class="bg-base-100 sticky bottom-0 z-20 flex flex-col border-t-[1px] p-2">
+            <span>{timeEntryDayGroups().get(formatRequestDate(day))}</span>
+          </TableCell>
+        )}
+      </For>
+    </>
+  );
+};
+
 type TimeSheetGridProps = {
   args: GetTimeEntriesArgs;
   days: Date[];
   hidden: number[];
-  groups: ReturnType<typeof groupIssues>;
+  groups: ReturnType<typeof groupIssuesByProject>;
   onProjectToggle: (projectId: number) => void;
 };
 
@@ -187,18 +214,20 @@ const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
     queryKey: getTimeEntriesKey(props.args),
   }));
 
-  const timeEntryGroups = createMemo(() =>
-    groupTimeEntries(timeEntriesQuery.data?.time_entries || [])
-  );
-
   return (
-    <Grid
-      days={props.days}
-      hidden={props.hidden}
-      groups={props.groups}
-      onProjectToggle={props.onProjectToggle}
-      projectIssuesMap={timeEntryGroups()}
-    />
+    <>
+      <Grid
+        days={props.days}
+        groups={props.groups}
+        hidden={props.hidden}
+        onProjectToggle={props.onProjectToggle}
+        timeEntries={timeEntriesQuery.data?.time_entries || []}
+      />
+      <Footer
+        days={props.days}
+        timeEntries={timeEntriesQuery.data?.time_entries || []}
+      />
+    </>
   );
 };
 
@@ -223,7 +252,7 @@ export const TimeSheetTable: Component = () => {
   }));
 
   const projectGroups = createMemo(() =>
-    groupIssues(issuesQuery.data?.issues || [])
+    groupIssuesByProject(issuesQuery.data?.issues || [])
   );
 
   const days = createMemo(() => getDaysInMonth(params().date));
@@ -249,6 +278,7 @@ export const TimeSheetTable: Component = () => {
               hidden={params().hidden}
               groups={projectGroups()}
               onProjectToggle={toggleProject}
+              timeEntries={[]}
             />
           }
         >

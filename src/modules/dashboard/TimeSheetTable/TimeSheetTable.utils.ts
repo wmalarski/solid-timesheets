@@ -35,7 +35,7 @@ export const groupTimeEntries = (entries: TimeEntry[]) => {
   return map;
 };
 
-export const groupIssues = (issues: Issue[]) => {
+export const groupIssuesByProject = (issues: Issue[]) => {
   const projectMap = new Map<number, Project>();
   const map = new Map<number, Issue[]>();
 
@@ -52,6 +52,17 @@ export const groupIssues = (issues: Issue[]) => {
     issues: map.get(project.id) || [],
     project,
   }));
+};
+
+export const sumTimeEntriesHoursByDay = (timeEntries: TimeEntry[]) => {
+  const map = new Map<string, number>();
+
+  timeEntries.forEach((entry) => {
+    const value = map.get(entry.spent_on) || 0;
+    map.set(entry.spent_on, entry.hours + value);
+  });
+
+  return map;
 };
 
 export const getDaysInMonth = (start: Date) => {
