@@ -38,79 +38,6 @@ const TableCell: Component<TableCellProps> = (props) => {
   );
 };
 
-type CellProps = {
-  entries?: TimeEntry[];
-};
-
-const Cell: Component<CellProps> = (props) => {
-  return (
-    <TableCell class="flex flex-col gap-2 p-2">
-      <For each={props.entries}>
-        {(entry) => <TimeEntryCard entry={entry} />}
-      </For>
-    </TableCell>
-  );
-};
-
-type RowProps = {
-  dayEntryMap?: Map<string, TimeEntry[]>;
-  days: Date[];
-  issue: Issue;
-};
-
-const Row: Component<RowProps> = (props) => {
-  return (
-    <>
-      <TableCell class="bg-base-100 sticky left-2 z-10 flex w-64 p-2">
-        <Badge variant="outline">{props.issue.id}</Badge>
-        <span>{props.issue.subject}</span>
-      </TableCell>
-      <For each={props.days}>
-        {(day) => (
-          <Cell entries={props.dayEntryMap?.get(formatRequestDate(day))} />
-        )}
-      </For>
-    </>
-  );
-};
-
-type RowsGroupProps = {
-  days: Date[];
-  isHidden: boolean;
-  issueDayMap?: Map<number, Map<string, TimeEntry[]>>;
-  issues: Issue[];
-  onToggle: () => void;
-  project: Project;
-};
-
-const RowsGroup: Component<RowsGroupProps> = (props) => {
-  return (
-    <>
-      <TableCell
-        class="bg-base-200 flex p-2"
-        style={{ "grid-column": `1 / span ${props.days.length + 1}` }}
-      >
-        <div class="sticky left-2 flex items-center gap-2 text-xl">
-          <Badge variant="outline">{props.project.id}</Badge>
-          <span>{props.project.name}</span>
-          <Button onClick={props.onToggle}>Toggle</Button>
-        </div>
-      </TableCell>
-      <Show when={!props.isHidden}>
-        <For each={props.issues}>
-          {(issue) => (
-            <Row
-              dayEntryMap={props.issueDayMap?.get(issue.id)}
-              days={props.days}
-              issue={issue}
-            />
-          )}
-        </For>
-      </Show>
-    </>
-  );
-};
-
 type HeaderProps = {
   days: Date[];
 };
@@ -137,6 +64,81 @@ const Header: Component<HeaderProps> = (props) => {
           </TableCell>
         )}
       </For>
+    </>
+  );
+};
+
+type CellProps = {
+  entries?: TimeEntry[];
+};
+
+const Cell: Component<CellProps> = (props) => {
+  return (
+    <TableCell class="flex flex-col gap-2 p-2">
+      <For each={props.entries}>
+        {(entry) => <TimeEntryCard entry={entry} />}
+      </For>
+    </TableCell>
+  );
+};
+
+type RowProps = {
+  dayEntryMap?: Map<string, TimeEntry[]>;
+  days: Date[];
+  issue: Issue;
+};
+
+const Row: Component<RowProps> = (props) => {
+  return (
+    <>
+      <TableCell class="bg-base-100 sticky left-0 z-10 flex w-64">
+        <div class="flex flex-col p-2">
+          <Badge variant="outline">{props.issue.id}</Badge>
+          <span>{props.issue.subject}</span>
+        </div>
+      </TableCell>
+      <For each={props.days}>
+        {(day) => (
+          <Cell entries={props.dayEntryMap?.get(formatRequestDate(day))} />
+        )}
+      </For>
+    </>
+  );
+};
+
+type RowsGroupProps = {
+  days: Date[];
+  isHidden: boolean;
+  issueDayMap?: Map<number, Map<string, TimeEntry[]>>;
+  issues: Issue[];
+  onToggle: () => void;
+  project: Project;
+};
+
+const RowsGroup: Component<RowsGroupProps> = (props) => {
+  return (
+    <>
+      <TableCell
+        class="bg-base-200 z-10 flex p-2"
+        style={{ "grid-column": `1 / span ${props.days.length + 1}` }}
+      >
+        <div class="sticky left-2 flex items-center gap-2 text-xl">
+          <Badge variant="outline">{props.project.id}</Badge>
+          <span>{props.project.name}</span>
+          <Button onClick={props.onToggle}>Toggle</Button>
+        </div>
+      </TableCell>
+      <Show when={!props.isHidden}>
+        <For each={props.issues}>
+          {(issue) => (
+            <Row
+              dayEntryMap={props.issueDayMap?.get(issue.id)}
+              days={props.days}
+              issue={issue}
+            />
+          )}
+        </For>
+      </Show>
     </>
   );
 };
@@ -233,33 +235,31 @@ export const TimeSheetTable: Component = () => {
         <span>{formatRequestDate(params().date)}</span>
         <Button onClick={setNextMonth}>+</Button>
       </div>
-      <div class="max-h-[80vh] w-[100vw] overflow-scroll">
-        <div
-          class="grid"
-          style={{
-            "grid-template-columns": `repeat(${days().length + 1}, 1fr)`,
-          }}
-        >
-          <Header days={days()} />
-          <Suspense
-            fallback={
-              <Grid
-                days={days()}
-                hidden={params().hidden}
-                groups={projectGroups()}
-                onProjectToggle={toggleProject}
-              />
-            }
-          >
-            <TimeSheetGrid
-              args={timeEntriesArgs()}
+      <div
+        class="w-max-[100vw] grid max-h-[80vh] overflow-scroll"
+        style={{
+          "grid-template-columns": `repeat(${days().length + 1}, auto)`,
+        }}
+      >
+        <Header days={days()} />
+        <Suspense
+          fallback={
+            <Grid
               days={days()}
               hidden={params().hidden}
               groups={projectGroups()}
               onProjectToggle={toggleProject}
             />
-          </Suspense>
-        </div>
+          }
+        >
+          <TimeSheetGrid
+            args={timeEntriesArgs()}
+            days={days()}
+            hidden={params().hidden}
+            groups={projectGroups()}
+            onProjectToggle={toggleProject}
+          />
+        </Suspense>
       </div>
     </div>
   );
