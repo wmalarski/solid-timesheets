@@ -10,7 +10,6 @@ import {
 } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
-import { Card, CardBody } from "~/components/Card";
 import { twCx } from "~/components/utils/twCva";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
@@ -20,6 +19,7 @@ import {
 } from "~/server/timeEntries";
 import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
+import { TimeEntryCard } from "./TimeEntryCard/TimeEntryCard";
 import {
   getDaysInMonth,
   groupIssues,
@@ -35,22 +35,6 @@ const TableCell: Component<TableCellProps> = (props) => {
       {...props}
       class={twCx("border-b-[1px] border-r-[1px] border-gray-300", props.class)}
     />
-  );
-};
-
-type TimeEntryCardProps = {
-  entry: TimeEntry;
-};
-
-const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
-  return (
-    <Card variant="bordered" size="compact">
-      <CardBody>
-        <Badge variant="outline">{props.entry.id}</Badge>
-        <span>{props.entry.comments}</span>
-        <span>{props.entry.hours}</span>
-      </CardBody>
-    </Card>
   );
 };
 
@@ -77,7 +61,7 @@ type RowProps = {
 const Row: Component<RowProps> = (props) => {
   return (
     <>
-      <TableCell class="flex w-60 flex-col gap-2 overflow-hidden p-2">
+      <TableCell class="bg-base-100 sticky left-2 z-10 flex w-64 p-2">
         <Badge variant="outline">{props.issue.id}</Badge>
         <span>{props.issue.subject}</span>
       </TableCell>
@@ -103,12 +87,14 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
   return (
     <>
       <TableCell
-        class="flex items-center gap-2 p-2 text-xl"
+        class="bg-base-200 flex p-2"
         style={{ "grid-column": `1 / span ${props.days.length + 1}` }}
       >
-        <Badge variant="outline">{props.project.id}</Badge>
-        <span>{props.project.name}</span>
-        <Button onClick={props.onToggle}>Toggle</Button>
+        <div class="sticky left-2 flex items-center gap-2 text-xl">
+          <Badge variant="outline">{props.project.id}</Badge>
+          <span>{props.project.name}</span>
+          <Button onClick={props.onToggle}>Toggle</Button>
+        </div>
       </TableCell>
       <Show when={!props.isHidden}>
         <For each={props.issues}>
@@ -142,10 +128,10 @@ const Header: Component<HeaderProps> = (props) => {
 
   return (
     <>
-      <TableCell />
+      <TableCell class="bg-base-100 sticky top-0 z-20 flex p-2" />
       <For each={props.days}>
         {(day) => (
-          <TableCell class="flex flex-col p-2">
+          <TableCell class="bg-base-100 sticky top-0 z-20 flex flex-col p-2">
             <span class="text-3xl">{dayFormat()(day)}</span>
             <span>{weekdayFormat()(day)}</span>
           </TableCell>
@@ -247,31 +233,33 @@ export const TimeSheetTable: Component = () => {
         <span>{formatRequestDate(params().date)}</span>
         <Button onClick={setNextMonth}>+</Button>
       </div>
-      <div
-        class="grid"
-        style={{
-          "grid-template-columns": `repeat(${days().length + 1}, 1fr)`,
-        }}
-      >
-        <Header days={days()} />
-        <Suspense
-          fallback={
-            <Grid
+      <div class="max-h-[80vh] w-[100vw] overflow-scroll">
+        <div
+          class="grid"
+          style={{
+            "grid-template-columns": `repeat(${days().length + 1}, 1fr)`,
+          }}
+        >
+          <Header days={days()} />
+          <Suspense
+            fallback={
+              <Grid
+                days={days()}
+                hidden={params().hidden}
+                groups={projectGroups()}
+                onProjectToggle={toggleProject}
+              />
+            }
+          >
+            <TimeSheetGrid
+              args={timeEntriesArgs()}
               days={days()}
               hidden={params().hidden}
               groups={projectGroups()}
               onProjectToggle={toggleProject}
             />
-          }
-        >
-          <TimeSheetGrid
-            args={timeEntriesArgs()}
-            days={days()}
-            hidden={params().hidden}
-            groups={projectGroups()}
-            onProjectToggle={toggleProject}
-          />
-        </Suspense>
+          </Suspense>
+        </div>
       </div>
     </div>
   );
