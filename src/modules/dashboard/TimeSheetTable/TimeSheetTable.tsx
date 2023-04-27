@@ -24,6 +24,8 @@ import {
   getDaysInMonth,
   groupIssuesByProject,
   groupTimeEntries,
+  sumDayTimeEntriesHours,
+  sumDayTimeEntriesMap,
   sumTimeEntriesHoursByDay,
   useTimeSheetSearchParams,
 } from "./TimeSheetTable.utils";
@@ -65,6 +67,7 @@ const Header: Component<HeaderProps> = (props) => {
           </TableCell>
         )}
       </For>
+      <TableCell class="bg-base-100 sticky right-0 top-0 z-30 flex border-l-[1px] p-2" />
     </>
   );
 };
@@ -90,6 +93,10 @@ type RowProps = {
 };
 
 const Row: Component<RowProps> = (props) => {
+  const hoursSum = createMemo(() => {
+    return sumDayTimeEntriesMap(props.dayEntryMap);
+  });
+
   return (
     <>
       <TableCell class="bg-base-100 sticky left-0 z-10 flex w-64">
@@ -103,6 +110,11 @@ const Row: Component<RowProps> = (props) => {
           <Cell entries={props.dayEntryMap?.get(formatRequestDate(day))} />
         )}
       </For>
+      <TableCell class="bg-base-100 sticky right-0 z-10 flex border-l-[1px]">
+        <div class="flex flex-col p-2">
+          <span>{hoursSum()}</span>
+        </div>
+      </TableCell>
     </>
   );
 };
@@ -121,12 +133,14 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
     <>
       <TableCell
         class="bg-base-200 z-10 flex p-2"
-        style={{ "grid-column": `1 / span ${props.days.length + 1}` }}
+        style={{ "grid-column": `1 / span ${props.days.length + 2}` }}
       >
         <div class="sticky left-2 flex items-center gap-2 text-xl">
           <Badge variant="outline">{props.project.id}</Badge>
           <span>{props.project.name}</span>
-          <Button onClick={props.onToggle}>Toggle</Button>
+          <Button onClick={props.onToggle} size="xs">
+            Toggle
+          </Button>
         </div>
       </TableCell>
       <Show when={!props.isHidden}>
@@ -182,8 +196,12 @@ type FooterProps = {
 };
 
 const Footer: Component<FooterProps> = (props) => {
-  const timeEntryDayGroups = createMemo(() => {
+  const timeEntryDayHoursGroups = createMemo(() => {
     return sumTimeEntriesHoursByDay(props.timeEntries);
+  });
+
+  const timeEntryHours = createMemo(() => {
+    return sumDayTimeEntriesHours(props.timeEntries);
   });
 
   return (
@@ -192,10 +210,13 @@ const Footer: Component<FooterProps> = (props) => {
       <For each={props.days}>
         {(day) => (
           <TableCell class="bg-base-100 sticky bottom-0 z-20 flex flex-col border-t-[1px] p-2">
-            <span>{timeEntryDayGroups().get(formatRequestDate(day))}</span>
+            <span>{timeEntryDayHoursGroups().get(formatRequestDate(day))}</span>
           </TableCell>
         )}
       </For>
+      <TableCell class="bg-base-100 sticky bottom-0 right-0 z-30 flex border-l-[1px] border-t-[1px] p-2">
+        {timeEntryHours()}
+      </TableCell>
     </>
   );
 };
@@ -267,7 +288,7 @@ export const TimeSheetTable: Component = () => {
       <div
         class="w-max-[100vw] grid max-h-[80vh] overflow-scroll"
         style={{
-          "grid-template-columns": `repeat(${days().length + 1}, auto)`,
+          "grid-template-columns": `repeat(${days().length + 2}, auto)`,
         }}
       >
         <Header days={days()} />

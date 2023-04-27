@@ -65,6 +65,18 @@ export const sumTimeEntriesHoursByDay = (timeEntries: TimeEntry[]) => {
   return map;
 };
 
+export const sumDayTimeEntriesHours = (timeEntries: TimeEntry[]) => {
+  return timeEntries.reduce((prev, curr) => prev + curr.hours, 0);
+};
+
+export const sumDayTimeEntriesMap = (
+  dayEntryMap?: Map<string, TimeEntry[]>
+) => {
+  return sumDayTimeEntriesHours(
+    Array.from(dayEntryMap?.values() || []).flatMap((group) => group)
+  );
+};
+
 export const getDaysInMonth = (start: Date) => {
   const date = new Date(start);
   date.setUTCMonth(date.getUTCMonth() + 1);
