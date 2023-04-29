@@ -10,6 +10,7 @@ import {
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryForm, type TimeEntryFormData } from "../TimeEntryForm";
+import { TimeEntryMenu } from "../TimeEntryMenu";
 
 type UpdateFormProps = {
   entry: TimeEntry;
@@ -81,7 +82,12 @@ type CardHeaderProps = {
 };
 
 const CardHeader: Component<CardHeaderProps> = (props) => {
-  return <Badge variant="outline">{props.entry.id}</Badge>;
+  return (
+    <div>
+      <Badge variant="outline">{props.entry.id}</Badge>
+      <TimeEntryMenu />
+    </div>
+  );
 };
 
 type TimeEntryCardProps = {
