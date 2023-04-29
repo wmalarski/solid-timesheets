@@ -76,6 +76,14 @@ const CardContent: Component<CardContentProps> = (props) => {
   );
 };
 
+type CardHeaderProps = {
+  entry: TimeEntry;
+};
+
+const CardHeader: Component<CardHeaderProps> = (props) => {
+  return <Badge variant="outline">{props.entry.id}</Badge>;
+};
+
 type TimeEntryCardProps = {
   entry: TimeEntry;
 };
@@ -90,7 +98,7 @@ export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
   return (
     <Card variant="bordered" size="compact">
       <CardBody>
-        <Badge variant="outline">{props.entry.id}</Badge>
+        <CardHeader entry={props.entry} />
         <Show
           when={!isUpdating()}
           fallback={
