@@ -22,7 +22,7 @@ export const DropdownMenuItem = <T extends ValidComponent = "li">(
     <MenuItem
       {...props}
       class={twCx(
-        "rounded p-1 text-left text-sm hover:bg-purple-600 hover:text-white focus:bg-purple-600 focus:text-white focus:outline-none",
+        "p-1 text-left text-sm hover:bg-purple-600 hover:text-white focus:bg-purple-600 focus:text-white focus:outline-none",
         props.class
       )}
     />
@@ -69,7 +69,7 @@ export const DropdownMenuButton = (props: DropdownMenuButtonProps) => {
       {...rest}
       class={twCx(
         split.isOpen ? "text-opacity-90" : null,
-        "text-white group bg-purple-700 px-3 py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75",
+        "btn btn-xs",
         rest.class
       )}
     />
@@ -86,6 +86,7 @@ export const DropdownMenuPanel: Component<DropdownMenuPanelProps> = (props) => {
   return (
     <Transition
       show={split.isOpen}
+      class="z-40"
       enter="transition duration-200"
       enterFrom="opacity-0 -translate-y-1 scale-50"
       enterTo="opacity-100 translate-y-0 scale-100"
@@ -96,7 +97,7 @@ export const DropdownMenuPanel: Component<DropdownMenuPanelProps> = (props) => {
       <PopoverPanel
         {...rest}
         class={twCx(
-          "absolute left-1/2 z-10 mt-3 -translate-x-1/2 px-4 sm:px-0 lg:max-w-3xl",
+          "absolute left-1/2 z-40 mt-3 -translate-x-1/2 px-4 sm:px-0 lg:max-w-3xl",
           rest.class
         )}
       />
