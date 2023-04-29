@@ -22,7 +22,7 @@ export const cardClass = twCva("card", {
   },
 });
 
-export type CardProps = JSX.HTMLAttributes<HTMLDivElement> &
+export type CardProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof cardClass>;
 
 export const Card: Component<CardProps> = (props) => {
@@ -52,13 +52,13 @@ export function CardTitle<T extends ValidComponent>(props: CardTitleProps<T>) {
   );
 }
 
-export type CardBodyProps = JSX.HTMLAttributes<HTMLDivElement>;
+export type CardBodyProps = JSX.IntrinsicElements["div"];
 
 export function CardBody(props: CardBodyProps) {
   return <div {...props} class={twCx("card-body", props.class)} />;
 }
 
-export type CardActionsProps = JSX.HTMLAttributes<HTMLDivElement>;
+export type CardActionsProps = JSX.IntrinsicElements["div"];
 
 export const CardActions: Component<CardActionsProps> = (props) => {
   return <div {...props} class={twCx("card-actions", props.class)} />;

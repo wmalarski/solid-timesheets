@@ -47,7 +47,7 @@ export const buttonClass = twCva("btn", {
   },
 });
 
-export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> &
+export type ButtonProps = JSX.IntrinsicElements["button"] &
   VariantProps<typeof buttonClass>;
 
 export const Button: Component<ButtonProps> = (props) => {
@@ -78,7 +78,7 @@ export const buttonGroupClass = twCva("btn-group", {
   },
 });
 
-export type ButtonGroupProps = JSX.HTMLAttributes<HTMLDivElement> &
+export type ButtonGroupProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof buttonGroupClass>;
 
 export const ButtonGroup: Component<ButtonGroupProps> = (props) => {

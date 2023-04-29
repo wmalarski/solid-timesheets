@@ -14,7 +14,7 @@ export const dividerClass = twCva(["divider bg-gray-200"], {
   },
 });
 
-export type DividerProps = JSX.HTMLAttributes<HTMLDivElement> &
+export type DividerProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof dividerClass>;
 
 export const Divider: Component<DividerProps> = (props) => {

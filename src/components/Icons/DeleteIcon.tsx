@@ -1,8 +1,6 @@
 import type { Component, JSX } from "solid-js";
 
-export const DeleteIcon: Component<JSX.SvgSVGAttributes<SVGSVGElement>> = (
-  props
-) => {
+export const DeleteIcon: Component<JSX.IntrinsicElements["svg"]> = (props) => {
   return (
     <svg
       {...props}

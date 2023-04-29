@@ -1,6 +1,6 @@
 import type { Component, JSX } from "solid-js";
 
-export const DuplicateIcon: Component<JSX.SvgSVGAttributes<SVGSVGElement>> = (
+export const DuplicateIcon: Component<JSX.IntrinsicElements["svg"]> = (
   props
 ) => {
   return (

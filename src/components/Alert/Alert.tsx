@@ -22,7 +22,7 @@ export const alertClass = twCva("alert justify-start", {
   },
 });
 
-export type AlertProps = JSX.HTMLAttributes<HTMLDivElement> &
+export type AlertProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof alertClass>;
 
 export const Alert: Component<AlertProps> = (props) => {
@@ -36,7 +36,7 @@ export const Alert: Component<AlertProps> = (props) => {
 
 const alertIconMap: Record<
   "error" | "info" | "success" | "warning",
-  Component<JSX.SvgSVGAttributes<SVGSVGElement>>
+  Component<JSX.IntrinsicElements["svg"]>
 > = {
   error: ErrorIcon,
   info: InfoIcon,

@@ -33,7 +33,7 @@ export const selectClass = twCva("select", {
   },
 });
 
-export type SelectProps = JSX.SelectHTMLAttributes<HTMLSelectElement> &
+export type SelectProps = JSX.IntrinsicElements["select"] &
   VariantProps<typeof selectClass>;
 
 export const Select: Component<SelectProps> = (props) => {
@@ -50,7 +50,7 @@ export const Select: Component<SelectProps> = (props) => {
   );
 };
 
-export type OptionProps = JSX.OptionHTMLAttributes<HTMLOptionElement>;
+export type OptionProps = JSX.IntrinsicElements["option"];
 
 export const Option: Component<OptionProps> = (props) => {
   return <option {...props} />;

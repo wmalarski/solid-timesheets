@@ -33,7 +33,7 @@ export const badgeClass = twCva("badge", {
   },
 });
 
-export type BadgeProps = JSX.HTMLAttributes<HTMLDivElement> &
+export type BadgeProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof badgeClass>;
 
 export const Badge: Component<BadgeProps> = (props) => {

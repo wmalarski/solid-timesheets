@@ -30,7 +30,7 @@ import {
   useTimeSheetSearchParams,
 } from "./TimeSheetTable.utils";
 
-type TableCellProps = JSX.HTMLAttributes<HTMLDivElement>;
+type TableCellProps = JSX.IntrinsicElements["div"];
 
 const TableCell: Component<TableCellProps> = (props) => {
   return (

@@ -1,8 +1,6 @@
 import type { Component, JSX } from "solid-js";
 
-export const EditIcon: Component<JSX.SvgSVGAttributes<SVGSVGElement>> = (
-  props
-) => {
+export const EditIcon: Component<JSX.IntrinsicElements["svg"]> = (props) => {
   return (
     <svg
       {...props}
