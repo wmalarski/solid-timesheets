@@ -3,6 +3,18 @@ import { createI18nContext } from "@solid-primitives/i18n";
 const dict = {
   en: {
     dashboard: {
+      timeEntry: {
+        cancel: "Cancel",
+        comments: {
+          label: "Comments",
+          placeholder: "Write",
+        },
+        hours: {
+          label: "Hours",
+          placeholder: "Write",
+        },
+        save: "Save",
+      },
       title: "Time Sheets",
     },
     footer: {

@@ -19,7 +19,7 @@ import {
 } from "~/server/timeEntries";
 import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
-import { TimeEntryCard } from "./TimeEntryCard/TimeEntryCard";
+import { TimeEntryCard } from "./TimeEntryCard";
 import {
   getDaysInMonth,
   groupIssuesByProject,
@@ -139,7 +139,7 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
           <Badge variant="outline">{props.project.id}</Badge>
           <span>{props.project.name}</span>
           <Button onClick={props.onToggle} size="xs">
-            Toggle
+            ^
           </Button>
         </div>
       </TableCell>
