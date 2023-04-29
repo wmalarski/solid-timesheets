@@ -14,6 +14,7 @@ const dict = {
           placeholder: "Write",
         },
         save: "Save",
+        update: "Update",
       },
       title: "Time Sheets",
     },

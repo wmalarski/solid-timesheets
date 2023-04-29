@@ -92,7 +92,7 @@ export const createTimeEntryServerMutation = server$(
 
 export const updateTimeEntryArgs = z.intersection(
   createTimeEntryArgs.partial(),
-  z.object({ id: z.string() })
+  z.object({ id: z.number() })
 );
 
 export const updateTimeEntryServerMutation = server$(
@@ -121,7 +121,7 @@ export const updateTimeEntryServerMutation = server$(
 );
 
 const deleteTimeEntryArgs = z.object({
-  id: z.string(),
+  id: z.number(),
 });
 
 export const deleteTimeEntryServerMutation = server$(

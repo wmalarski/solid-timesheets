@@ -34,7 +34,7 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
   });
 
   return (
-    <Form onSubmit={props.onSubmit}>
+    <Form class="flex flex-col" onSubmit={props.onSubmit}>
       <Show when={props.error}>
         <Alert variant="error">
           <AlertIcon variant="error" />
@@ -52,6 +52,7 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
               {...fieldProps}
               disabled={props.isLoading}
               placeholder={t("dashboard.timeEntry.comments.placeholder")}
+              size="xs"
               type="text"
               variant="bordered"
             />
@@ -77,6 +78,7 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
               placeholder={t("dashboard.timeEntry.hours.placeholder")}
               type="number"
               variant="bordered"
+              size="xs"
             />
             <Show when={field.error}>
               <Alert variant="error">
@@ -88,19 +90,26 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
         )}
       </Field>
 
-      <div class="flex justify-end">
+      <div class="flex justify-end pt-2">
         <Button
-          onClick={props.onReset}
-          variant="outline"
-          size="xs"
           color="error"
-          type="reset"
-          isLoading={props.isLoading}
           disabled={props.isLoading}
+          isLoading={props.isLoading}
+          onClick={props.onReset}
+          size="xs"
+          type="reset"
+          variant="outline"
         >
           {t("dashboard.timeEntry.cancel")}
         </Button>
-        <Button variant="outline" size="xs" color="success" type="submit">
+        <Button
+          color="success"
+          disabled={props.isLoading}
+          isLoading={props.isLoading}
+          size="xs"
+          type="submit"
+          variant="outline"
+        >
           {t("dashboard.timeEntry.save")}
         </Button>
       </div>

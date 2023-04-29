@@ -1,29 +1,78 @@
+import { useI18n } from "@solid-primitives/i18n";
+import { createMutation, useQueryClient } from "@tanstack/solid-query";
 import { Show, createSignal, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
+import {
+  getAllTimeEntriesKey,
+  updateTimeEntryServerMutation,
+} from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryForm, type TimeEntryFormData } from "../TimeEntryForm";
 
-type EditFormProps = {
+type UpdateFormProps = {
   entry: TimeEntry;
-  onEnd: () => void;
+  onSettle: () => void;
 };
 
-const EditForm: Component<EditFormProps> = (props) => {
+const UpdateForm: Component<UpdateFormProps> = (props) => {
+  const queryClient = useQueryClient();
+
+  const mutation = createMutation(() => ({
+    mutationFn: updateTimeEntryServerMutation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
+      props.onSettle();
+    },
+  }));
+
   const onSubmit = (data: TimeEntryFormData) => {
-    //
-    props.onEnd();
+    mutation.mutate({ id: props.entry.id, ...data });
   };
 
   return (
     <TimeEntryForm
       initialValues={props.entry}
-      onReset={props.onEnd}
+      onReset={props.onSettle}
       onSubmit={onSubmit}
-      error=""
-      isLoading={false}
+      error={mutation.error?.message}
+      isLoading={mutation.isPending}
     />
+  );
+};
+
+type CardContentProps = {
+  entry: TimeEntry;
+  onUpdateClick: () => void;
+};
+
+const CardContent: Component<CardContentProps> = (props) => {
+  const [t] = useI18n();
+
+  return (
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-col">
+        <span class="select-none px-1 py-2">
+          {t("dashboard.timeEntry.comments.label")}
+        </span>
+        <span class="px-3 py-1 text-xs">{props.entry.comments}</span>
+        <span class="select-none px-1 py-2">
+          {t("dashboard.timeEntry.hours.label")}
+        </span>
+        <span class="px-3 py-1 text-xs">{props.entry.hours}</span>
+      </div>
+      <div class="flex justify-end">
+        <Button
+          onClick={props.onUpdateClick}
+          variant="outline"
+          size="xs"
+          color="accent"
+        >
+          {t("dashboard.timeEntry.update")}
+        </Button>
+      </div>
+    </div>
   );
 };
 
@@ -32,45 +81,24 @@ type TimeEntryCardProps = {
 };
 
 export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
-  const [isEditing, setIsEditing] = createSignal(false);
+  const [isUpdating, setIsUpdating] = createSignal(false);
 
-  const onEditToggle = () => {
-    setIsEditing((current) => !current);
+  const onUpdateToggle = () => {
+    setIsUpdating((current) => !current);
   };
 
   return (
     <Card variant="bordered" size="compact">
       <CardBody>
         <Badge variant="outline">{props.entry.id}</Badge>
-        <span>{props.entry.comments}</span>
-        <span>{props.entry.hours}</span>
-        <div class="flex justify-end">
-          <Show
-            when={isEditing()}
-            fallback={
-              <Button
-                onClick={onEditToggle}
-                variant="outline"
-                size="xs"
-                color="accent"
-              >
-                Edit
-              </Button>
-            }
-          >
-            <Button
-              onClick={onEditToggle}
-              variant="outline"
-              size="xs"
-              color="error"
-            >
-              Cancel
-            </Button>
-            <Button variant="outline" size="xs" color="success">
-              Save
-            </Button>
-          </Show>
-        </div>
+        <Show
+          when={!isUpdating()}
+          fallback={
+            <UpdateForm entry={props.entry} onSettle={onUpdateToggle} />
+          }
+        >
+          <CardContent entry={props.entry} onUpdateClick={onUpdateToggle} />
+        </Show>
       </CardBody>
     </Card>
   );
