@@ -1,5 +1,5 @@
 import { type VariantProps } from "class-variance-authority";
-import type { Component, JSX } from "solid-js";
+import { splitProps, type Component, type JSX } from "solid-js";
 import { twCva } from "../utils/twCva";
 
 export const selectClass = twCva("select", {
@@ -37,16 +37,10 @@ export type SelectProps = JSX.IntrinsicElements["select"] &
   VariantProps<typeof selectClass>;
 
 export const Select: Component<SelectProps> = (props) => {
+  const [split, rest] = splitProps(props, ["variant", "color", "size"]);
+
   return (
-    <select
-      {...props}
-      class={selectClass({
-        class: props.class,
-        color: props.color,
-        size: props.size,
-        variant: props.variant,
-      })}
-    />
+    <select {...rest} class={selectClass({ class: props.class, ...split })} />
   );
 };
 

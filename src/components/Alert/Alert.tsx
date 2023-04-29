@@ -1,5 +1,5 @@
 import { type VariantProps } from "class-variance-authority";
-import type { Component, JSX } from "solid-js";
+import { splitProps, type Component, type JSX } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { ErrorIcon } from "../Icons/ErrorIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
@@ -26,12 +26,9 @@ export type AlertProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof alertClass>;
 
 export const Alert: Component<AlertProps> = (props) => {
-  return (
-    <div
-      {...props}
-      class={alertClass({ class: props.class, variant: props.variant })}
-    />
-  );
+  const [split, rest] = splitProps(props, ["variant"]);
+
+  return <div {...rest} class={alertClass({ class: rest.class, ...split })} />;
 };
 
 const alertIconMap: Record<

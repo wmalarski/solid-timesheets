@@ -1,5 +1,5 @@
 import { type VariantProps } from "class-variance-authority";
-import type { Component, JSX } from "solid-js";
+import { splitProps, type Component, type JSX } from "solid-js";
 import { twCva } from "../utils/twCva";
 
 export const badgeClass = twCva("badge", {
@@ -37,15 +37,7 @@ export type BadgeProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof badgeClass>;
 
 export const Badge: Component<BadgeProps> = (props) => {
-  return (
-    <div
-      {...props}
-      class={badgeClass({
-        class: props.class,
-        color: props.color,
-        size: props.size,
-        variant: props.variant,
-      })}
-    />
-  );
+  const [split, rest] = splitProps(props, ["variant", "size", "color"]);
+
+  return <div {...rest} class={badgeClass({ class: props.class, ...split })} />;
 };

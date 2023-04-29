@@ -1,5 +1,10 @@
 import { type VariantProps } from "class-variance-authority";
-import type { Component, ComponentProps, JSX } from "solid-js";
+import {
+  splitProps,
+  type Component,
+  type ComponentProps,
+  type JSX,
+} from "solid-js";
 import { A } from "solid-start";
 import { twCva } from "../utils/twCva";
 
@@ -51,17 +56,15 @@ export type ButtonProps = JSX.IntrinsicElements["button"] &
   VariantProps<typeof buttonClass>;
 
 export const Button: Component<ButtonProps> = (props) => {
+  const [split, rest] = splitProps(props, [
+    "color",
+    "isLoading",
+    "size",
+    "variant",
+  ]);
+
   return (
-    <button
-      {...props}
-      class={buttonClass({
-        class: props.class,
-        color: props.color,
-        isLoading: props.isLoading,
-        size: props.size,
-        variant: props.variant,
-      })}
-    />
+    <button {...rest} class={buttonClass({ class: props.class, ...split })} />
   );
 };
 
@@ -82,14 +85,10 @@ export type ButtonGroupProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof buttonGroupClass>;
 
 export const ButtonGroup: Component<ButtonGroupProps> = (props) => {
+  const [split, rest] = splitProps(props, ["direction"]);
+
   return (
-    <div
-      {...props}
-      class={buttonGroupClass({
-        class: props.class,
-        direction: props.direction,
-      })}
-    />
+    <div {...rest} class={buttonGroupClass({ class: props.class, ...split })} />
   );
 };
 
@@ -97,16 +96,12 @@ export type LinkButtonProps = ComponentProps<typeof A> &
   VariantProps<typeof buttonClass>;
 
 export const LinkButton: Component<LinkButtonProps> = (props) => {
-  return (
-    <A
-      {...props}
-      class={buttonClass({
-        class: props.class,
-        color: props.color,
-        isLoading: props.isLoading,
-        size: props.size,
-        variant: props.variant,
-      })}
-    />
-  );
+  const [split, rest] = splitProps(props, [
+    "color",
+    "isLoading",
+    "size",
+    "variant",
+  ]);
+
+  return <A {...rest} class={buttonClass({ class: props.class, ...split })} />;
 };

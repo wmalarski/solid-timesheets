@@ -1,5 +1,5 @@
 import type { VariantProps } from "class-variance-authority";
-import type { Component, JSX } from "solid-js";
+import { splitProps, type Component, type JSX } from "solid-js";
 import { twCva, twCx } from "../utils/twCva";
 
 export type TextFieldRootProps = JSX.IntrinsicElements["fieldset"];
@@ -68,15 +68,12 @@ export type TextFieldInputProps = JSX.IntrinsicElements["input"] &
   VariantProps<typeof textFieldInputClass>;
 
 export const TextFieldInput: Component<TextFieldInputProps> = (props) => {
+  const [split, rest] = splitProps(props, ["color", "size", "variant"]);
+
   return (
     <input
-      {...props}
-      class={textFieldInputClass({
-        class: props.class,
-        color: props.color,
-        size: props.size,
-        variant: props.variant,
-      })}
+      {...rest}
+      class={textFieldInputClass({ class: props.class, ...split })}
     />
   );
 };
@@ -85,15 +82,12 @@ export type TextFieldTextAreaProps = JSX.IntrinsicElements["textarea"] &
   VariantProps<typeof textFieldInputClass>;
 
 export const TextFieldTextArea: Component<TextFieldTextAreaProps> = (props) => {
+  const [split, rest] = splitProps(props, ["color", "size", "variant"]);
+
   return (
     <textarea
-      {...props}
-      class={textFieldInputClass({
-        class: props.class,
-        color: props.color,
-        size: props.size,
-        variant: props.variant,
-      })}
+      {...rest}
+      class={textFieldInputClass({ class: props.class, ...split })}
     />
   );
 };
