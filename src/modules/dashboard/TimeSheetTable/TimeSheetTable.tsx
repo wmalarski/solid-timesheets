@@ -5,6 +5,7 @@ import {
   Show,
   Suspense,
   createMemo,
+  createSignal,
   type Component,
   type JSX,
 } from "solid-js";
@@ -15,6 +16,7 @@ import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
+  type CreateTimeEntryArgs,
   type GetTimeEntriesArgs,
 } from "~/server/timeEntries";
 import type { Issue, Project, TimeEntry } from "~/server/types";
@@ -72,13 +74,29 @@ const Header: Component<HeaderProps> = (props) => {
   );
 };
 
+type CellHeaderProps = {
+  onCreateClick: () => void;
+};
+
+const CellHeader: Component<CellHeaderProps> = (props) => {
+  return (
+    <div>
+      <Button onClick={props.onCreateClick} variant="outline">
+        +
+      </Button>
+    </div>
+  );
+};
+
 type CellProps = {
   entries?: TimeEntry[];
+  onCreateClick: () => void;
 };
 
 const Cell: Component<CellProps> = (props) => {
   return (
     <TableCell class="flex flex-col gap-2 p-2">
+      <CellHeader onCreateClick={props.onCreateClick} />
       <For each={props.entries}>
         {(entry) => <TimeEntryCard entry={entry} />}
       </For>
@@ -90,12 +108,22 @@ type RowProps = {
   dayEntryMap?: Map<string, TimeEntry[]>;
   days: Date[];
   issue: Issue;
+  onCreateTimeEntry: (args: CreateTimeEntryArgs) => void;
 };
 
 const Row: Component<RowProps> = (props) => {
   const hoursSum = createMemo(() => {
     return sumDayTimeEntriesMap(props.dayEntryMap);
   });
+
+  const onCreateClick = (day: Date) => {
+    props.onCreateTimeEntry({
+      comments: "",
+      hours: 0,
+      issueId: props.issue.id,
+      spentOn: day,
+    });
+  };
 
   return (
     <>
@@ -107,7 +135,10 @@ const Row: Component<RowProps> = (props) => {
       </TableCell>
       <For each={props.days}>
         {(day) => (
-          <Cell entries={props.dayEntryMap?.get(formatRequestDate(day))} />
+          <Cell
+            entries={props.dayEntryMap?.get(formatRequestDate(day))}
+            onCreateClick={() => onCreateClick(day)}
+          />
         )}
       </For>
       <TableCell class="bg-base-100 sticky right-0 z-10 flex border-l-[1px]">
@@ -124,6 +155,7 @@ type RowsGroupProps = {
   isHidden: boolean;
   issueDayMap?: Map<number, Map<string, TimeEntry[]>>;
   issues: Issue[];
+  onCreateTimeEntry: (args: CreateTimeEntryArgs) => void;
   onToggle: () => void;
   project: Project;
 };
@@ -150,6 +182,7 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
               dayEntryMap={props.issueDayMap?.get(issue.id)}
               days={props.days}
               issue={issue}
+              onCreateTimeEntry={props.onCreateTimeEntry}
             />
           )}
         </For>
@@ -160,9 +193,11 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
 
 type GridProps = {
   days: Date[];
+  createdTimeEntries: Record<string, CreateTimeEntryArgs[]>;
   groups: ReturnType<typeof groupIssuesByProject>;
   hidden: number[];
   onProjectToggle: (projectId: number) => void;
+  onCreateTimeEntry: (args: CreateTimeEntryArgs) => void;
   timeEntries: TimeEntry[];
 };
 
@@ -184,6 +219,7 @@ const Grid: Component<GridProps> = (props) => {
           issues={projectGroup.issues}
           onToggle={onToggleFactory(projectGroup.project.id)}
           project={projectGroup.project}
+          onCreateTimeEntry={props.onCreateTimeEntry}
         />
       )}
     </For>
@@ -223,9 +259,11 @@ const Footer: Component<FooterProps> = (props) => {
 
 type TimeSheetGridProps = {
   args: GetTimeEntriesArgs;
+  createdTimeEntries: Record<string, CreateTimeEntryArgs[]>;
   days: Date[];
   hidden: number[];
   groups: ReturnType<typeof groupIssuesByProject>;
+  onCreateTimeEntry: (args: CreateTimeEntryArgs) => void;
   onProjectToggle: (projectId: number) => void;
 };
 
@@ -241,6 +279,7 @@ const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
         days={props.days}
         groups={props.groups}
         hidden={props.hidden}
+        onCreateTimeEntry={props.onCreateTimeEntry}
         onProjectToggle={props.onProjectToggle}
         timeEntries={timeEntriesQuery.data?.time_entries || []}
       />
@@ -278,6 +317,20 @@ export const TimeSheetTable: Component = () => {
 
   const days = createMemo(() => getDaysInMonth(params().date));
 
+  const [createdEntries, setCreatedEntries] = createSignal<
+    Record<string, CreateTimeEntryArgs[]>
+  >({});
+
+  const onCreateTimeEntry = (args: CreateTimeEntryArgs) => {
+    setCreatedEntries((current) => {
+      const dateKey = formatRequestDate(args.spentOn);
+      const dateArgs = current[dateKey] || [];
+      const newDateArgs = [...dateArgs, args];
+      return { ...current, [dateKey]: newDateArgs };
+    });
+    //
+  };
+
   return (
     <div class="flex flex-col">
       <div>
@@ -300,6 +353,7 @@ export const TimeSheetTable: Component = () => {
               groups={projectGroups()}
               onProjectToggle={toggleProject}
               timeEntries={[]}
+              onCreateTimeEntry={() => void 0}
             />
           }
         >
@@ -309,6 +363,7 @@ export const TimeSheetTable: Component = () => {
             hidden={params().hidden}
             groups={projectGroups()}
             onProjectToggle={toggleProject}
+            onCreateTimeEntry={onCreateTimeEntry}
           />
         </Suspense>
       </div>

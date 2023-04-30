@@ -61,9 +61,10 @@ export const createTimeEntryArgs = z.object({
   comments: z.string().max(255).optional().default(""),
   hours: z.coerce.number(),
   issueId: z.coerce.number(),
-  spentOn: z.coerce.date().optional(),
-  userId: z.coerce.number().optional(),
+  spentOn: z.coerce.date(),
 });
+
+export type CreateTimeEntryArgs = z.infer<typeof createTimeEntryArgs>;
 
 export const createTimeEntryServerMutation = server$(
   async (data: z.infer<typeof createTimeEntryArgs>) => {
@@ -80,7 +81,7 @@ export const createTimeEntryServerMutation = server$(
           hours: parsed.hours,
           issue_id: parsed.issueId,
           spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
-          user_id: parsed.userId,
+          user_id: session.id,
         }),
         method: "POST",
       },
@@ -94,6 +95,8 @@ export const updateTimeEntryArgs = z.intersection(
   createTimeEntryArgs.partial(),
   z.object({ id: z.number() })
 );
+
+export type UpdateTimeEntryArgs = z.infer<typeof updateTimeEntryArgs>;
 
 export const updateTimeEntryServerMutation = server$(
   async (data: z.infer<typeof updateTimeEntryArgs>) => {
@@ -110,7 +113,7 @@ export const updateTimeEntryServerMutation = server$(
           hours: parsed.hours,
           issue_id: parsed.issueId,
           spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
-          user_id: parsed.userId,
+          user_id: session.id,
         }),
         method: "PUT",
       },
@@ -123,6 +126,8 @@ export const updateTimeEntryServerMutation = server$(
 const deleteTimeEntryArgs = z.object({
   id: z.number(),
 });
+
+export type DeleteTimeEntryArgs = z.infer<typeof deleteTimeEntryArgs>;
 
 export const deleteTimeEntryServerMutation = server$(
   async (data: z.infer<typeof deleteTimeEntryArgs>) => {
