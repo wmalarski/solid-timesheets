@@ -108,7 +108,9 @@ const paramsSchema = z.object({
     ),
 });
 
-const defaultParams: Required<z.infer<typeof paramsSchema>> = {
+export type TimeSheetSearchParams = Required<z.infer<typeof paramsSchema>>;
+
+export const defaultParams: TimeSheetSearchParams = {
   date: defaultDate,
   hidden: [],
 };
