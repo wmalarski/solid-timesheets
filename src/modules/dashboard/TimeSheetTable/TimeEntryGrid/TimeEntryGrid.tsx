@@ -92,7 +92,9 @@ const Cell: Component<CellProps> = (props) => {
           {t("dashboard.create")}
         </Button>
       </div>
-      <For each={created()}>{(args) => <NewEntryCard args={args} />}</For>
+      <For each={created()}>
+        {(args, index) => <NewEntryCard args={args} index={index()} />}
+      </For>
       <For each={props.entries}>
         {(entry) => <TimeEntryCard entry={entry} />}
       </For>

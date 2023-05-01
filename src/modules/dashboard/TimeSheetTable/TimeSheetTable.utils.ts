@@ -1,4 +1,4 @@
-import { createContext, createMemo, useContext } from "solid-js";
+import { createContext, createMemo, createSignal, useContext } from "solid-js";
 import { useSearchParams } from "solid-start";
 import { z } from "zod";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
@@ -53,20 +53,6 @@ export const useTimeSheetSearchParams = () => {
     return parsed.success ? parsed.data : defaultParams;
   });
 
-  const hideProject = (projectId: number) => {
-    const current = params();
-    setSearchParams({
-      hidden: current.hidden.filter((id) => id !== projectId).join(","),
-    });
-  };
-
-  const showProject = (projectId: number) => {
-    const current = params();
-    setSearchParams({
-      hidden: [...current.hidden, projectId].join(","),
-    });
-  };
-
   const toggleProject = (projectId: number) => {
     const current = params();
     const hasProjectId = current.hidden.includes(projectId);
@@ -96,12 +82,9 @@ export const useTimeSheetSearchParams = () => {
   };
 
   return {
-    hideProject,
     params,
-    setMonth,
     setNextMonth,
     setPreviousMonth,
-    showProject,
     toggleProject,
   };
 };
@@ -115,24 +98,71 @@ export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
   return `${formatRequestDate(args.day)}-${args.issueId}`;
 };
 
-type TimeSheetContextValue = {
-  createTimeEntry: (args: CreateTimeEntryArgs) => void;
-  createdTimeEntries: () => Record<string, CreateTimeEntryArgs[]>;
-  days: () => Date[];
-  params: () => TimeSheetSearchParams;
-  setNextMonth: () => void;
-  setPreviousMonth: () => void;
-  toggleProject: (id: number) => void;
+export const useCreatedTimeSeries = () => {
+  const [createdTimeEntries, setCreatedTimeEntries] = createSignal<
+    Record<string, CreateTimeEntryArgs[]>
+  >({});
+
+  const createTimeEntry = (args: CreateTimeEntryArgs) => {
+    setCreatedTimeEntries((current) => {
+      const key = createdTimeEntriesKey({
+        day: args.spentOn,
+        issueId: args.issueId,
+      });
+      const updated = [...(current[key] || []), args];
+      return { ...current, [key]: updated };
+    });
+  };
+
+  const updateTimeEntry = (index: number, args: CreateTimeEntryArgs) => {
+    setCreatedTimeEntries((current) => {
+      const key = createdTimeEntriesKey({
+        day: args.spentOn,
+        issueId: args.issueId,
+      });
+
+      const updated = [...(current[key] || [])];
+      updated.splice(index, 1, args);
+      return { ...current, [key]: updated };
+    });
+  };
+
+  const deleteTimeEntry = (index: number, args: CreateTimeEntryArgs) => {
+    setCreatedTimeEntries((current) => {
+      const key = createdTimeEntriesKey({
+        day: args.spentOn,
+        issueId: args.issueId,
+      });
+
+      const updated = [...(current[key] || [])];
+      updated.splice(index, 1);
+      return { ...current, [key]: updated };
+    });
+  };
+
+  return {
+    createTimeEntry,
+    createdTimeEntries,
+    deleteTimeEntry,
+    updateTimeEntry,
+  };
 };
+
+type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
+  ReturnType<typeof useTimeSheetSearchParams> & {
+    days: () => Date[];
+  };
 
 export const TimeSheetContext = createContext<TimeSheetContextValue>({
   createTimeEntry: () => void 0,
   createdTimeEntries: () => ({}),
   days: () => [],
+  deleteTimeEntry: () => void 0,
   params: () => defaultParams,
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
   toggleProject: () => void 0,
+  updateTimeEntry: () => void 0,
 });
 
 export const useTimeSheetContext = () => {

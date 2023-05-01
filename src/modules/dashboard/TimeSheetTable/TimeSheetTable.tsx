@@ -1,19 +1,18 @@
 import { createQuery } from "@tanstack/solid-query";
-import { Suspense, createMemo, createSignal, type Component } from "solid-js";
+import { Suspense, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
-  type CreateTimeEntryArgs,
 } from "~/server/timeEntries";
 import type { Issue } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import {
   TimeSheetContext,
-  createdTimeEntriesKey,
   getDaysInMonth,
+  useCreatedTimeSeries,
   useTimeSheetContext,
   useTimeSheetSearchParams,
 } from "./TimeSheetTable.utils";
@@ -79,38 +78,14 @@ const Toolbar: Component = () => {
 };
 
 export const TimeSheetTable: Component = () => {
-  const { params, setNextMonth, setPreviousMonth, toggleProject } =
-    useTimeSheetSearchParams();
+  const searchParams = useTimeSheetSearchParams();
+  const createParams = useCreatedTimeSeries();
 
-  const days = createMemo(() => getDaysInMonth(params().date));
-
-  const [createdTimeEntries, setCreatedTimeEntries] = createSignal<
-    Record<string, CreateTimeEntryArgs[]>
-  >({});
-
-  const createTimeEntry = (args: CreateTimeEntryArgs) => {
-    setCreatedTimeEntries((current) => {
-      const key = createdTimeEntriesKey({
-        day: args.spentOn,
-        issueId: args.issueId,
-      });
-      const dateArgs = current[key] || [];
-      const newDateArgs = [...dateArgs, args];
-      return { ...current, [key]: newDateArgs };
-    });
-  };
+  const days = createMemo(() => getDaysInMonth(searchParams.params().date));
 
   return (
     <TimeSheetContext.Provider
-      value={{
-        createTimeEntry,
-        createdTimeEntries,
-        days,
-        params,
-        setNextMonth,
-        setPreviousMonth,
-        toggleProject,
-      }}
+      value={{ ...createParams, ...searchParams, days }}
     >
       <div class="flex flex-col">
         <Toolbar />
