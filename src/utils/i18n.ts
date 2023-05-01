@@ -9,6 +9,7 @@ const dict = {
           label: "Comments",
           placeholder: "Write",
         },
+        delete: "Delete",
         hours: {
           label: "Hours",
           placeholder: "Write",

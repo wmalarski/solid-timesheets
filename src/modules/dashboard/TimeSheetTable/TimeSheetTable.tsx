@@ -106,7 +106,7 @@ const Cell: Component<CellProps> = (props) => {
   return (
     <TableCell class="flex flex-col gap-2 p-2">
       <div>
-        <Button onClick={props.onCreateClick} variant="outline">
+        <Button onClick={props.onCreateClick} variant="outline" size="xs">
           +
         </Button>
       </div>
