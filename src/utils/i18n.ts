@@ -4,6 +4,8 @@ const dict = {
   en: {
     dashboard: {
       create: "New",
+      reset: "Reset",
+      saveAll: "Save pending {{count}}",
       timeEntry: {
         cancel: "Cancel",
         comments: {
@@ -15,6 +17,7 @@ const dict = {
           label: "Hours",
           placeholder: "Write",
         },
+        pending: "Pending",
         save: "Save",
         update: "Update",
       },

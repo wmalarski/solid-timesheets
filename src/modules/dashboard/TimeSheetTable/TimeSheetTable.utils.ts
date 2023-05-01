@@ -140,12 +140,25 @@ export const useCreatedTimeSeries = () => {
     });
   };
 
+  const deleteAllTimeEntries = () => {
+    setCreatedTimeEntries({});
+  };
+
   return {
     createTimeEntry,
     createdTimeEntries,
+    deleteAllTimeEntries,
     deleteTimeEntry,
     updateTimeEntry,
   };
+};
+
+export const sumCreatedTimeEntries = (
+  created: Record<string, CreateTimeEntryArgs[]>
+) => {
+  return Object.values(created).reduce((prev, curr) => {
+    return prev + curr.length;
+  }, 0);
 };
 
 type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
@@ -157,6 +170,7 @@ export const TimeSheetContext = createContext<TimeSheetContextValue>({
   createTimeEntry: () => void 0,
   createdTimeEntries: () => ({}),
   days: () => [],
+  deleteAllTimeEntries: () => void 0,
   deleteTimeEntry: () => void 0,
   params: () => defaultParams,
   setNextMonth: () => void 0,

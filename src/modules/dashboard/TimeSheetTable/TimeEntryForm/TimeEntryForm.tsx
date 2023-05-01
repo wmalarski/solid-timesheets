@@ -20,7 +20,7 @@ export type TimeEntryFormData = z.infer<typeof timeEntryFormSchema>;
 type TimeEntryFormProps = {
   error?: string;
   initialValues?: TimeEntryFormData;
-  isLoading: boolean;
+  isLoading?: boolean;
   onReset: () => void;
   onSubmit: (data: TimeEntryFormData) => void;
 };
@@ -75,10 +75,12 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
             <TextFieldInput
               {...fieldProps}
               disabled={props.isLoading}
+              min={0}
               placeholder={t("dashboard.timeEntry.hours.placeholder")}
+              size="xs"
+              step={0.25}
               type="number"
               variant="bordered"
-              size="xs"
             />
             <Show when={field.error}>
               <Alert variant="error">

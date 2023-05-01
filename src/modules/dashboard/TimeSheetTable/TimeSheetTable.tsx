@@ -1,3 +1,4 @@
+import { useI18n } from "@solid-primitives/i18n";
 import { createQuery } from "@tanstack/solid-query";
 import { Suspense, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
@@ -12,6 +13,7 @@ import { TimeEntryGrid } from "./TimeEntryGrid";
 import {
   TimeSheetContext,
   getDaysInMonth,
+  sumCreatedTimeEntries,
   useCreatedTimeSeries,
   useTimeSheetContext,
   useTimeSheetSearchParams,
@@ -66,13 +68,53 @@ const ProjectGrid: Component = () => {
 };
 
 const Toolbar: Component = () => {
-  const { params, setNextMonth, setPreviousMonth } = useTimeSheetContext();
+  const [t] = useI18n();
+
+  const {
+    params,
+    setNextMonth,
+    setPreviousMonth,
+    createdTimeEntries,
+    deleteAllTimeEntries,
+  } = useTimeSheetContext();
+
+  const count = createMemo(() => sumCreatedTimeEntries(createdTimeEntries()));
+
+  const onSaveClick = () => {
+    //
+  };
 
   return (
-    <div>
-      <Button onClick={setPreviousMonth}>-</Button>
-      <span>{formatRequestDate(params().date)}</span>
-      <Button onClick={setNextMonth}>+</Button>
+    <div class="flex justify-between gap-2 p-2">
+      <div class="flex gap-1">
+        <Button size="xs" variant="outline" onClick={setPreviousMonth}>
+          -
+        </Button>
+        <span>{formatRequestDate(params().date)}</span>
+        <Button size="xs" variant="outline" onClick={setNextMonth}>
+          +
+        </Button>
+      </div>
+      <div>
+        <Button
+          color="error"
+          disabled={count() < 1}
+          onClick={deleteAllTimeEntries}
+          size="xs"
+          variant="outline"
+        >
+          {t("dashboard.reset", { count: String(count()) })}
+        </Button>
+        <Button
+          color="success"
+          disabled={count() < 1}
+          onClick={onSaveClick}
+          size="xs"
+          variant="outline"
+        >
+          {t("dashboard.saveAll", { count: String(count()) })}
+        </Button>
+      </div>
     </div>
   );
 };
