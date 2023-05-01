@@ -234,11 +234,12 @@ const Footer: Component<FooterProps> = (props) => {
 };
 
 type GridProps = {
-  groups: ReturnType<typeof groupIssuesByProject>;
+  issues: Issue[];
   timeEntries: TimeEntry[];
 };
 
 const Grid: Component<GridProps> = (props) => {
+  const projectGroups = createMemo(() => groupIssuesByProject(props.issues));
   const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
 
   const { days } = useTimeSheetContext();
@@ -249,7 +250,7 @@ const Grid: Component<GridProps> = (props) => {
       style={{ "grid-template-columns": `repeat(${days().length + 2}, auto)` }}
     >
       <Header />
-      <For each={props.groups}>
+      <For each={projectGroups()}>
         {(projectGroup) => (
           <RowsGroup
             issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
@@ -264,7 +265,7 @@ const Grid: Component<GridProps> = (props) => {
 };
 
 type TimeSheetGridProps = {
-  groups: ReturnType<typeof groupIssuesByProject>;
+  issues: Issue[];
 };
 
 const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
@@ -283,9 +284,9 @@ const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
   }));
 
   return (
-    <Suspense fallback={<Grid groups={props.groups} timeEntries={[]} />}>
+    <Suspense fallback={<Grid issues={props.issues} timeEntries={[]} />}>
       <Grid
-        groups={props.groups}
+        issues={props.issues}
         timeEntries={timeEntriesQuery.data?.time_entries || []}
       />
     </Suspense>
@@ -302,13 +303,9 @@ const ProjectGrid: Component = () => {
     }),
   }));
 
-  const projectGroups = createMemo(() =>
-    groupIssuesByProject(issuesQuery.data?.issues || [])
-  );
-
   return (
-    <Suspense fallback={<Grid groups={[]} timeEntries={[]} />}>
-      <TimeSheetGrid groups={projectGroups()} />
+    <Suspense fallback={<Grid issues={[]} timeEntries={[]} />}>
+      <TimeSheetGrid issues={issuesQuery.data?.issues || []} />
     </Suspense>
   );
 };
