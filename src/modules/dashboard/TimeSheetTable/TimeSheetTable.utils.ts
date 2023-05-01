@@ -106,6 +106,15 @@ export const useTimeSheetSearchParams = () => {
   };
 };
 
+type CreatedTimeEntriesKeyArgs = {
+  issueId: number;
+  day: Date;
+};
+
+export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
+  return `${formatRequestDate(args.day)}-${args.issueId}`;
+};
+
 type TimeSheetContextValue = {
   createTimeEntry: (args: CreateTimeEntryArgs) => void;
   createdTimeEntries: () => Record<string, CreateTimeEntryArgs[]>;

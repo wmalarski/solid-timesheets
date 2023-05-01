@@ -12,6 +12,7 @@ import { formatRequestDate } from "~/utils/format";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import {
   TimeSheetContext,
+  createdTimeEntriesKey,
   getDaysInMonth,
   useTimeSheetContext,
   useTimeSheetSearchParams,
@@ -89,10 +90,13 @@ export const TimeSheetTable: Component = () => {
 
   const createTimeEntry = (args: CreateTimeEntryArgs) => {
     setCreatedTimeEntries((current) => {
-      const dateKey = formatRequestDate(args.spentOn);
-      const dateArgs = current[dateKey] || [];
+      const key = createdTimeEntriesKey({
+        day: args.spentOn,
+        issueId: args.issueId,
+      });
+      const dateArgs = current[key] || [];
       const newDateArgs = [...dateArgs, args];
-      return { ...current, [dateKey]: newDateArgs };
+      return { ...current, [key]: newDateArgs };
     });
   };
 

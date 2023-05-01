@@ -5,8 +5,12 @@ import { Button } from "~/components/Button";
 import { twCx } from "~/components/utils/twCva";
 import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
+import { NewEntryCard } from "../NewEntryCard";
 import { TimeEntryCard } from "../TimeEntryCard";
-import { useTimeSheetContext } from "../TimeSheetTable.utils";
+import {
+  createdTimeEntriesKey,
+  useTimeSheetContext,
+} from "../TimeSheetTable.utils";
 import {
   groupIssuesByProject,
   groupTimeEntries,
@@ -54,18 +58,41 @@ const Header: Component = () => {
 };
 
 type CellProps = {
+  day: Date;
   entries?: TimeEntry[];
-  onCreateClick: () => void;
+  issue: Issue;
 };
 
 const Cell: Component<CellProps> = (props) => {
+  const [t] = useI18n();
+
+  const { createTimeEntry, createdTimeEntries } = useTimeSheetContext();
+
+  const created = createMemo(() => {
+    const key = createdTimeEntriesKey({
+      day: props.day,
+      issueId: props.issue.id,
+    });
+    return createdTimeEntries()[key] || [];
+  });
+
+  const onCreateClick = () => {
+    createTimeEntry({
+      comments: "",
+      hours: 0,
+      issueId: props.issue.id,
+      spentOn: props.day,
+    });
+  };
+
   return (
     <GridCell class="flex flex-col gap-2 p-2">
       <div>
-        <Button onClick={props.onCreateClick} variant="outline" size="xs">
-          +
+        <Button onClick={onCreateClick} variant="outline" size="xs">
+          {t("dashboard.create")}
         </Button>
       </div>
+      <For each={created()}>{(args) => <NewEntryCard args={args} />}</For>
       <For each={props.entries}>
         {(entry) => <TimeEntryCard entry={entry} />}
       </For>
@@ -79,20 +106,11 @@ type RowProps = {
 };
 
 const Row: Component<RowProps> = (props) => {
-  const { days, createTimeEntry } = useTimeSheetContext();
+  const { days } = useTimeSheetContext();
 
   const hoursSum = createMemo(() => {
     return sumDayTimeEntriesMap(props.dayEntryMap);
   });
-
-  const onCreateClick = (day: Date) => {
-    createTimeEntry({
-      comments: "",
-      hours: 0,
-      issueId: props.issue.id,
-      spentOn: day,
-    });
-  };
 
   return (
     <>
@@ -105,8 +123,9 @@ const Row: Component<RowProps> = (props) => {
       <For each={days()}>
         {(day) => (
           <Cell
+            issue={props.issue}
+            day={day}
             entries={props.dayEntryMap?.get(formatRequestDate(day))}
-            onCreateClick={() => onCreateClick(day)}
           />
         )}
       </For>
