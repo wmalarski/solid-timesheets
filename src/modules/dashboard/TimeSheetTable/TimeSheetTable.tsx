@@ -191,41 +191,6 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
   );
 };
 
-type GridProps = {
-  days: Date[];
-  createdTimeEntries: Record<string, CreateTimeEntryArgs[]>;
-  groups: ReturnType<typeof groupIssuesByProject>;
-  hidden: number[];
-  onProjectToggle: (projectId: number) => void;
-  onCreateTimeEntry: (args: CreateTimeEntryArgs) => void;
-  timeEntries: TimeEntry[];
-};
-
-const Grid: Component<GridProps> = (props) => {
-  const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
-
-  const onToggleFactory = (projectId: number) => {
-    const toggle = props.onProjectToggle;
-    return () => toggle(projectId);
-  };
-
-  return (
-    <For each={props.groups}>
-      {(projectGroup) => (
-        <RowsGroup
-          days={props.days}
-          isHidden={props.hidden.includes(projectGroup.project.id)}
-          issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
-          issues={projectGroup.issues}
-          onToggle={onToggleFactory(projectGroup.project.id)}
-          project={projectGroup.project}
-          onCreateTimeEntry={props.onCreateTimeEntry}
-        />
-      )}
-    </For>
-  );
-};
-
 type FooterProps = {
   days: Date[];
   timeEntries: TimeEntry[];
@@ -257,7 +222,89 @@ const Footer: Component<FooterProps> = (props) => {
   );
 };
 
+type GridProps = {
+  days: Date[];
+  createdTimeEntries: Record<string, CreateTimeEntryArgs[]>;
+  groups: ReturnType<typeof groupIssuesByProject>;
+  hidden: number[];
+  onProjectToggle: (projectId: number) => void;
+  onCreateTimeEntry: (args: CreateTimeEntryArgs) => void;
+  timeEntries: TimeEntry[];
+};
+
+const Grid: Component<GridProps> = (props) => {
+  const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
+
+  const onToggleFactory = (projectId: number) => {
+    const toggle = props.onProjectToggle;
+    return () => toggle(projectId);
+  };
+
+  return (
+    <div
+      class="w-max-[100vw] grid max-h-[80vh] overflow-scroll"
+      style={{
+        "grid-template-columns": `repeat(${props.days.length + 2}, auto)`,
+      }}
+    >
+      <Header days={props.days} />
+      <For each={props.groups}>
+        {(projectGroup) => (
+          <RowsGroup
+            days={props.days}
+            isHidden={props.hidden.includes(projectGroup.project.id)}
+            issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
+            issues={projectGroup.issues}
+            onToggle={onToggleFactory(projectGroup.project.id)}
+            project={projectGroup.project}
+            onCreateTimeEntry={props.onCreateTimeEntry}
+          />
+        )}
+      </For>
+      <Footer days={props.days} timeEntries={props.timeEntries} />
+    </div>
+  );
+};
+
 type TimeSheetGridProps = {
+  createdTimeEntries: Record<string, CreateTimeEntryArgs[]>;
+  days: Date[];
+  hidden: number[];
+  groups: ReturnType<typeof groupIssuesByProject>;
+  startDate: Date;
+  onCreateTimeEntry: (args: CreateTimeEntryArgs) => void;
+  onProjectToggle: (projectId: number) => void;
+};
+
+const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
+  const timeEntriesArgs = () => {
+    const from = props.startDate;
+    const to = new Date(from);
+    to.setUTCMonth(to.getUTCMonth() + 1);
+    return { from, limit: 100, to };
+  };
+
+  const timeEntriesQuery = createQuery(() => ({
+    queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
+    queryKey: getTimeEntriesKey(timeEntriesArgs()),
+  }));
+
+  return (
+    <>
+      <Grid
+        createdTimeEntries={props.createdTimeEntries}
+        days={props.days}
+        groups={props.groups}
+        hidden={props.hidden}
+        onCreateTimeEntry={props.onCreateTimeEntry}
+        onProjectToggle={props.onProjectToggle}
+        timeEntries={timeEntriesQuery.data?.time_entries || []}
+      />
+    </>
+  );
+};
+
+type ProjectGridProps = {
   args: GetTimeEntriesArgs;
   createdTimeEntries: Record<string, CreateTimeEntryArgs[]>;
   days: Date[];
@@ -267,40 +314,52 @@ type TimeSheetGridProps = {
   onProjectToggle: (projectId: number) => void;
 };
 
-const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
-  const timeEntriesQuery = createQuery(() => ({
-    queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
-    queryKey: getTimeEntriesKey(props.args),
+const ProjectGrid: Component<ProjectGridProps> = (props) => {
+  const { params, toggleProject } = useTimeSheetSearchParams();
+
+  const issuesQuery = createQuery(() => ({
+    queryFn: (context) => getIssuesServerQuery(context.queryKey),
+    queryKey: getIssuesKey({
+      assignedToId: "me",
+      sort: "project",
+      statusId: "open",
+    }),
   }));
 
+  const projectGroups = createMemo(() =>
+    groupIssuesByProject(issuesQuery.data?.issues || [])
+  );
+
   return (
-    <>
-      <Grid
+    <Suspense
+      fallback={
+        <Grid
+          createdTimeEntries={{}}
+          days={props.days}
+          groups={[]}
+          hidden={params().hidden}
+          onCreateTimeEntry={() => void 0}
+          onProjectToggle={toggleProject}
+          timeEntries={[]}
+        />
+      }
+    >
+      <TimeSheetGrid
+        startDate={params().date}
+        createdTimeEntries={createdEntries()}
         days={props.days}
-        groups={props.groups}
-        hidden={props.hidden}
-        onCreateTimeEntry={props.onCreateTimeEntry}
-        onProjectToggle={props.onProjectToggle}
-        timeEntries={timeEntriesQuery.data?.time_entries || []}
+        groups={projectGroups()}
+        hidden={params().hidden}
+        onCreateTimeEntry={onCreateTimeEntry}
+        onProjectToggle={toggleProject}
       />
-      <Footer
-        days={props.days}
-        timeEntries={timeEntriesQuery.data?.time_entries || []}
-      />
-    </>
+    </Suspense>
   );
 };
 
 export const TimeSheetTable: Component = () => {
   const { params, setNextMonth, setPreviousMonth, toggleProject } =
     useTimeSheetSearchParams();
-
-  const timeEntriesArgs = () => {
-    const from = params().date;
-    const to = new Date(from);
-    to.setUTCMonth(to.getUTCMonth() + 1);
-    return { from, limit: 100, to };
-  };
 
   const issuesQuery = createQuery(() => ({
     queryFn: (context) => getIssuesServerQuery(context.queryKey),
@@ -328,7 +387,6 @@ export const TimeSheetTable: Component = () => {
       const newDateArgs = [...dateArgs, args];
       return { ...current, [dateKey]: newDateArgs };
     });
-    //
   };
 
   return (
@@ -344,28 +402,7 @@ export const TimeSheetTable: Component = () => {
           "grid-template-columns": `repeat(${days().length + 2}, auto)`,
         }}
       >
-        <Header days={days()} />
-        <Suspense
-          fallback={
-            <Grid
-              days={days()}
-              hidden={params().hidden}
-              groups={projectGroups()}
-              onProjectToggle={toggleProject}
-              timeEntries={[]}
-              onCreateTimeEntry={() => void 0}
-            />
-          }
-        >
-          <TimeSheetGrid
-            args={timeEntriesArgs()}
-            days={days()}
-            hidden={params().hidden}
-            groups={projectGroups()}
-            onProjectToggle={toggleProject}
-            onCreateTimeEntry={onCreateTimeEntry}
-          />
-        </Suspense>
+        <ProjectGrid />
       </div>
     </div>
   );
