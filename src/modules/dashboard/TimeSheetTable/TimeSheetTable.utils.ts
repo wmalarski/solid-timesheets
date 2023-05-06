@@ -99,10 +99,13 @@ export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
   return `${formatRequestDate(args.day)}-${args.issueId}`;
 };
 
+type CreatedTimeSeriesStore = {
+  map: Record<string, CreateTimeEntryArgs[]>;
+};
+
 export const useCreatedTimeSeries = () => {
-  const [createdTimeEntries, setCreatedTimeEntries] = createStore<{
-    map: Record<string, CreateTimeEntryArgs[]>;
-  }>({ map: {} });
+  const [createdTimeEntries, setCreatedTimeEntries] =
+    createStore<CreatedTimeSeriesStore>({ map: {} });
 
   return {
     createdTimeEntries,

@@ -67,7 +67,7 @@ export const createTimeEntryArgs = z.object({
 export type CreateTimeEntryArgs = z.infer<typeof createTimeEntryArgs>;
 
 export const createTimeEntryServerMutation = server$(
-  async (data: z.infer<typeof createTimeEntryArgs>) => {
+  async (data: CreateTimeEntryArgs) => {
     const parsed = createTimeEntryArgs.parse(data);
 
     const session = await getSessionOrThrow(server$.request);
@@ -91,6 +91,43 @@ export const createTimeEntryServerMutation = server$(
   }
 );
 
+export const createTimeEntriesKey = () => {
+  return ["createTimeEntries"] as const;
+};
+
+export const createTimeEntriesArgs = z.array(createTimeEntryArgs);
+
+export type CreateTimeEntriesArgs = z.infer<typeof createTimeEntriesArgs>;
+
+export const createTimeEntriesServerMutation = server$(
+  async (data: CreateTimeEntriesArgs) => {
+    const parsed = createTimeEntriesArgs.parse(data);
+
+    const session = await getSessionOrThrow(server$.request);
+
+    return Promise.all(
+      parsed.map((entry) =>
+        jsonFetcher({
+          fetch: server$.fetch,
+          init: {
+            body: JSON.stringify({
+              activity_id: entry.activityId,
+              comments: entry.comments,
+              hours: entry.hours,
+              issue_id: entry.issueId,
+              spent_on: entry.spentOn && formatRequestDate(entry.spentOn),
+              user_id: session.id,
+            }),
+            method: "POST",
+          },
+          path: "/time_entries.json",
+          token: session.token,
+        })
+      )
+    );
+  }
+);
+
 export const updateTimeEntryArgs = z.intersection(
   createTimeEntryArgs.partial(),
   z.object({ id: z.number() })
@@ -99,7 +136,7 @@ export const updateTimeEntryArgs = z.intersection(
 export type UpdateTimeEntryArgs = z.infer<typeof updateTimeEntryArgs>;
 
 export const updateTimeEntryServerMutation = server$(
-  async (data: z.infer<typeof updateTimeEntryArgs>) => {
+  async (data: UpdateTimeEntryArgs) => {
     const parsed = updateTimeEntryArgs.parse(data);
 
     const session = await getSessionOrThrow(server$.request);
@@ -130,7 +167,7 @@ const deleteTimeEntryArgs = z.object({
 export type DeleteTimeEntryArgs = z.infer<typeof deleteTimeEntryArgs>;
 
 export const deleteTimeEntryServerMutation = server$(
-  async (data: z.infer<typeof deleteTimeEntryArgs>) => {
+  async (data: DeleteTimeEntryArgs) => {
     const parsed = deleteTimeEntryArgs.parse(data);
 
     const session = await getSessionOrThrow(server$.request);

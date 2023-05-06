@@ -1,9 +1,15 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { createQuery } from "@tanstack/solid-query";
+import {
+  createMutation,
+  createQuery,
+  useQueryClient,
+} from "@tanstack/solid-query";
 import { Suspense, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
+  createTimeEntriesServerMutation,
+  getAllTimeEntriesKey,
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
 } from "~/server/timeEntries";
@@ -84,8 +90,19 @@ const Toolbar: Component = () => {
     setCreatedTimeEntries({ map: {} });
   };
 
+  const queryClient = useQueryClient();
+
+  const mutation = createMutation(() => ({
+    mutationFn: createTimeEntriesServerMutation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
+      setCreatedTimeEntries({ map: {} });
+    },
+  }));
+
   const onSaveClick = () => {
-    //
+    const args = Object.values(createdTimeEntries.map).flat();
+    mutation.mutate(args);
   };
 
   return (
@@ -102,7 +119,7 @@ const Toolbar: Component = () => {
       <div>
         <Button
           color="error"
-          disabled={count() < 1}
+          disabled={count() < 1 || mutation.isPending}
           onClick={onDeleteAllClick}
           size="xs"
           variant="outline"
@@ -111,7 +128,7 @@ const Toolbar: Component = () => {
         </Button>
         <Button
           color="success"
-          disabled={count() < 1}
+          disabled={count() < 1 || mutation.isPending}
           onClick={onSaveClick}
           size="xs"
           variant="outline"

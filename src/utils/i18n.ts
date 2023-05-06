@@ -17,6 +17,7 @@ const dict = {
           label: "Hours",
           placeholder: "Write",
         },
+        new: "New",
         pending: "Pending",
         save: "Save",
         update: "Update",
