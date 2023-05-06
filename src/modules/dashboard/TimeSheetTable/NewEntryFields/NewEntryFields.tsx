@@ -1,5 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { type Component } from "solid-js";
+import { Button } from "~/components/Button";
 import {
   TextFieldInput,
   TextFieldLabel,
@@ -7,19 +8,20 @@ import {
   type TextFieldInputProps,
 } from "~/components/TextField";
 
-export type NewEntryFormData = {
+export type NewEntryFieldsData = {
   comments: string;
   hours: number;
 };
 
-type TimeEntryFormProps = {
-  value: NewEntryFormData;
+type TimeEntryFieldsProps = {
   isLoading?: boolean;
   onCommentChange: (comment: string) => void;
   onHoursChange: (hours: number) => void;
+  onSaveClick: () => void;
+  value: NewEntryFieldsData;
 };
 
-export const NewEntryForm: Component<TimeEntryFormProps> = (props) => {
+export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
   const [t] = useI18n();
 
   const onCommentsInput: TextFieldInputProps["onInput"] = (event) => {
@@ -65,6 +67,20 @@ export const NewEntryForm: Component<TimeEntryFormProps> = (props) => {
           variant="bordered"
         />
       </TextFieldRoot>
+
+      <div class="flex justify-end pt-2">
+        <Button
+          color="success"
+          disabled={props.isLoading}
+          isLoading={props.isLoading}
+          size="xs"
+          type="submit"
+          variant="outline"
+          onClick={props.onSaveClick}
+        >
+          {t("dashboard.timeEntry.save")}
+        </Button>
+      </div>
     </div>
   );
 };
