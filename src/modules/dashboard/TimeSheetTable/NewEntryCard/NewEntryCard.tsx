@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/solid-query";
 import { Show, type Component } from "solid-js";
+import type { SetStoreFunction } from "solid-js/store";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
@@ -18,7 +19,66 @@ import { NewEntryFields } from "../NewEntryFields";
 import {
   createdTimeEntriesKey,
   useTimeSheetContext,
+  type CreatedTimeSeriesStore,
 } from "../TimeSheetTable.utils";
+
+type DeleteFromStoreArgs = {
+  args: CreateTimeEntryArgs;
+  index: number;
+  setStore: SetStoreFunction<CreatedTimeSeriesStore>;
+};
+
+const deleteFromStore = ({ args, index, setStore }: DeleteFromStoreArgs) => {
+  const key = createdTimeEntriesKey({
+    day: args.spentOn,
+    issueId: args.issueId,
+  });
+
+  setStore("map", key, (current) => {
+    const copy = [...current];
+    copy.splice(index, 1);
+    return copy;
+  });
+};
+
+type CardHeaderProps = {
+  args: CreateTimeEntryArgs;
+  index: number;
+  isPending: boolean;
+};
+
+const CardHeader: Component<CardHeaderProps> = (props) => {
+  const [t] = useI18n();
+
+  const { setCreatedTimeEntries } = useTimeSheetContext();
+
+  const onDelete = () => {
+    deleteFromStore({
+      args: props.args,
+      index: props.index,
+      setStore: setCreatedTimeEntries,
+    });
+  };
+
+  return (
+    <div>
+      <Badge class="uppercase" variant="outline">
+        <Show fallback={t("dashboard.timeEntry.new")} when={props.isPending}>
+          {t("dashboard.timeEntry.pending")}
+        </Show>
+      </Badge>
+      <Button
+        color="error"
+        disabled={props.isPending}
+        onClick={onDelete}
+        size="xs"
+        variant="outline"
+      >
+        {t("dashboard.timeEntry.delete")}
+      </Button>
+    </div>
+  );
+};
 
 type Props = {
   args: CreateTimeEntryArgs;
@@ -26,37 +86,11 @@ type Props = {
 };
 
 export const NewEntryCard: Component<Props> = (props) => {
-  const [t] = useI18n();
-
   const { setCreatedTimeEntries } = useTimeSheetContext();
 
   const isMutating = useIsMutating(() => ({
     mutationKey: createTimeEntriesKey(),
   }));
-
-  const key = () => {
-    return createdTimeEntriesKey({
-      day: props.args.spentOn,
-      issueId: props.args.issueId,
-    });
-  };
-
-  const onDelete = () => {
-    const index = props.index;
-    setCreatedTimeEntries("map", key(), (current) => {
-      const copy = [...current];
-      copy.splice(index, 1);
-      return copy;
-    });
-  };
-
-  const onCommentsChange = (comments: string) => {
-    setCreatedTimeEntries("map", key(), props.index, "comments", comments);
-  };
-
-  const onHoursChange = (hours: number) => {
-    setCreatedTimeEntries("map", key(), props.index, "hours", hours);
-  };
 
   const queryClient = useQueryClient();
 
@@ -64,7 +98,11 @@ export const NewEntryCard: Component<Props> = (props) => {
     mutationFn: createTimeEntryServerMutation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      onDelete();
+      deleteFromStore({
+        args: props.args,
+        index: props.index,
+        setStore: setCreatedTimeEntries,
+      });
     },
   }));
 
@@ -79,28 +117,17 @@ export const NewEntryCard: Component<Props> = (props) => {
   return (
     <Card variant="bordered" size="compact">
       <CardBody>
-        <div>
-          <Badge class="uppercase" variant="outline">
-            <Show fallback={t("dashboard.timeEntry.new")} when={isPending()}>
-              {t("dashboard.timeEntry.pending")}
-            </Show>
-          </Badge>
-          <Button
-            color="error"
-            disabled={isPending()}
-            onClick={onDelete}
-            size="xs"
-            variant="outline"
-          >
-            {t("dashboard.timeEntry.delete")}
-          </Button>
-        </div>
+        <CardHeader
+          args={props.args}
+          index={props.index}
+          isPending={isPending()}
+        />
         <NewEntryFields
           isLoading={isPending()}
-          onCommentChange={onCommentsChange}
-          onHoursChange={onHoursChange}
           onSaveClick={onSaveClick}
-          value={props.args}
+          args={props.args}
+          index={props.index}
+          error={mutation.error?.message}
         />
       </CardBody>
     </Card>

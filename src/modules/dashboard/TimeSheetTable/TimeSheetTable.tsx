@@ -8,6 +8,7 @@ import { Suspense, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
+  createTimeEntriesKey,
   createTimeEntriesServerMutation,
   getAllTimeEntriesKey,
   getTimeEntriesKey,
@@ -94,6 +95,7 @@ const Toolbar: Component = () => {
 
   const mutation = createMutation(() => ({
     mutationFn: createTimeEntriesServerMutation,
+    mutationKey: createTimeEntriesKey(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       setCreatedTimeEntries({ map: {} });

@@ -1,5 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { type Component } from "solid-js";
+import { Show, type Component } from "solid-js";
+import { Alert, AlertIcon } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import {
   TextFieldInput,
@@ -7,33 +8,61 @@ import {
   TextFieldRoot,
   type TextFieldInputProps,
 } from "~/components/TextField";
-
-export type NewEntryFieldsData = {
-  comments: string;
-  hours: number;
-};
+import type { CreateTimeEntryArgs } from "~/server/timeEntries";
+import {
+  createdTimeEntriesKey,
+  useTimeSheetContext,
+} from "../TimeSheetTable.utils";
 
 type TimeEntryFieldsProps = {
+  args: CreateTimeEntryArgs;
+  error?: string;
+  index: number;
   isLoading?: boolean;
-  onCommentChange: (comment: string) => void;
-  onHoursChange: (hours: number) => void;
   onSaveClick: () => void;
-  value: NewEntryFieldsData;
 };
 
 export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
   const [t] = useI18n();
 
+  const { setCreatedTimeEntries } = useTimeSheetContext();
+
+  const key = () => {
+    return createdTimeEntriesKey({
+      day: props.args.spentOn,
+      issueId: props.args.issueId,
+    });
+  };
+
   const onCommentsInput: TextFieldInputProps["onInput"] = (event) => {
-    props.onCommentChange(event.target.value);
+    setCreatedTimeEntries(
+      "map",
+      key(),
+      props.index,
+      "comments",
+      event.target.value
+    );
   };
 
   const onHoursInput: TextFieldInputProps["onInput"] = (event) => {
-    props.onHoursChange(event.target.valueAsNumber);
+    setCreatedTimeEntries(
+      "map",
+      key(),
+      props.index,
+      "hours",
+      event.target.valueAsNumber
+    );
   };
 
   return (
     <div class="flex flex-col">
+      <Show when={props.error}>
+        <Alert variant="error">
+          <AlertIcon variant="error" />
+          {props.error}
+        </Alert>
+      </Show>
+
       <TextFieldRoot>
         <TextFieldLabel for="comments">
           {t("dashboard.timeEntry.comments.label")}
@@ -45,7 +74,7 @@ export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           placeholder={t("dashboard.timeEntry.comments.placeholder")}
           size="xs"
           type="text"
-          value={props.value.comments}
+          value={props.args.comments}
           variant="bordered"
         />
       </TextFieldRoot>
@@ -63,7 +92,7 @@ export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           size="xs"
           step={0.25}
           type="number"
-          value={props.value.hours}
+          value={props.args.hours}
           variant="bordered"
         />
       </TextFieldRoot>
