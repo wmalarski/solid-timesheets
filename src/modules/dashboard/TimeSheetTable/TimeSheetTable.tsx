@@ -71,14 +71,18 @@ const Toolbar: Component = () => {
   const [t] = useI18n();
 
   const {
+    createdTimeEntries,
     params,
+    setCreatedTimeEntries,
     setNextMonth,
     setPreviousMonth,
-    createdTimeEntries,
-    deleteAllTimeEntries,
   } = useTimeSheetContext();
 
-  const count = createMemo(() => sumCreatedTimeEntries(createdTimeEntries()));
+  const count = createMemo(() => sumCreatedTimeEntries(createdTimeEntries.map));
+
+  const onDeleteAllClick = () => {
+    setCreatedTimeEntries({ map: {} });
+  };
 
   const onSaveClick = () => {
     //
@@ -99,7 +103,7 @@ const Toolbar: Component = () => {
         <Button
           color="error"
           disabled={count() < 1}
-          onClick={deleteAllTimeEntries}
+          onClick={onDeleteAllClick}
           size="xs"
           variant="outline"
         >

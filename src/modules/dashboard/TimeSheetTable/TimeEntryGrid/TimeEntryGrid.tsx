@@ -66,23 +66,30 @@ type CellProps = {
 const Cell: Component<CellProps> = (props) => {
   const [t] = useI18n();
 
-  const { createTimeEntry, createdTimeEntries } = useTimeSheetContext();
+  const { setCreatedTimeEntries, createdTimeEntries } = useTimeSheetContext();
 
-  const created = createMemo(() => {
-    const key = createdTimeEntriesKey({
+  const key = () => {
+    return createdTimeEntriesKey({
       day: props.day,
       issueId: props.issue.id,
     });
-    return createdTimeEntries()[key] || [];
+  };
+
+  const created = createMemo(() => {
+    return createdTimeEntries.map[key()] || [];
   });
 
   const onCreateClick = () => {
-    createTimeEntry({
+    const newEntry = {
       comments: "",
       hours: 0,
       issueId: props.issue.id,
       spentOn: props.day,
-    });
+    };
+    setCreatedTimeEntries("map", key(), (current) => [
+      ...(current || []),
+      newEntry,
+    ]);
   };
 
   return (

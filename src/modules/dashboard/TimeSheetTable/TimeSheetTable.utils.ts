@@ -1,4 +1,5 @@
-import { createContext, createMemo, createSignal, useContext } from "solid-js";
+import { createContext, createMemo, useContext } from "solid-js";
+import { createStore } from "solid-js/store";
 import { useSearchParams } from "solid-start";
 import { z } from "zod";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
@@ -99,57 +100,13 @@ export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
 };
 
 export const useCreatedTimeSeries = () => {
-  const [createdTimeEntries, setCreatedTimeEntries] = createSignal<
-    Record<string, CreateTimeEntryArgs[]>
-  >({});
-
-  const createTimeEntry = (args: CreateTimeEntryArgs) => {
-    setCreatedTimeEntries((current) => {
-      const key = createdTimeEntriesKey({
-        day: args.spentOn,
-        issueId: args.issueId,
-      });
-      const updated = [...(current[key] || []), args];
-      return { ...current, [key]: updated };
-    });
-  };
-
-  const updateTimeEntry = (index: number, args: CreateTimeEntryArgs) => {
-    setCreatedTimeEntries((current) => {
-      const key = createdTimeEntriesKey({
-        day: args.spentOn,
-        issueId: args.issueId,
-      });
-
-      const updated = [...(current[key] || [])];
-      updated.splice(index, 1, args);
-      return { ...current, [key]: updated };
-    });
-  };
-
-  const deleteTimeEntry = (index: number, args: CreateTimeEntryArgs) => {
-    setCreatedTimeEntries((current) => {
-      const key = createdTimeEntriesKey({
-        day: args.spentOn,
-        issueId: args.issueId,
-      });
-
-      const updated = [...(current[key] || [])];
-      updated.splice(index, 1);
-      return { ...current, [key]: updated };
-    });
-  };
-
-  const deleteAllTimeEntries = () => {
-    setCreatedTimeEntries({});
-  };
+  const [createdTimeEntries, setCreatedTimeEntries] = createStore<{
+    map: Record<string, CreateTimeEntryArgs[]>;
+  }>({ map: {} });
 
   return {
-    createTimeEntry,
     createdTimeEntries,
-    deleteAllTimeEntries,
-    deleteTimeEntry,
-    updateTimeEntry,
+    setCreatedTimeEntries,
   };
 };
 
@@ -167,16 +124,13 @@ type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
   };
 
 export const TimeSheetContext = createContext<TimeSheetContextValue>({
-  createTimeEntry: () => void 0,
-  createdTimeEntries: () => ({}),
+  createdTimeEntries: { map: {} },
   days: () => [],
-  deleteAllTimeEntries: () => void 0,
-  deleteTimeEntry: () => void 0,
   params: () => defaultParams,
+  setCreatedTimeEntries: () => void 0,
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
   toggleProject: () => void 0,
-  updateTimeEntry: () => void 0,
 });
 
 export const useTimeSheetContext = () => {

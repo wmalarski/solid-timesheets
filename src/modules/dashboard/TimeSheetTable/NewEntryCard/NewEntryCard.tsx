@@ -4,7 +4,10 @@ import { Badge } from "~/components/Badge";
 import { Card, CardBody } from "~/components/Card";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryForm, type TimeEntryFormData } from "../TimeEntryForm";
-import { useTimeSheetContext } from "../TimeSheetTable.utils";
+import {
+  createdTimeEntriesKey,
+  useTimeSheetContext,
+} from "../TimeSheetTable.utils";
 
 type Props = {
   args: CreateTimeEntryArgs;
@@ -14,14 +17,29 @@ type Props = {
 export const NewEntryCard: Component<Props> = (props) => {
   const [t] = useI18n();
 
-  const { deleteTimeEntry, updateTimeEntry } = useTimeSheetContext();
+  const { setCreatedTimeEntries } = useTimeSheetContext();
+
+  const key = () => {
+    return createdTimeEntriesKey({
+      day: props.args.spentOn,
+      issueId: props.args.issueId,
+    });
+  };
 
   const onDeleteClick = () => {
-    deleteTimeEntry(props.index, props.args);
+    const index = props.index;
+    setCreatedTimeEntries("map", key(), (current) => {
+      const copy = [...current];
+      copy.splice(index, 1);
+      return copy;
+    });
   };
 
   const onSubmit = (data: TimeEntryFormData) => {
-    updateTimeEntry(props.index, { ...props.args, ...data });
+    setCreatedTimeEntries("map", key(), props.index, (current) => ({
+      ...current,
+      ...data,
+    }));
   };
 
   return (
