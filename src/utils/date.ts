@@ -42,7 +42,7 @@ export const getDaysLeftInMonth = (start: Date) => {
   return getDaysInMonth(start).slice(startDay);
 };
 
-const daysOffUTC = [5, 6];
+const daysOffUTC = [0, 6];
 
 export const isDayOff = (date: Date) => {
   const day = date.getUTCDay();

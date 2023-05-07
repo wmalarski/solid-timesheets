@@ -17,6 +17,7 @@ import {
 } from "~/server/timeEntries";
 import { NewEntryFields } from "../NewEntryFields";
 import {
+  copyTimeEntryToEndOfMonth,
   createdTimeEntriesKey,
   useTimeSheetContext,
   type CreatedTimeSeriesStore,
@@ -60,6 +61,13 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
     });
   };
 
+  const onCopy = () => {
+    copyTimeEntryToEndOfMonth({
+      args: props.args,
+      setStore: setCreatedTimeEntries,
+    });
+  };
+
   return (
     <div>
       <Badge class="uppercase" variant="outline">
@@ -77,9 +85,9 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
         {t("dashboard.timeEntry.delete")}
       </Button>
       <Button
-        color="error"
+        color="success"
         disabled={props.isPending}
-        onClick={onDelete}
+        onClick={onCopy}
         size="xs"
         variant="outline"
       >

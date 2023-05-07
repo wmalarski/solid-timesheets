@@ -11,6 +11,10 @@ import {
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryForm, type TimeEntryFormData } from "../TimeEntryForm";
+import {
+  copyTimeEntryToEndOfMonth,
+  useTimeSheetContext,
+} from "../TimeSheetTable.utils";
 
 type UpdateFormProps = {
   entry: TimeEntry;
@@ -84,6 +88,8 @@ type CardHeaderProps = {
 const CardHeader: Component<CardHeaderProps> = (props) => {
   const [t] = useI18n();
 
+  const { setCreatedTimeEntries } = useTimeSheetContext();
+
   const queryClient = useQueryClient();
 
   const mutation = createMutation(() => ({
@@ -97,11 +103,37 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
     mutation.mutate({ id: props.entry.id });
   };
 
+  const onCopy = () => {
+    copyTimeEntryToEndOfMonth({
+      args: {
+        ...props.entry,
+        issueId: props.entry.issue.id,
+        spentOn: new Date(props.entry.spent_on),
+      },
+      setStore: setCreatedTimeEntries,
+    });
+  };
+
   return (
     <div>
       <Badge variant="outline">{props.entry.id}</Badge>
-      <Button variant="outline" size="xs" onClick={onDeleteClick} color="error">
+      <Button
+        color="error"
+        disabled={mutation.isPending}
+        onClick={onDeleteClick}
+        size="xs"
+        variant="outline"
+      >
         {t("dashboard.timeEntry.delete")}
+      </Button>
+      <Button
+        color="success"
+        disabled={mutation.isPending}
+        onClick={onCopy}
+        size="xs"
+        variant="outline"
+      >
+        {t("dashboard.timeEntry.copy")}
       </Button>
     </div>
   );

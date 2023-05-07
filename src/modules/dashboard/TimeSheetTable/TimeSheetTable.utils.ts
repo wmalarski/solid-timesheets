@@ -104,7 +104,7 @@ type CopyTimeEntryToEndOfMonthArgs = {
   setStore: SetStoreFunction<CreatedTimeSeriesStore>;
 };
 
-const copyTimeEntryToEndOfMonth = ({
+export const copyTimeEntryToEndOfMonth = ({
   args,
   setStore,
 }: CopyTimeEntryToEndOfMonthArgs) => {
@@ -115,8 +115,6 @@ const copyTimeEntryToEndOfMonth = ({
       const current = { ...args, spentOn: date };
       return { current, key };
     });
-
-  console.log({ newEntries });
 
   setStore(
     produce((store) => {
