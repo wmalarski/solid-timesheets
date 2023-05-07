@@ -10,6 +10,12 @@ export const getNextMonth = (date: Date) => {
   return copy;
 };
 
+export const getNextDay = (date: Date) => {
+  const copy = new Date(date);
+  copy.setUTCDate(copy.getUTCDate() + 1);
+  return copy;
+};
+
 export const getFirstDayOfMonth = (date: Date) => {
   const copy = new Date(date);
   copy.setUTCDate(1);

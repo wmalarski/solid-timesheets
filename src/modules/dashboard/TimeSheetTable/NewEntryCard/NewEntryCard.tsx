@@ -18,6 +18,7 @@ import {
 import { NewEntryFields } from "../NewEntryFields";
 import {
   copyTimeEntryToEndOfMonth,
+  copyTimeEntryToNextDay,
   createdTimeEntriesKey,
   useTimeSheetContext,
   type CreatedTimeSeriesStore,
@@ -61,8 +62,15 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
     });
   };
 
-  const onCopy = () => {
+  const onCopyEndMonth = () => {
     copyTimeEntryToEndOfMonth({
+      args: props.args,
+      setStore: setCreatedTimeEntries,
+    });
+  };
+
+  const onCopyNextDay = () => {
+    copyTimeEntryToNextDay({
       args: props.args,
       setStore: setCreatedTimeEntries,
     });
@@ -87,11 +95,20 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
       <Button
         color="success"
         disabled={props.isPending}
-        onClick={onCopy}
+        onClick={onCopyEndMonth}
         size="xs"
         variant="outline"
       >
-        {t("dashboard.timeEntry.copy")}
+        {t("dashboard.timeEntry.copyMonthEnd")}
+      </Button>
+      <Button
+        color="success"
+        disabled={props.isPending}
+        onClick={onCopyNextDay}
+        size="xs"
+        variant="outline"
+      >
+        {t("dashboard.timeEntry.copyNextDay")}
       </Button>
     </div>
   );

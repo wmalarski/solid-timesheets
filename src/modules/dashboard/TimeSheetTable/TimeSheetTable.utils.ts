@@ -6,6 +6,7 @@ import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import {
   getDaysLeftInMonth,
   getFirstDayOfMonth,
+  getNextDay,
   getNextMonth,
   getPreviousMonth,
   isDayOff,
@@ -123,6 +124,27 @@ export const copyTimeEntryToEndOfMonth = ({
         keyEntries.push(entry.current);
         store.map[entry.key] = keyEntries;
       });
+    })
+  );
+};
+
+type CopyTimeEntryToNextDayArgs = {
+  args: CreateTimeEntryArgs;
+  setStore: SetStoreFunction<CreatedTimeSeriesStore>;
+};
+
+export const copyTimeEntryToNextDay = ({
+  args,
+  setStore,
+}: CopyTimeEntryToNextDayArgs) => {
+  const nextDate = getNextDay(args.spentOn);
+  const key = createdTimeEntriesKey({ date: nextDate, issueId: args.issueId });
+
+  setStore(
+    produce((store) => {
+      const keyEntries = store.map[key] || [];
+      keyEntries.push({ ...args, spentOn: nextDate });
+      store.map[key] = keyEntries;
     })
   );
 };

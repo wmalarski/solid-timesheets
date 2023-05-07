@@ -8,11 +8,13 @@ import {
   deleteTimeEntryServerMutation,
   getAllTimeEntriesKey,
   updateTimeEntryServerMutation,
+  type CreateTimeEntryArgs,
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryForm, type TimeEntryFormData } from "../TimeEntryForm";
 import {
   copyTimeEntryToEndOfMonth,
+  copyTimeEntryToNextDay,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
 
@@ -103,13 +105,26 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
     mutation.mutate({ id: props.entry.id });
   };
 
-  const onCopy = () => {
+  const args = (): CreateTimeEntryArgs => {
+    return {
+      activityId: props.entry.activity.id,
+      comments: props.entry.comments,
+      hours: props.entry.hours,
+      issueId: props.entry.issue.id,
+      spentOn: new Date(props.entry.spent_on),
+    };
+  };
+
+  const onCopyEndMonth = () => {
     copyTimeEntryToEndOfMonth({
-      args: {
-        ...props.entry,
-        issueId: props.entry.issue.id,
-        spentOn: new Date(props.entry.spent_on),
-      },
+      args: args(),
+      setStore: setCreatedTimeEntries,
+    });
+  };
+
+  const onCopyNextDay = () => {
+    copyTimeEntryToNextDay({
+      args: args(),
       setStore: setCreatedTimeEntries,
     });
   };
@@ -129,11 +144,20 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
       <Button
         color="success"
         disabled={mutation.isPending}
-        onClick={onCopy}
+        onClick={onCopyEndMonth}
         size="xs"
         variant="outline"
       >
-        {t("dashboard.timeEntry.copy")}
+        {t("dashboard.timeEntry.copyMonthEnd")}
+      </Button>
+      <Button
+        color="success"
+        disabled={mutation.isPending}
+        onClick={onCopyNextDay}
+        size="xs"
+        variant="outline"
+      >
+        {t("dashboard.timeEntry.copyNextDay")}
       </Button>
     </div>
   );

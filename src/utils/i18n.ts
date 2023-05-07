@@ -12,7 +12,8 @@ const dict = {
           label: "Comments",
           placeholder: "Write",
         },
-        copy: "Copy",
+        copyMonthEnd: "Copy Month End",
+        copyNextDay: "Copy Next Day",
         delete: "Delete",
         hours: {
           label: "Hours",
