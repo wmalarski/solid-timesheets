@@ -12,6 +12,7 @@ const dict = {
           label: "Comments",
           placeholder: "Write",
         },
+        copy: "Copy",
         delete: "Delete",
         hours: {
           label: "Hours",

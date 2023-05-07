@@ -1,26 +1,18 @@
 import { createContext, createMemo, useContext } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, produce, type SetStoreFunction } from "solid-js/store";
 import { useSearchParams } from "solid-start";
 import { z } from "zod";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
+import {
+  getDaysLeftInMonth,
+  getFirstDayOfMonth,
+  getNextMonth,
+  getPreviousMonth,
+  isDayOff,
+} from "~/utils/date";
 import { formatRequestDate } from "~/utils/format";
 
-export const getDaysInMonth = (start: Date) => {
-  const date = new Date(start);
-  date.setUTCMonth(date.getUTCMonth() + 1);
-  date.setUTCDate(0);
-
-  return Array(date.getUTCDate())
-    .fill(0)
-    .map((_, index) => {
-      const entry = new Date(start);
-      entry.setUTCDate(index + 1);
-      return entry;
-    });
-};
-
-const defaultDate = new Date();
-defaultDate.setUTCDate(1);
+const defaultDate = getFirstDayOfMonth(new Date());
 
 const paramsSchema = z.object({
   date: z.coerce.date().default(defaultDate),
@@ -69,17 +61,11 @@ export const useTimeSheetSearchParams = () => {
   };
 
   const setPreviousMonth = () => {
-    const current = params();
-    const date = new Date(current.date || defaultDate);
-    date.setUTCMonth(date.getUTCMonth() - 1);
-    setMonth(date);
+    setMonth(getPreviousMonth(params().date || defaultDate));
   };
 
   const setNextMonth = () => {
-    const current = params();
-    const date = new Date(current.date || defaultDate);
-    date.setUTCMonth(date.getUTCMonth() + 1);
-    setMonth(date);
+    setMonth(getNextMonth(params().date || defaultDate));
   };
 
   return {
@@ -92,11 +78,11 @@ export const useTimeSheetSearchParams = () => {
 
 type CreatedTimeEntriesKeyArgs = {
   issueId: number;
-  day: Date;
+  date: Date;
 };
 
 export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
-  return `${formatRequestDate(args.day)}-${args.issueId}`;
+  return `${formatRequestDate(args.date)}-${args.issueId}`;
 };
 
 export type CreatedTimeSeriesStore = {
@@ -111,6 +97,36 @@ export const useCreatedTimeSeries = () => {
     createdTimeEntries,
     setCreatedTimeEntries,
   };
+};
+
+type CopyTimeEntryToEndOfMonthArgs = {
+  args: CreateTimeEntryArgs;
+  setStore: SetStoreFunction<CreatedTimeSeriesStore>;
+};
+
+const copyTimeEntryToEndOfMonth = ({
+  args,
+  setStore,
+}: CopyTimeEntryToEndOfMonthArgs) => {
+  const newEntries = getDaysLeftInMonth(args.spentOn)
+    .filter((date) => !isDayOff(date))
+    .map((date) => {
+      const key = createdTimeEntriesKey({ date, issueId: args.issueId });
+      const current = { ...args, spentOn: date };
+      return { current, key };
+    });
+
+  console.log({ newEntries });
+
+  setStore(
+    produce((store) => {
+      newEntries.forEach((entry) => {
+        const keyEntries = store.map[entry.key] || [];
+        keyEntries.push(entry.current);
+        store.map[entry.key] = keyEntries;
+      });
+    })
+  );
 };
 
 export const sumCreatedTimeEntries = (

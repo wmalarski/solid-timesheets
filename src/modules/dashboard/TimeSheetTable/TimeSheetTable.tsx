@@ -15,11 +15,11 @@ import {
   getTimeEntriesServerQuery,
 } from "~/server/timeEntries";
 import type { Issue } from "~/server/types";
+import { getDaysInMonth, getNextMonth } from "~/utils/date";
 import { formatRequestDate } from "~/utils/format";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import {
   TimeSheetContext,
-  getDaysInMonth,
   sumCreatedTimeEntries,
   useCreatedTimeSeries,
   useTimeSheetContext,
@@ -35,8 +35,7 @@ const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
 
   const timeEntriesArgs = () => {
     const from = params().date;
-    const to = new Date(from);
-    to.setUTCMonth(to.getUTCMonth() + 1);
+    const to = getNextMonth(from);
     return { from, limit: 100, to };
   };
 

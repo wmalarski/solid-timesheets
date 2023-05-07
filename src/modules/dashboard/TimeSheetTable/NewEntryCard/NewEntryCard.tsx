@@ -30,7 +30,7 @@ type DeleteFromStoreArgs = {
 
 const deleteFromStore = ({ args, index, setStore }: DeleteFromStoreArgs) => {
   const key = createdTimeEntriesKey({
-    day: args.spentOn,
+    date: args.spentOn,
     issueId: args.issueId,
   });
 
@@ -75,6 +75,15 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
         variant="outline"
       >
         {t("dashboard.timeEntry.delete")}
+      </Button>
+      <Button
+        color="error"
+        disabled={props.isPending}
+        onClick={onDelete}
+        size="xs"
+        variant="outline"
+      >
+        {t("dashboard.timeEntry.copy")}
       </Button>
     </div>
   );

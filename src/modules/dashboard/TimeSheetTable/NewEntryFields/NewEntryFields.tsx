@@ -29,7 +29,7 @@ export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
 
   const key = () => {
     return createdTimeEntriesKey({
-      day: props.args.spentOn,
+      date: props.args.spentOn,
       issueId: props.args.issueId,
     });
   };

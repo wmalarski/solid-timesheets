@@ -45,10 +45,10 @@ const Header: Component = () => {
     <>
       <GridCell class="bg-base-100 sticky left-0 top-0 z-30 flex p-2" />
       <For each={days()}>
-        {(day) => (
+        {(date) => (
           <GridCell class="bg-base-100 sticky top-0 z-20 flex flex-col p-2">
-            <span class="text-3xl">{dayFormat()(day)}</span>
-            <span>{weekdayFormat()(day)}</span>
+            <span class="text-3xl">{dayFormat()(date)}</span>
+            <span>{weekdayFormat()(date)}</span>
           </GridCell>
         )}
       </For>
@@ -58,7 +58,7 @@ const Header: Component = () => {
 };
 
 type CellProps = {
-  day: Date;
+  date: Date;
   entries?: TimeEntry[];
   issue: Issue;
 };
@@ -70,7 +70,7 @@ const Cell: Component<CellProps> = (props) => {
 
   const key = () => {
     return createdTimeEntriesKey({
-      day: props.day,
+      date: props.date,
       issueId: props.issue.id,
     });
   };
@@ -84,7 +84,7 @@ const Cell: Component<CellProps> = (props) => {
       comments: "",
       hours: 0,
       issueId: props.issue.id,
-      spentOn: props.day,
+      spentOn: props.date,
     };
     setCreatedTimeEntries("map", key(), (current) => [
       ...(current || []),
@@ -133,7 +133,7 @@ const Row: Component<RowProps> = (props) => {
         {(day) => (
           <Cell
             issue={props.issue}
-            day={day}
+            date={day}
             entries={props.dayEntryMap?.get(formatRequestDate(day))}
           />
         )}
