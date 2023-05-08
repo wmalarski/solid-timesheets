@@ -155,14 +155,6 @@ export const copyTimeEntryToNextDay = ({
   );
 };
 
-export const sumCreatedTimeEntries = (
-  created: Record<string, CreateTimeEntryArgs[]>
-) => {
-  return Object.values(created).reduce((prev, curr) => {
-    return prev + curr.length;
-  }, 0);
-};
-
 type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
   ReturnType<typeof useTimeSheetSearchParams> & {
     days: () => Date[];

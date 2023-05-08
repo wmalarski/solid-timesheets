@@ -1,26 +1,16 @@
-import { useI18n } from "@solid-primitives/i18n";
-import {
-  createMutation,
-  createQuery,
-  useQueryClient,
-} from "@tanstack/solid-query";
+import { createQuery } from "@tanstack/solid-query";
 import { Suspense, createMemo, type Component } from "solid-js";
-import { Button } from "~/components/Button";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
-  createTimeEntriesKey,
-  createTimeEntriesServerMutation,
-  getAllTimeEntriesKey,
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
 } from "~/server/timeEntries";
 import type { Issue } from "~/server/types";
 import { getDaysInMonth, getNextMonth } from "~/utils/date";
-import { formatRequestDate } from "~/utils/format";
+import { TableToolbar } from "./TableToolbar";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import {
   TimeSheetContext,
-  sumCreatedTimeEntries,
   useCreatedTimeSeries,
   useTimeSheetContext,
   useTimeSheetSearchParams,
@@ -73,74 +63,6 @@ const ProjectGrid: Component = () => {
   );
 };
 
-const Toolbar: Component = () => {
-  const [t] = useI18n();
-
-  const {
-    createdTimeEntries,
-    params,
-    setCreatedTimeEntries,
-    setNextMonth,
-    setPreviousMonth,
-  } = useTimeSheetContext();
-
-  const count = createMemo(() => sumCreatedTimeEntries(createdTimeEntries.map));
-
-  const onDeleteAllClick = () => {
-    setCreatedTimeEntries({ map: {} });
-  };
-
-  const queryClient = useQueryClient();
-
-  const mutation = createMutation(() => ({
-    mutationFn: createTimeEntriesServerMutation,
-    mutationKey: createTimeEntriesKey(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      setCreatedTimeEntries({ map: {} });
-    },
-  }));
-
-  const onSaveClick = () => {
-    const args = Object.values(createdTimeEntries.map).flat();
-    mutation.mutate(args);
-  };
-
-  return (
-    <div class="flex justify-between gap-2 p-2">
-      <div class="flex gap-1">
-        <Button size="xs" variant="outline" onClick={setPreviousMonth}>
-          -
-        </Button>
-        <span>{formatRequestDate(params().date)}</span>
-        <Button size="xs" variant="outline" onClick={setNextMonth}>
-          +
-        </Button>
-      </div>
-      <div>
-        <Button
-          color="error"
-          disabled={count() < 1 || mutation.isPending}
-          onClick={onDeleteAllClick}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.reset", { count: String(count()) })}
-        </Button>
-        <Button
-          color="success"
-          disabled={count() < 1 || mutation.isPending}
-          onClick={onSaveClick}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.saveAll", { count: String(count()) })}
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 export const TimeSheetTable: Component = () => {
   const searchParams = useTimeSheetSearchParams();
   const createParams = useCreatedTimeSeries();
@@ -152,7 +74,7 @@ export const TimeSheetTable: Component = () => {
       value={{ ...createParams, ...searchParams, days }}
     >
       <div class="flex flex-col">
-        <Toolbar />
+        <TableToolbar />
         <ProjectGrid />
       </div>
     </TimeSheetContext.Provider>
