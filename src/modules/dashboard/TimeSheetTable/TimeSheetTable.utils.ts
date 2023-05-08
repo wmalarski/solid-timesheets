@@ -88,11 +88,12 @@ export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
 
 export type CreatedTimeSeriesStore = {
   map: Record<string, CreateTimeEntryArgs[]>;
+  checked: string[];
 };
 
 export const useCreatedTimeSeries = () => {
   const [createdTimeEntries, setCreatedTimeEntries] =
-    createStore<CreatedTimeSeriesStore>({ map: {} });
+    createStore<CreatedTimeSeriesStore>({ checked: [], map: {} });
 
   return {
     createdTimeEntries,
@@ -163,7 +164,7 @@ type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
   };
 
 export const TimeSheetContext = createContext<TimeSheetContextValue>({
-  createdTimeEntries: { map: {} },
+  createdTimeEntries: { checked: [], map: {} },
   days: () => [],
   params: () => defaultParams,
   setCreatedTimeEntries: () => void 0,
