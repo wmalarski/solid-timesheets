@@ -86,8 +86,13 @@ export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
   return `${formatRequestDate(args.date)}-${args.issueId}`;
 };
 
+export type CreateTimeEntry = {
+  args: CreateTimeEntryArgs;
+  isChecked: boolean;
+};
+
 export type CreatedTimeSeriesStore = {
-  map: Record<string, CreateTimeEntryArgs[]>;
+  map: Record<string, CreateTimeEntry[]>;
   checked: number[];
 };
 
@@ -114,15 +119,14 @@ export const copyTimeEntryToEndOfMonth = ({
     .filter((date) => !isDayOff(date))
     .map((date) => {
       const key = createdTimeEntriesKey({ date, issueId: args.issueId });
-      const current = { ...args, spentOn: date };
-      return { current, key };
+      return { args: { ...args, spentOn: date }, key };
     });
 
   setStore(
     produce((store) => {
       newEntries.forEach((entry) => {
         const keyEntries = store.map[entry.key] || [];
-        keyEntries.push(entry.current);
+        keyEntries.push({ args: entry.args, isChecked: true });
         store.map[entry.key] = keyEntries;
       });
     })
@@ -144,7 +148,8 @@ export const copyTimeEntryToNextDay = ({
   setStore(
     produce((store) => {
       const keyEntries = store.map[key] || [];
-      keyEntries.push({ ...args, spentOn: nextDate });
+      const currentArgs = { ...args, spentOn: nextDate };
+      keyEntries.push({ args: currentArgs, isChecked: true });
       store.map[key] = keyEntries;
     })
   );

@@ -9,6 +9,8 @@ import type { SetStoreFunction } from "solid-js/store";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
+import { Checkbox } from "~/components/Checkbox";
+import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import {
   createTimeEntriesKey,
   createTimeEntryServerMutation,
@@ -46,6 +48,7 @@ const deleteFromStore = ({ args, index, setStore }: DeleteFromStoreArgs) => {
 type CardHeaderProps = {
   args: CreateTimeEntryArgs;
   index: number;
+  isChecked: boolean;
   isPending: boolean;
 };
 
@@ -76,13 +79,40 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
     });
   };
 
+  const onCheckChange = () => {
+    const key = createdTimeEntriesKey({
+      date: props.args.spentOn,
+      issueId: props.args.issueId,
+    });
+
+    setCreatedTimeEntries(
+      "map",
+      key,
+      props.index,
+      "isChecked",
+      (current) => !current
+    );
+  };
+
   return (
     <div>
-      <Badge class="uppercase" variant="outline">
-        <Show fallback={t("dashboard.timeEntry.new")} when={props.isPending}>
-          {t("dashboard.timeEntry.pending")}
-        </Show>
-      </Badge>
+      <TextFieldRoot>
+        <TextFieldLabel>
+          <Badge class="uppercase" variant="outline">
+            <Show
+              fallback={t("dashboard.timeEntry.new")}
+              when={props.isPending}
+            >
+              {t("dashboard.timeEntry.pending")}
+            </Show>
+          </Badge>
+          <Checkbox
+            checked={props.isChecked}
+            onChange={onCheckChange}
+            size="xs"
+          />
+        </TextFieldLabel>
+      </TextFieldRoot>
       <Button
         color="error"
         disabled={props.isPending}
@@ -117,6 +147,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
 type Props = {
   args: CreateTimeEntryArgs;
   index: number;
+  isChecked: boolean;
 };
 
 export const NewEntryCard: Component<Props> = (props) => {
@@ -149,9 +180,14 @@ export const NewEntryCard: Component<Props> = (props) => {
   };
 
   return (
-    <Card variant="bordered" size="compact">
+    <Card
+      color={props.isChecked ? "accent" : "disabled"}
+      variant="bordered"
+      size="compact"
+    >
       <CardBody>
         <CardHeader
+          isChecked={props.isChecked}
           args={props.args}
           index={props.index}
           isPending={isPending()}

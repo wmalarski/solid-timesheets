@@ -40,6 +40,7 @@ export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
       "map",
       key(),
       props.index,
+      "args",
       "comments",
       event.target.value
     );
@@ -50,6 +51,7 @@ export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
       "map",
       key(),
       props.index,
+      "args",
       "hours",
       event.target.valueAsNumber
     );

@@ -88,19 +88,25 @@ const Cell: Component<CellProps> = (props) => {
     };
     setCreatedTimeEntries("map", key(), (current) => [
       ...(current || []),
-      newEntry,
+      { args: newEntry, isChecked: true },
     ]);
   };
 
   return (
     <GridCell class="flex flex-col gap-2 p-2">
       <div>
-        <Button onClick={onCreateClick} variant="outline" size="xs">
+        <Button onClick={onCreateClick} variant="ghost" size="xs">
           {t("dashboard.create")}
         </Button>
       </div>
       <For each={created()}>
-        {(args, index) => <NewEntryCard args={args} index={index()} />}
+        {(entry, index) => (
+          <NewEntryCard
+            args={entry.args}
+            isChecked={entry.isChecked}
+            index={index()}
+          />
+        )}
       </For>
       <For each={props.entries}>
         {(entry) => <TimeEntryCard entry={entry} />}

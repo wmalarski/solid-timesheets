@@ -143,12 +143,11 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
 
   return (
     <div>
-      <TextFieldRoot class="flex">
-        <TextFieldLabel for={`checked-${props.entry.id}`}>
+      <TextFieldRoot>
+        <TextFieldLabel>
           <Badge variant="outline">{props.entry.id}</Badge>
           <Checkbox
             checked={props.isChecked}
-            name={`checked-${props.entry.id}`}
             onChange={onCheckChange}
             size="xs"
           />
