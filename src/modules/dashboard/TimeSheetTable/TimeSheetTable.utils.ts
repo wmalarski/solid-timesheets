@@ -88,7 +88,7 @@ export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
 
 export type CreatedTimeSeriesStore = {
   map: Record<string, CreateTimeEntryArgs[]>;
-  checked: string[];
+  checked: number[];
 };
 
 export const useCreatedTimeSeries = () => {

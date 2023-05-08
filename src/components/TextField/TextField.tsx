@@ -13,7 +13,18 @@ export type TextFieldLabelProps = JSX.IntrinsicElements["label"];
 export const TextFieldLabel: Component<TextFieldLabelProps> = (props) => {
   return (
     // eslint-disable-next-line jsx-a11y/label-has-associated-control
-    <label {...props} class={twCx("label label-text", props.class)} />
+    <label {...props} class={twCx("label gap-2", props.class)} />
+  );
+};
+
+export type TextFieldLabelTextProps = JSX.IntrinsicElements["span"];
+
+export const TextFieldLabelText: Component<TextFieldLabelTextProps> = (
+  props
+) => {
+  return (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <span {...props} class={twCx("label-text", props.class)} />
   );
 };
 
@@ -22,7 +33,7 @@ export type TextFieldDescriptionProps = JSX.IntrinsicElements["span"];
 export const TextFieldDescription: Component<TextFieldDescriptionProps> = (
   props
 ) => {
-  return <span {...props} class={twCx("label label-text-alt", props.class)} />;
+  return <span {...props} class={twCx("label-text-alt", props.class)} />;
 };
 
 export type TextFieldErrorMessageProps = JSX.IntrinsicElements["span"];

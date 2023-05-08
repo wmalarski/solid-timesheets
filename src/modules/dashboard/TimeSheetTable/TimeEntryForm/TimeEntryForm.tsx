@@ -7,6 +7,7 @@ import { Button } from "~/components/Button";
 import {
   TextFieldInput,
   TextFieldLabel,
+  TextFieldLabelText,
   TextFieldRoot,
 } from "~/components/TextField";
 
@@ -46,7 +47,9 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
         {(field, fieldProps) => (
           <TextFieldRoot>
             <TextFieldLabel for={field.name}>
-              {t("dashboard.timeEntry.comments.label")}
+              <TextFieldLabelText>
+                {t("dashboard.timeEntry.comments.label")}
+              </TextFieldLabelText>
             </TextFieldLabel>
             <TextFieldInput
               {...fieldProps}
@@ -71,7 +74,9 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
         {(field, fieldProps) => (
           <TextFieldRoot>
             <TextFieldLabel for={field.name}>
-              {t("dashboard.timeEntry.hours.label")}
+              <TextFieldLabelText>
+                {t("dashboard.timeEntry.hours.label")}
+              </TextFieldLabelText>
             </TextFieldLabel>
             <TextFieldInput
               {...fieldProps}

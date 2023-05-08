@@ -7,6 +7,7 @@ import {
   TextFieldDescription,
   TextFieldInput,
   TextFieldLabel,
+  TextFieldLabelText,
   TextFieldRoot,
 } from "~/components/TextField";
 import { createSignInServerAction } from "~/server/auth";
@@ -30,7 +31,9 @@ export const SignIn: Component = () => {
             )}
           </Show>
           <TextFieldRoot>
-            <TextFieldLabel for="token">{t("signIn.label")}</TextFieldLabel>
+            <TextFieldLabel for="token">
+              <TextFieldLabelText>{t("signIn.label")}</TextFieldLabelText>
+            </TextFieldLabel>
             <TextFieldInput
               id="token"
               name="token"

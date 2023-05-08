@@ -4,6 +4,8 @@ import { Show, createSignal, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
+import { Checkbox } from "~/components/Checkbox";
+import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import {
   deleteTimeEntryServerMutation,
   getAllTimeEntriesKey,
@@ -28,8 +30,7 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
 
   const mutation = createMutation(() => ({
     mutationFn: updateTimeEntryServerMutation,
-    onSuccess: (data) => {
-      console.log({ data });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       props.onSettle();
     },
@@ -86,6 +87,7 @@ const CardContent: Component<CardContentProps> = (props) => {
 
 type CardHeaderProps = {
   entry: TimeEntry;
+  isChecked: boolean;
 };
 
 const CardHeader: Component<CardHeaderProps> = (props) => {
@@ -130,9 +132,28 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
     });
   };
 
+  const onCheckChange = () => {
+    const id = props.entry.id;
+    setCreatedTimeEntries("checked", (current) =>
+      current.includes(id)
+        ? current.filter((entry) => entry !== id)
+        : [...current, id]
+    );
+  };
+
   return (
     <div>
-      <Badge variant="outline">{props.entry.id}</Badge>
+      <TextFieldRoot class="flex">
+        <TextFieldLabel for={`checked-${props.entry.id}`}>
+          <Badge variant="outline">{props.entry.id}</Badge>
+          <Checkbox
+            checked={props.isChecked}
+            name={`checked-${props.entry.id}`}
+            onChange={onCheckChange}
+            size="xs"
+          />
+        </TextFieldLabel>
+      </TextFieldRoot>
       <Button
         color="error"
         disabled={mutation.isPending}
@@ -169,16 +190,26 @@ type TimeEntryCardProps = {
 };
 
 export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
+  const { createdTimeEntries } = useTimeSheetContext();
+
   const [isUpdating, setIsUpdating] = createSignal(false);
 
   const onUpdateToggle = () => {
     setIsUpdating((current) => !current);
   };
 
+  const isChecked = () => {
+    return createdTimeEntries.checked.includes(props.entry.id);
+  };
+
   return (
-    <Card variant="bordered" size="compact">
+    <Card
+      color={isChecked() ? "accent" : "disabled"}
+      variant="bordered"
+      size="compact"
+    >
       <CardBody>
-        <CardHeader entry={props.entry} />
+        <CardHeader entry={props.entry} isChecked={isChecked()} />
         <Show
           when={!isUpdating()}
           fallback={
