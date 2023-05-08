@@ -54,6 +54,7 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
               placeholder={t("dashboard.timeEntry.comments.placeholder")}
               size="xs"
               type="text"
+              value={field.value}
               variant="bordered"
             />
             <Show when={field.error}>
@@ -80,6 +81,7 @@ export const TimeEntryForm: Component<TimeEntryFormProps> = (props) => {
               size="xs"
               step={0.25}
               type="number"
+              value={field.value}
               variant="bordered"
             />
             <Show when={field.error}>

@@ -28,7 +28,8 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
 
   const mutation = createMutation(() => ({
     mutationFn: updateTimeEntryServerMutation,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log({ data });
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       props.onSettle();
     },

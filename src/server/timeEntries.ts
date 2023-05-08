@@ -1,7 +1,7 @@
 import server$, { useRequest } from "solid-start/server";
 import { z } from "zod";
 import { formatRequestDate } from "~/utils/format";
-import { jsonFetcher } from "./fetcher";
+import { fetcher, jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
 
@@ -72,16 +72,18 @@ export const createTimeEntryServerMutation = server$(
 
     const session = await getSessionOrThrow(server$.request);
 
-    return jsonFetcher({
+    return jsonFetcher<TimeEntry>({
       fetch: server$.fetch,
       init: {
         body: JSON.stringify({
-          activity_id: parsed.activityId,
-          comments: parsed.comments,
-          hours: parsed.hours,
-          issue_id: parsed.issueId,
-          spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
-          user_id: session.id,
+          time_entry: {
+            activity_id: parsed.activityId,
+            comments: parsed.comments,
+            hours: parsed.hours,
+            issue_id: parsed.issueId,
+            spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
+            user_id: session.id,
+          },
         }),
         method: "POST",
       },
@@ -107,16 +109,18 @@ export const createTimeEntriesServerMutation = server$(
 
     return Promise.all(
       parsed.map((entry) =>
-        jsonFetcher({
+        jsonFetcher<TimeEntry>({
           fetch: server$.fetch,
           init: {
             body: JSON.stringify({
-              activity_id: entry.activityId,
-              comments: entry.comments,
-              hours: entry.hours,
-              issue_id: entry.issueId,
-              spent_on: entry.spentOn && formatRequestDate(entry.spentOn),
-              user_id: session.id,
+              time_entry: {
+                activity_id: entry.activityId,
+                comments: entry.comments,
+                hours: `${entry.hours}`,
+                issue_id: entry.issueId,
+                spent_on: entry.spentOn && formatRequestDate(entry.spentOn),
+                user_id: session.id,
+              },
             }),
             method: "POST",
           },
@@ -141,16 +145,18 @@ export const updateTimeEntryServerMutation = server$(
 
     const session = await getSessionOrThrow(server$.request);
 
-    return jsonFetcher({
+    await fetcher({
       fetch: server$.fetch,
       init: {
         body: JSON.stringify({
-          activity_id: parsed.activityId,
-          comments: parsed.comments,
-          hours: parsed.hours,
-          issue_id: parsed.issueId,
-          spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
-          user_id: session.id,
+          time_entry: {
+            activity_id: parsed.activityId,
+            comments: parsed.comments,
+            hours: parsed.hours,
+            issue_id: parsed.issueId,
+            spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
+            user_id: session.id,
+          },
         }),
         method: "PUT",
       },
@@ -172,7 +178,7 @@ export const deleteTimeEntryServerMutation = server$(
 
     const session = await getSessionOrThrow(server$.request);
 
-    return jsonFetcher({
+    await fetcher({
       fetch: server$.fetch,
       init: { method: "DELETE" },
       path: `/time_entries/${parsed.id}.json`,
