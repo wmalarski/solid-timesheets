@@ -30,12 +30,12 @@ const MonthSelect: Component = () => {
 export const TableToolbar: Component = () => {
   const [t] = useI18n();
 
-  const { createdTimeEntries, setCreatedTimeEntries } = useTimeSheetContext();
+  const { state, setState } = useTimeSheetContext();
 
-  const count = createMemo(() => sumCreatedTimeEntries(createdTimeEntries.map));
+  const count = createMemo(() => sumCreatedTimeEntries(state.map));
 
   const onDeleteAllClick = () => {
-    setCreatedTimeEntries({ map: {} });
+    setState({ map: {} });
   };
 
   const queryClient = useQueryClient();
@@ -45,12 +45,12 @@ export const TableToolbar: Component = () => {
     mutationKey: createTimeEntriesKey(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      setCreatedTimeEntries({ map: {} });
+      setState({ map: {} });
     },
   }));
 
   const onSaveClick = () => {
-    const entries = Object.values(createdTimeEntries.map).flat();
+    const entries = Object.values(state.map).flat();
     mutation.mutate(entries.map((entry) => entry.args));
   };
 

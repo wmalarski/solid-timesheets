@@ -10,10 +10,7 @@ import {
   type TextFieldInputProps,
 } from "~/components/TextField";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
-import {
-  createdTimeEntriesKey,
-  useTimeSheetContext,
-} from "../TimeSheetTable.utils";
+import { timeEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
 
 type TimeEntryFieldsProps = {
   args: CreateTimeEntryArgs;
@@ -26,28 +23,21 @@ type TimeEntryFieldsProps = {
 export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
   const [t] = useI18n();
 
-  const { setCreatedTimeEntries } = useTimeSheetContext();
+  const { setState } = useTimeSheetContext();
 
   const key = () => {
-    return createdTimeEntriesKey({
+    return timeEntryMapKey({
       date: props.args.spentOn,
       issueId: props.args.issueId,
     });
   };
 
   const onCommentsInput: TextFieldInputProps["onInput"] = (event) => {
-    setCreatedTimeEntries(
-      "map",
-      key(),
-      props.index,
-      "args",
-      "comments",
-      event.target.value
-    );
+    setState("map", key(), props.index, "args", "comments", event.target.value);
   };
 
   const onHoursInput: TextFieldInputProps["onInput"] = (event) => {
-    setCreatedTimeEntries(
+    setState(
       "map",
       key(),
       props.index,

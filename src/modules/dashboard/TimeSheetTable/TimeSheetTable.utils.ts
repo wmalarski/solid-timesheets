@@ -82,47 +82,46 @@ type CreatedTimeEntriesKeyArgs = {
   date: Date;
 };
 
-export const createdTimeEntriesKey = (args: CreatedTimeEntriesKeyArgs) => {
+export const timeEntryMapKey = (args: CreatedTimeEntriesKeyArgs) => {
   return `${formatRequestDate(args.date)}-${args.issueId}`;
 };
 
-export type CreateTimeEntry = {
+export type NewTimeEntry = {
   args: CreateTimeEntryArgs;
   isChecked: boolean;
 };
 
-export type CreatedTimeSeriesStore = {
-  map: Record<string, CreateTimeEntry[]>;
+export type TimeSheetStore = {
+  map: Record<string, NewTimeEntry[]>;
   checked: number[];
 };
 
 export const useCreatedTimeSeries = () => {
-  const [createdTimeEntries, setCreatedTimeEntries] =
-    createStore<CreatedTimeSeriesStore>({ checked: [], map: {} });
+  const [state, setState] = createStore<TimeSheetStore>({
+    checked: [],
+    map: {},
+  });
 
-  return {
-    createdTimeEntries,
-    setCreatedTimeEntries,
-  };
+  return { setState, state };
 };
 
 type CopyTimeEntryToEndOfMonthArgs = {
   args: CreateTimeEntryArgs;
-  setStore: SetStoreFunction<CreatedTimeSeriesStore>;
+  setState: SetStoreFunction<TimeSheetStore>;
 };
 
 export const copyTimeEntryToEndOfMonth = ({
   args,
-  setStore,
+  setState,
 }: CopyTimeEntryToEndOfMonthArgs) => {
   const newEntries = getDaysLeftInMonth(args.spentOn)
     .filter((date) => !isDayOff(date))
     .map((date) => {
-      const key = createdTimeEntriesKey({ date, issueId: args.issueId });
+      const key = timeEntryMapKey({ date, issueId: args.issueId });
       return { args: { ...args, spentOn: date }, key };
     });
 
-  setStore(
+  setState(
     produce((store) => {
       newEntries.forEach((entry) => {
         const keyEntries = store.map[entry.key] || [];
@@ -135,17 +134,17 @@ export const copyTimeEntryToEndOfMonth = ({
 
 type CopyTimeEntryToNextDayArgs = {
   args: CreateTimeEntryArgs;
-  setStore: SetStoreFunction<CreatedTimeSeriesStore>;
+  setState: SetStoreFunction<TimeSheetStore>;
 };
 
 export const copyTimeEntryToNextDay = ({
   args,
-  setStore,
+  setState,
 }: CopyTimeEntryToNextDayArgs) => {
   const nextDate = getNextDay(args.spentOn);
-  const key = createdTimeEntriesKey({ date: nextDate, issueId: args.issueId });
+  const key = timeEntryMapKey({ date: nextDate, issueId: args.issueId });
 
-  setStore(
+  setState(
     produce((store) => {
       const keyEntries = store.map[key] || [];
       const currentArgs = { ...args, spentOn: nextDate };
@@ -161,12 +160,12 @@ type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
   };
 
 export const TimeSheetContext = createContext<TimeSheetContextValue>({
-  createdTimeEntries: { checked: [], map: {} },
   days: () => [],
   params: () => defaultParams,
-  setCreatedTimeEntries: () => void 0,
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
+  setState: () => void 0,
+  state: { checked: [], map: {} },
   toggleProject: () => void 0,
 });
 

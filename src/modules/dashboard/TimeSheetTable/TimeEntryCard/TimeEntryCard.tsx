@@ -93,7 +93,7 @@ type CardHeaderProps = {
 const CardHeader: Component<CardHeaderProps> = (props) => {
   const [t] = useI18n();
 
-  const { setCreatedTimeEntries } = useTimeSheetContext();
+  const { setState } = useTimeSheetContext();
 
   const queryClient = useQueryClient();
 
@@ -119,22 +119,16 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   };
 
   const onCopyEndMonth = () => {
-    copyTimeEntryToEndOfMonth({
-      args: args(),
-      setStore: setCreatedTimeEntries,
-    });
+    copyTimeEntryToEndOfMonth({ args: args(), setState });
   };
 
   const onCopyNextDay = () => {
-    copyTimeEntryToNextDay({
-      args: args(),
-      setStore: setCreatedTimeEntries,
-    });
+    copyTimeEntryToNextDay({ args: args(), setState });
   };
 
   const onCheckChange = () => {
     const id = props.entry.id;
-    setCreatedTimeEntries("checked", (current) =>
+    setState("checked", (current) =>
       current.includes(id)
         ? current.filter((entry) => entry !== id)
         : [...current, id]
@@ -189,7 +183,7 @@ type TimeEntryCardProps = {
 };
 
 export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
-  const { createdTimeEntries } = useTimeSheetContext();
+  const { state } = useTimeSheetContext();
 
   const [isUpdating, setIsUpdating] = createSignal(false);
 
@@ -198,7 +192,7 @@ export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
   };
 
   const isChecked = () => {
-    return createdTimeEntries.checked.includes(props.entry.id);
+    return state.checked.includes(props.entry.id);
   };
 
   return (

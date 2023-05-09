@@ -5,7 +5,6 @@ import {
   useQueryClient,
 } from "@tanstack/solid-query";
 import { Show, type Component } from "solid-js";
-import type { SetStoreFunction } from "solid-js/store";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
@@ -21,29 +20,10 @@ import { NewEntryFields } from "../NewEntryFields";
 import {
   copyTimeEntryToEndOfMonth,
   copyTimeEntryToNextDay,
-  createdTimeEntriesKey,
+  timeEntryMapKey,
   useTimeSheetContext,
-  type CreatedTimeSeriesStore,
 } from "../TimeSheetTable.utils";
-
-type DeleteFromStoreArgs = {
-  args: CreateTimeEntryArgs;
-  index: number;
-  setStore: SetStoreFunction<CreatedTimeSeriesStore>;
-};
-
-const deleteFromStore = ({ args, index, setStore }: DeleteFromStoreArgs) => {
-  const key = createdTimeEntriesKey({
-    date: args.spentOn,
-    issueId: args.issueId,
-  });
-
-  setStore("map", key, (current) => {
-    const copy = [...current];
-    copy.splice(index, 1);
-    return copy;
-  });
-};
+import { deleteFromStore } from "./NewEntryCard.utils";
 
 type CardHeaderProps = {
   args: CreateTimeEntryArgs;
@@ -55,43 +35,27 @@ type CardHeaderProps = {
 const CardHeader: Component<CardHeaderProps> = (props) => {
   const [t] = useI18n();
 
-  const { setCreatedTimeEntries } = useTimeSheetContext();
+  const { setState } = useTimeSheetContext();
 
   const onDelete = () => {
-    deleteFromStore({
-      args: props.args,
-      index: props.index,
-      setStore: setCreatedTimeEntries,
-    });
+    deleteFromStore({ args: props.args, index: props.index, setState });
   };
 
   const onCopyEndMonth = () => {
-    copyTimeEntryToEndOfMonth({
-      args: props.args,
-      setStore: setCreatedTimeEntries,
-    });
+    copyTimeEntryToEndOfMonth({ args: props.args, setState });
   };
 
   const onCopyNextDay = () => {
-    copyTimeEntryToNextDay({
-      args: props.args,
-      setStore: setCreatedTimeEntries,
-    });
+    copyTimeEntryToNextDay({ args: props.args, setState });
   };
 
   const onCheckChange = () => {
-    const key = createdTimeEntriesKey({
+    const key = timeEntryMapKey({
       date: props.args.spentOn,
       issueId: props.args.issueId,
     });
 
-    setCreatedTimeEntries(
-      "map",
-      key,
-      props.index,
-      "isChecked",
-      (current) => !current
-    );
+    setState("map", key, props.index, "isChecked", (current) => !current);
   };
 
   return (
@@ -151,7 +115,7 @@ type Props = {
 };
 
 export const NewEntryCard: Component<Props> = (props) => {
-  const { setCreatedTimeEntries } = useTimeSheetContext();
+  const { setState } = useTimeSheetContext();
 
   const isMutating = useIsMutating(() => ({
     mutationKey: createTimeEntriesKey(),
@@ -163,11 +127,7 @@ export const NewEntryCard: Component<Props> = (props) => {
     mutationFn: createTimeEntryServerMutation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      deleteFromStore({
-        args: props.args,
-        index: props.index,
-        setStore: setCreatedTimeEntries,
-      });
+      deleteFromStore({ args: props.args, index: props.index, setState });
     },
   }));
 

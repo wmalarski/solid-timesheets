@@ -7,10 +7,7 @@ import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
 import { NewEntryCard } from "../NewEntryCard";
 import { TimeEntryCard } from "../TimeEntryCard";
-import {
-  createdTimeEntriesKey,
-  useTimeSheetContext,
-} from "../TimeSheetTable.utils";
+import { timeEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
 import {
   groupIssuesByProject,
   groupTimeEntries,
@@ -66,17 +63,17 @@ type CellProps = {
 const Cell: Component<CellProps> = (props) => {
   const [t] = useI18n();
 
-  const { setCreatedTimeEntries, createdTimeEntries } = useTimeSheetContext();
+  const { setState, state } = useTimeSheetContext();
 
   const key = () => {
-    return createdTimeEntriesKey({
+    return timeEntryMapKey({
       date: props.date,
       issueId: props.issue.id,
     });
   };
 
   const created = createMemo(() => {
-    return createdTimeEntries.map[key()] || [];
+    return state.map[key()] || [];
   });
 
   const onCreateClick = () => {
@@ -86,7 +83,7 @@ const Cell: Component<CellProps> = (props) => {
       issueId: props.issue.id,
       spentOn: props.date,
     };
-    setCreatedTimeEntries("map", key(), (current) => [
+    setState("map", key(), (current) => [
       ...(current || []),
       { args: newEntry, isChecked: true },
     ]);
