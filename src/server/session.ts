@@ -1,8 +1,8 @@
 import { createCookieSessionStorage } from "solid-start";
 import { z } from "zod";
 import { serverEnv } from "./env";
-import type { Fetch } from "./fetcher";
-import { getCurrentUser } from "./users";
+import { jsonFetcher, type Fetch } from "./fetcher";
+import type { GetCurrentUserResult } from "./users";
 
 const storage = createCookieSessionStorage({
   cookie: {
@@ -77,7 +77,11 @@ export const setSessionCookie = async ({
 }: SetSessionCookieArgs) => {
   const session = await storage.getSession(request.headers.get("Cookie"));
 
-  const data = await getCurrentUser({ fetch, token });
+  const data = await jsonFetcher<GetCurrentUserResult>({
+    fetch,
+    path: "/users/current.json",
+    token,
+  });
 
   session.set(tokenKey, token);
   session.set(idKey, data.user.id);

@@ -1,23 +1,10 @@
 import server$, { useRequest } from "solid-start/server";
-import { jsonFetcher, type Fetch } from "./fetcher";
+import { jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { User } from "./types";
 
-export type GetCurrentUserArgs = {
-  fetch: Fetch;
-  token: string;
-};
-
 export type GetCurrentUserResult = {
   user: User;
-};
-
-export const getCurrentUser = (args: GetCurrentUserArgs) => {
-  return jsonFetcher<GetCurrentUserResult>({
-    fetch: args.fetch,
-    path: "/users/current.json",
-    token: args.token,
-  });
 };
 
 export const getCurrentUserKey = () => {
@@ -31,5 +18,9 @@ export const getCurrentUserServerQuery = server$(async () => {
 
   const session = await getSessionOrThrow(request);
 
-  return getCurrentUser({ fetch, token: session.token });
+  return jsonFetcher<GetCurrentUserResult>({
+    fetch,
+    path: "/users/current.json",
+    token: session.token,
+  });
 });
