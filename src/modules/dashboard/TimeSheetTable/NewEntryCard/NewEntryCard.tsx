@@ -55,7 +55,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
       issueId: props.args.issueId,
     });
 
-    setState("map", key, props.index, "isChecked", (current) => !current);
+    setState("created", key, props.index, "isChecked", (current) => !current);
   };
 
   return (

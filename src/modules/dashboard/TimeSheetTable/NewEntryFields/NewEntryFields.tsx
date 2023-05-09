@@ -33,12 +33,19 @@ export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
   };
 
   const onCommentsInput: TextFieldInputProps["onInput"] = (event) => {
-    setState("map", key(), props.index, "args", "comments", event.target.value);
+    setState(
+      "created",
+      key(),
+      props.index,
+      "args",
+      "comments",
+      event.target.value
+    );
   };
 
   const onHoursInput: TextFieldInputProps["onInput"] = (event) => {
     setState(
-      "map",
+      "created",
       key(),
       props.index,
       "args",

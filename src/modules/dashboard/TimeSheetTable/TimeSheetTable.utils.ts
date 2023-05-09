@@ -2,7 +2,10 @@ import { createContext, createMemo, useContext } from "solid-js";
 import { createStore, produce, type SetStoreFunction } from "solid-js/store";
 import { useSearchParams } from "solid-start";
 import { z } from "zod";
-import type { CreateTimeEntryArgs } from "~/server/timeEntries";
+import type {
+  CreateTimeEntryArgs,
+  UpdateTimeEntryArgs,
+} from "~/server/timeEntries";
 import {
   getDaysLeftInMonth,
   getFirstDayOfMonth,
@@ -86,20 +89,22 @@ export const timeEntryMapKey = (args: CreatedTimeEntriesKeyArgs) => {
   return `${formatRequestDate(args.date)}-${args.issueId}`;
 };
 
-export type NewTimeEntry = {
+export type TimeSheetEntry = {
   args: CreateTimeEntryArgs;
   isChecked: boolean;
 };
 
 export type TimeSheetStore = {
-  map: Record<string, NewTimeEntry[]>;
   checked: number[];
+  created: Record<string, TimeSheetEntry[]>;
+  updated: Record<number, UpdateTimeEntryArgs>;
 };
 
 export const useCreatedTimeSeries = () => {
   const [state, setState] = createStore<TimeSheetStore>({
     checked: [],
-    map: {},
+    created: {},
+    updated: {},
   });
 
   return { setState, state };
@@ -124,9 +129,9 @@ export const copyTimeEntryToEndOfMonth = ({
   setState(
     produce((store) => {
       newEntries.forEach((entry) => {
-        const keyEntries = store.map[entry.key] || [];
+        const keyEntries = store.created[entry.key] || [];
         keyEntries.push({ args: entry.args, isChecked: true });
-        store.map[entry.key] = keyEntries;
+        store.created[entry.key] = keyEntries;
       });
     })
   );
@@ -146,10 +151,10 @@ export const copyTimeEntryToNextDay = ({
 
   setState(
     produce((store) => {
-      const keyEntries = store.map[key] || [];
+      const keyEntries = store.created[key] || [];
       const currentArgs = { ...args, spentOn: nextDate };
       keyEntries.push({ args: currentArgs, isChecked: true });
-      store.map[key] = keyEntries;
+      store.created[key] = keyEntries;
     })
   );
 };
@@ -165,7 +170,7 @@ export const TimeSheetContext = createContext<TimeSheetContextValue>({
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
   setState: () => void 0,
-  state: { checked: [], map: {} },
+  state: { checked: [], created: {}, updated: {} },
   toggleProject: () => void 0,
 });
 

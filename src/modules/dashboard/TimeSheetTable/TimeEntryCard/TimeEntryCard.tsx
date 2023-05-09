@@ -11,6 +11,7 @@ import {
   getAllTimeEntriesKey,
   updateTimeEntryServerMutation,
   type CreateTimeEntryArgs,
+  type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryForm, type TimeEntryFormData } from "../TimeEntryForm";
@@ -180,6 +181,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
 
 type TimeEntryCardProps = {
   entry: TimeEntry;
+  update?: UpdateTimeEntryArgs;
 };
 
 export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {

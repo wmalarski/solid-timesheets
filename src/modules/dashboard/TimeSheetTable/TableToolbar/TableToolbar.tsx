@@ -32,10 +32,10 @@ export const TableToolbar: Component = () => {
 
   const { state, setState } = useTimeSheetContext();
 
-  const count = createMemo(() => sumCreatedTimeEntries(state.map));
+  const count = createMemo(() => sumCreatedTimeEntries(state));
 
   const onDeleteAllClick = () => {
-    setState({ map: {} });
+    setState({ created: {} });
   };
 
   const queryClient = useQueryClient();
@@ -45,12 +45,12 @@ export const TableToolbar: Component = () => {
     mutationKey: createTimeEntriesKey(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      setState({ map: {} });
+      setState({ created: {} });
     },
   }));
 
   const onSaveClick = () => {
-    const entries = Object.values(state.map).flat();
+    const entries = Object.values(state.created).flat();
     mutation.mutate(entries.map((entry) => entry.args));
   };
 

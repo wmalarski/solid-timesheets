@@ -1,9 +1,11 @@
-import type { NewTimeEntry } from "../TimeSheetTable.utils";
+import type { TimeSheetStore } from "../TimeSheetTable.utils";
 
-export const sumCreatedTimeEntries = (
-  created: Record<string, NewTimeEntry[]>
-) => {
-  return Object.values(created).reduce((prev, curr) => {
+export const selectedTimeEntries = (state: TimeSheetStore) => {
+  // state.
+};
+
+export const sumCreatedTimeEntries = (state: TimeSheetStore) => {
+  return Object.values(state.created).reduce((prev, curr) => {
     return prev + curr.length;
   }, 0);
 };

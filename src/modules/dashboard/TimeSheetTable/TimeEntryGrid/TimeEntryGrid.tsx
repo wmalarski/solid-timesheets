@@ -73,7 +73,7 @@ const Cell: Component<CellProps> = (props) => {
   };
 
   const created = createMemo(() => {
-    return state.map[key()] || [];
+    return state.created[key()] || [];
   });
 
   const onCreateClick = () => {
@@ -83,7 +83,8 @@ const Cell: Component<CellProps> = (props) => {
       issueId: props.issue.id,
       spentOn: props.date,
     };
-    setState("map", key(), (current) => [
+
+    setState("created", key(), (current) => [
       ...(current || []),
       { args: newEntry, isChecked: true },
     ]);
@@ -106,7 +107,9 @@ const Cell: Component<CellProps> = (props) => {
         )}
       </For>
       <For each={props.entries}>
-        {(entry) => <TimeEntryCard entry={entry} />}
+        {(entry) => (
+          <TimeEntryCard entry={entry} update={state.updated[entry.id]} />
+        )}
       </For>
     </GridCell>
   );

@@ -18,7 +18,7 @@ export const deleteFromStore = ({
     issueId: args.issueId,
   });
 
-  setState("map", key, (current) => {
+  setState("created", key, (current) => {
     const copy = [...current];
     copy.splice(index, 1);
     return copy;
