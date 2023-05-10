@@ -1,4 +1,4 @@
-import { createContext, createMemo, useContext } from "solid-js";
+import { createContext, createEffect, createMemo, useContext } from "solid-js";
 import { createStore, produce, type SetStoreFunction } from "solid-js/store";
 import { useSearchParams } from "solid-start";
 import { z } from "zod";
@@ -97,7 +97,7 @@ export type TimeSheetEntry = {
 export type TimeSheetStore = {
   checked: number[];
   created: Record<string, TimeSheetEntry[]>;
-  updated: Record<number, UpdateTimeEntryArgs>;
+  updated: Record<number, UpdateTimeEntryArgs | undefined>;
 };
 
 export const useCreatedTimeSeries = () => {
@@ -105,6 +105,10 @@ export const useCreatedTimeSeries = () => {
     checked: [],
     created: {},
     updated: {},
+  });
+
+  createEffect(() => {
+    console.log("state", JSON.stringify(state, null, 2));
   });
 
   return { setState, state };

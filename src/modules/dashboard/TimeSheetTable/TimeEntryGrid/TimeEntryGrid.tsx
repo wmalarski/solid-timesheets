@@ -107,9 +107,7 @@ const Cell: Component<CellProps> = (props) => {
         )}
       </For>
       <For each={props.entries}>
-        {(entry) => (
-          <TimeEntryCard entry={entry} update={state.updated[entry.id]} />
-        )}
+        {(entry) => <TimeEntryCard entry={entry} />}
       </For>
     </GridCell>
   );

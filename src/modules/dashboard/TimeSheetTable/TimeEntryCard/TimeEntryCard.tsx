@@ -1,6 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { createMutation, useQueryClient } from "@tanstack/solid-query";
-import { Show, createSignal, type Component } from "solid-js";
+import { Show, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
@@ -9,12 +9,11 @@ import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import {
   deleteTimeEntryServerMutation,
   getAllTimeEntriesKey,
-  updateTimeEntryServerMutation,
   type CreateTimeEntryArgs,
   type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
-import { TimeEntryForm, type TimeEntryFormData } from "../TimeEntryForm";
+import { TimeEntryFields } from "../TimeEntryFields";
 import {
   copyTimeEntryToEndOfMonth,
   copyTimeEntryToNextDay,
@@ -22,32 +21,26 @@ import {
 } from "../TimeSheetTable.utils";
 
 type UpdateFormProps = {
-  entry: TimeEntry;
-  onSettle: () => void;
+  args: UpdateTimeEntryArgs;
 };
 
 const UpdateForm: Component<UpdateFormProps> = (props) => {
-  const queryClient = useQueryClient();
+  const { setState } = useTimeSheetContext();
 
-  const mutation = createMutation(() => ({
-    mutationFn: updateTimeEntryServerMutation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      props.onSettle();
-    },
-  }));
+  const onCommentsChange = (comments: string) => {
+    setState("updated", props.args.id, "comments", comments);
+  };
 
-  const onSubmit = (data: TimeEntryFormData) => {
-    mutation.mutate({ id: props.entry.id, ...data });
+  const onHoursChange = (hours: number) => {
+    setState("updated", props.args.id, "hours", hours);
   };
 
   return (
-    <TimeEntryForm
-      initialValues={props.entry}
-      onReset={props.onSettle}
-      onSubmit={onSubmit}
-      error={mutation.error?.message}
-      isLoading={mutation.isPending}
+    <TimeEntryFields
+      data={props.args}
+      onCommentsChange={onCommentsChange}
+      onHoursChange={onHoursChange}
+      isLoading={false}
     />
   );
 };
@@ -72,16 +65,9 @@ const CardContent: Component<CardContentProps> = (props) => {
         </span>
         <span class="px-3 py-1 text-xs">{props.entry.hours}</span>
       </div>
-      <div class="flex justify-end">
-        <Button
-          onClick={props.onUpdateClick}
-          variant="outline"
-          size="xs"
-          color="accent"
-        >
-          {t("dashboard.timeEntry.update")}
-        </Button>
-      </div>
+      <Button onClick={props.onUpdateClick} size="xs" color="secondary">
+        {t("dashboard.timeEntry.update")}
+      </Button>
     </div>
   );
 };
@@ -181,20 +167,31 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
 
 type TimeEntryCardProps = {
   entry: TimeEntry;
-  update?: UpdateTimeEntryArgs;
 };
 
 export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
-  const { state } = useTimeSheetContext();
+  const [t] = useI18n();
 
-  const [isUpdating, setIsUpdating] = createSignal(false);
+  const { state, setState } = useTimeSheetContext();
 
-  const onUpdateToggle = () => {
-    setIsUpdating((current) => !current);
+  const args = () => {
+    return state.updated[props.entry.id];
   };
 
   const isChecked = () => {
     return state.checked.includes(props.entry.id);
+  };
+
+  const onUpdateClick = () => {
+    setState("updated", props.entry.id, {
+      comments: props.entry.comments,
+      hours: props.entry.hours,
+      id: props.entry.id,
+    });
+  };
+
+  const onSettle = () => {
+    setState("updated", props.entry.id, undefined);
   };
 
   return (
@@ -206,12 +203,19 @@ export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
       <CardBody>
         <CardHeader entry={props.entry} isChecked={isChecked()} />
         <Show
-          when={!isUpdating()}
+          when={args()}
           fallback={
-            <UpdateForm entry={props.entry} onSettle={onUpdateToggle} />
+            <CardContent entry={props.entry} onUpdateClick={onUpdateClick} />
           }
         >
-          <CardContent entry={props.entry} onUpdateClick={onUpdateToggle} />
+          {(args) => (
+            <div class="flex flex-col gap-2">
+              <UpdateForm args={args()} />
+              <Button color="error" onClick={onSettle} size="xs">
+                {t("dashboard.reset")}
+              </Button>
+            </div>
+          )}
         </Show>
       </CardBody>
     </Card>

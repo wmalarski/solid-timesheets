@@ -1,7 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { Show, type Component } from "solid-js";
 import { Alert, AlertIcon } from "~/components/Alert";
-import { Button } from "~/components/Button";
 import {
   TextFieldInput,
   TextFieldLabel,
@@ -9,49 +8,29 @@ import {
   TextFieldRoot,
   type TextFieldInputProps,
 } from "~/components/TextField";
-import type { CreateTimeEntryArgs } from "~/server/timeEntries";
-import { timeEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
 
-type TimeEntryFieldsProps = {
-  args: CreateTimeEntryArgs;
-  error?: string;
-  index: number;
-  isLoading?: boolean;
-  onSaveClick: () => void;
+type TimeEntryFieldsData = {
+  comments?: string;
+  hours?: number;
 };
 
-export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
+type TimeEntryFieldsProps = {
+  data: TimeEntryFieldsData;
+  error?: string;
+  isLoading?: boolean;
+  onCommentsChange: (comments: string) => void;
+  onHoursChange: (hours: number) => void;
+};
+
+export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
   const [t] = useI18n();
 
-  const { setState } = useTimeSheetContext();
-
-  const key = () => {
-    return timeEntryMapKey({
-      date: props.args.spentOn,
-      issueId: props.args.issueId,
-    });
-  };
-
   const onCommentsInput: TextFieldInputProps["onInput"] = (event) => {
-    setState(
-      "created",
-      key(),
-      props.index,
-      "args",
-      "comments",
-      event.target.value
-    );
+    props.onCommentsChange(event.target.value);
   };
 
   const onHoursInput: TextFieldInputProps["onInput"] = (event) => {
-    setState(
-      "created",
-      key(),
-      props.index,
-      "args",
-      "hours",
-      event.target.valueAsNumber
-    );
+    props.onHoursChange(event.target.valueAsNumber);
   };
 
   return (
@@ -76,7 +55,7 @@ export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           placeholder={t("dashboard.timeEntry.comments.placeholder")}
           size="xs"
           type="text"
-          value={props.args.comments}
+          value={props.data.comments}
           variant="bordered"
         />
       </TextFieldRoot>
@@ -96,24 +75,10 @@ export const NewEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           size="xs"
           step={0.25}
           type="number"
-          value={props.args.hours}
+          value={props.data.hours}
           variant="bordered"
         />
       </TextFieldRoot>
-
-      <div class="flex justify-end pt-2">
-        <Button
-          color="success"
-          disabled={props.isLoading}
-          isLoading={props.isLoading}
-          size="xs"
-          type="submit"
-          variant="outline"
-          onClick={props.onSaveClick}
-        >
-          {t("dashboard.timeEntry.save")}
-        </Button>
-      </div>
     </div>
   );
 };

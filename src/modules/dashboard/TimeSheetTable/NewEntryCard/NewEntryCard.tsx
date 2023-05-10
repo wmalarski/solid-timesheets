@@ -16,7 +16,7 @@ import {
   getAllTimeEntriesKey,
   type CreateTimeEntryArgs,
 } from "~/server/timeEntries";
-import { NewEntryFields } from "../NewEntryFields";
+import { TimeEntryFields } from "../TimeEntryFields";
 import {
   copyTimeEntryToEndOfMonth,
   copyTimeEntryToNextDay,
@@ -139,6 +139,28 @@ export const NewEntryCard: Component<Props> = (props) => {
     return isMutating() > 0 || mutation.isPending;
   };
 
+  const onCommentsInput: TextFieldInputProps["onInput"] = (event) => {
+    setState(
+      "created",
+      key(),
+      props.index,
+      "args",
+      "comments",
+      event.target.value
+    );
+  };
+
+  const onHoursInput: TextFieldInputProps["onInput"] = (event) => {
+    setState(
+      "created",
+      key(),
+      props.index,
+      "args",
+      "hours",
+      event.target.valueAsNumber
+    );
+  };
+
   return (
     <Card
       color={props.isChecked ? "accent" : "disabled"}
@@ -152,7 +174,7 @@ export const NewEntryCard: Component<Props> = (props) => {
           index={props.index}
           isPending={isPending()}
         />
-        <NewEntryFields
+        <TimeEntryFields
           isLoading={isPending()}
           onSaveClick={onSaveClick}
           args={props.args}
