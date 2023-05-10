@@ -5,9 +5,9 @@ import { Button } from "~/components/Button";
 import { twCx } from "~/components/utils/twCva";
 import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
-import { NewEntryCard } from "../NewEntryCard";
-import { TimeEntryCard } from "../TimeEntryCard";
+import { CreatedEntryCard } from "../CreatedEntryCard";
 import { timeEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
+import { UpdatedEntryCard } from "../UpdatedEntryCard";
 import {
   groupIssuesByProject,
   groupTimeEntries,
@@ -99,7 +99,7 @@ const Cell: Component<CellProps> = (props) => {
       </div>
       <For each={created()}>
         {(entry, index) => (
-          <NewEntryCard
+          <CreatedEntryCard
             args={entry.args}
             isChecked={entry.isChecked}
             index={index()}
@@ -107,7 +107,7 @@ const Cell: Component<CellProps> = (props) => {
         )}
       </For>
       <For each={props.entries}>
-        {(entry) => <TimeEntryCard entry={entry} />}
+        {(entry) => <UpdatedEntryCard entry={entry} />}
       </For>
     </GridCell>
   );

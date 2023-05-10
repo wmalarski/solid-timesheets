@@ -14,7 +14,7 @@ import {
   timeEntryMapKey,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
-import { deleteFromStore } from "./NewEntryCard.utils";
+import { deleteFromStore } from "./CreatedEntryCard.utils";
 
 type CardHeaderProps = {
   args: CreateTimeEntryArgs;
@@ -105,7 +105,7 @@ type Props = {
   isChecked: boolean;
 };
 
-export const NewEntryCard: Component<Props> = (props) => {
+export const CreatedEntryCard: Component<Props> = (props) => {
   const [t] = useI18n();
 
   const { setState } = useTimeSheetContext();

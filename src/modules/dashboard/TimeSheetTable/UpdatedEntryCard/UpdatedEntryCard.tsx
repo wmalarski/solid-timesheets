@@ -165,11 +165,11 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   );
 };
 
-type TimeEntryCardProps = {
+type UpdatedEntryCardProps = {
   entry: TimeEntry;
 };
 
-export const TimeEntryCard: Component<TimeEntryCardProps> = (props) => {
+export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   const [t] = useI18n();
 
   const { state, setState } = useTimeSheetContext();

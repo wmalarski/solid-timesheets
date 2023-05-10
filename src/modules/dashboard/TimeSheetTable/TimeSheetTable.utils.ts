@@ -1,4 +1,4 @@
-import { createContext, createEffect, createMemo, useContext } from "solid-js";
+import { createContext, createMemo, useContext } from "solid-js";
 import { createStore, produce, type SetStoreFunction } from "solid-js/store";
 import { useSearchParams } from "solid-start";
 import { z } from "zod";
@@ -105,10 +105,6 @@ export const useCreatedTimeSeries = () => {
     checked: [],
     created: {},
     updated: {},
-  });
-
-  createEffect(() => {
-    console.log("state", JSON.stringify(state, null, 2));
   });
 
   return { setState, state };
