@@ -1,21 +1,12 @@
 import { useI18n } from "@solid-primitives/i18n";
-import {
-  createMutation,
-  useIsMutating,
-  useQueryClient,
-} from "@tanstack/solid-query";
+import { useIsMutating } from "@tanstack/solid-query";
 import { Show, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
-import {
-  createTimeEntriesKey,
-  createTimeEntryServerMutation,
-  getAllTimeEntriesKey,
-  type CreateTimeEntryArgs,
-} from "~/server/timeEntries";
+import { type CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
 import {
   copyTimeEntryToEndOfMonth,
@@ -115,50 +106,33 @@ type Props = {
 };
 
 export const NewEntryCard: Component<Props> = (props) => {
+  const [t] = useI18n();
+
   const { setState } = useTimeSheetContext();
 
-  const isMutating = useIsMutating(() => ({
-    mutationKey: createTimeEntriesKey(),
-  }));
-
-  const queryClient = useQueryClient();
-
-  const mutation = createMutation(() => ({
-    mutationFn: createTimeEntryServerMutation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      deleteFromStore({ args: props.args, index: props.index, setState });
-    },
-  }));
-
-  const onSaveClick = () => {
-    mutation.mutate(props.args);
-  };
+  const isMutating = useIsMutating();
 
   const isPending = () => {
-    return isMutating() > 0 || mutation.isPending;
+    return isMutating() > 0;
   };
 
-  const onCommentsInput: TextFieldInputProps["onInput"] = (event) => {
-    setState(
-      "created",
-      key(),
-      props.index,
-      "args",
-      "comments",
-      event.target.value
-    );
+  const key = () => {
+    return timeEntryMapKey({
+      date: props.args.spentOn,
+      issueId: props.args.issueId,
+    });
   };
 
-  const onHoursInput: TextFieldInputProps["onInput"] = (event) => {
-    setState(
-      "created",
-      key(),
-      props.index,
-      "args",
-      "hours",
-      event.target.valueAsNumber
-    );
+  const onCommentsChange = (comments: string) => {
+    setState("created", key(), props.index, "args", "comments", comments);
+  };
+
+  const onHoursChange = (hours: number) => {
+    setState("created", key(), props.index, "args", "hours", hours);
+  };
+
+  const onDelete = () => {
+    deleteFromStore({ args: props.args, index: props.index, setState });
   };
 
   return (
@@ -176,11 +150,18 @@ export const NewEntryCard: Component<Props> = (props) => {
         />
         <TimeEntryFields
           isLoading={isPending()}
-          onSaveClick={onSaveClick}
-          args={props.args}
-          index={props.index}
-          error={mutation.error?.message}
+          data={props.args}
+          onCommentsChange={onCommentsChange}
+          onHoursChange={onHoursChange}
         />
+        <Button
+          color="error"
+          disabled={isPending()}
+          onClick={onDelete}
+          size="xs"
+        >
+          {t("dashboard.timeEntry.delete")}
+        </Button>
       </CardBody>
     </Card>
   );
