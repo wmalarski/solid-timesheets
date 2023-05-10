@@ -95,14 +95,14 @@ export type TimeSheetEntry = {
 };
 
 export type TimeSheetStore = {
-  checked: number[];
+  checked: Record<number, CreateTimeEntryArgs | undefined>;
   created: Record<string, TimeSheetEntry[]>;
   updated: Record<number, UpdateTimeEntryArgs | undefined>;
 };
 
 export const useCreatedTimeSeries = () => {
   const [state, setState] = createStore<TimeSheetStore>({
-    checked: [],
+    checked: {},
     created: {},
     updated: {},
   });
@@ -170,7 +170,7 @@ export const TimeSheetContext = createContext<TimeSheetContextValue>({
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
   setState: () => void 0,
-  state: { checked: [], created: {}, updated: {} },
+  state: { checked: {}, created: {}, updated: {} },
   toggleProject: () => void 0,
 });
 

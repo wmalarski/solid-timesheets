@@ -114,12 +114,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   };
 
   const onCheckChange = () => {
-    const id = props.entry.id;
-    setState("checked", (current) =>
-      current.includes(id)
-        ? current.filter((entry) => entry !== id)
-        : [...current, id]
-    );
+    setState("checked", props.entry.id, !props.isChecked ? args() : undefined);
   };
 
   return (
@@ -179,7 +174,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   };
 
   const isChecked = () => {
-    return state.checked.includes(props.entry.id);
+    return props.entry.id in state.checked;
   };
 
   const onUpdateClick = () => {
