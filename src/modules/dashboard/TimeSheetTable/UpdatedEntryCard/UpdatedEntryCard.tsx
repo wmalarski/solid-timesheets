@@ -1,24 +1,14 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { createMutation, useQueryClient } from "@tanstack/solid-query";
 import { Show, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
-import {
-  deleteTimeEntryServerMutation,
-  getAllTimeEntriesKey,
-  type CreateTimeEntryArgs,
-  type UpdateTimeEntryArgs,
-} from "~/server/timeEntries";
+import { type UpdateTimeEntryArgs } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryFields } from "../TimeEntryFields";
-import {
-  copyTimeEntryToEndOfMonth,
-  copyTimeEntryToNextDay,
-  useTimeSheetContext,
-} from "../TimeSheetTable.utils";
+import { useTimeSheetContext } from "../TimeSheetTable.utils";
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
@@ -78,85 +68,35 @@ type CardHeaderProps = {
 };
 
 const CardHeader: Component<CardHeaderProps> = (props) => {
-  const [t] = useI18n();
-
   const { setState } = useTimeSheetContext();
 
-  const queryClient = useQueryClient();
-
-  const mutation = createMutation(() => ({
-    mutationFn: deleteTimeEntryServerMutation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-    },
-  }));
-
-  const onDeleteClick = () => {
-    mutation.mutate({ id: props.entry.id });
-  };
-
-  const args = (): CreateTimeEntryArgs => {
-    return {
-      activityId: props.entry.activity.id,
-      comments: props.entry.comments,
-      hours: props.entry.hours,
-      issueId: props.entry.issue.id,
-      spentOn: new Date(props.entry.spent_on),
-    };
-  };
-
-  const onCopyEndMonth = () => {
-    copyTimeEntryToEndOfMonth({ args: args(), setState });
-  };
-
-  const onCopyNextDay = () => {
-    copyTimeEntryToNextDay({ args: args(), setState });
-  };
-
   const onCheckChange = () => {
-    setState("checked", props.entry.id, !props.isChecked ? args() : undefined);
+    setState(
+      "checked",
+      props.entry.id,
+      !props.isChecked
+        ? {
+            activityId: props.entry.activity.id,
+            comments: props.entry.comments,
+            hours: props.entry.hours,
+            issueId: props.entry.issue.id,
+            spentOn: new Date(props.entry.spent_on),
+          }
+        : undefined
+    );
   };
 
   return (
-    <div>
-      <TextFieldRoot>
-        <TextFieldLabel>
-          <Badge variant="outline">{props.entry.id}</Badge>
-          <Checkbox
-            checked={props.isChecked}
-            onChange={onCheckChange}
-            size="xs"
-          />
-        </TextFieldLabel>
-      </TextFieldRoot>
-      <Button
-        color="error"
-        disabled={mutation.isPending}
-        onClick={onDeleteClick}
-        size="xs"
-        variant="outline"
-      >
-        {t("dashboard.timeEntry.delete")}
-      </Button>
-      <Button
-        color="success"
-        disabled={mutation.isPending}
-        onClick={onCopyEndMonth}
-        size="xs"
-        variant="outline"
-      >
-        {t("dashboard.timeEntry.copyMonthEnd")}
-      </Button>
-      <Button
-        color="success"
-        disabled={mutation.isPending}
-        onClick={onCopyNextDay}
-        size="xs"
-        variant="outline"
-      >
-        {t("dashboard.timeEntry.copyNextDay")}
-      </Button>
-    </div>
+    <TextFieldRoot>
+      <TextFieldLabel>
+        <Badge variant="outline">{props.entry.id}</Badge>
+        <Checkbox
+          checked={props.isChecked}
+          onChange={onCheckChange}
+          size="xs"
+        />
+      </TextFieldLabel>
+    </TextFieldRoot>
   );
 };
 

@@ -8,12 +8,7 @@ import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import { type CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
-import {
-  copyTimeEntryToEndOfMonth,
-  copyTimeEntryToNextDay,
-  timeEntryMapKey,
-  useTimeSheetContext,
-} from "../TimeSheetTable.utils";
+import { timeEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
 import { deleteFromStore } from "./CreatedEntryCard.utils";
 
 type CardHeaderProps = {
@@ -28,18 +23,6 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
 
   const { setState } = useTimeSheetContext();
 
-  const onDelete = () => {
-    deleteFromStore({ args: props.args, index: props.index, setState });
-  };
-
-  const onCopyEndMonth = () => {
-    copyTimeEntryToEndOfMonth({ args: props.args, setState });
-  };
-
-  const onCopyNextDay = () => {
-    copyTimeEntryToNextDay({ args: props.args, setState });
-  };
-
   const onCheckChange = () => {
     const key = timeEntryMapKey({
       date: props.args.spentOn,
@@ -50,52 +33,20 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   };
 
   return (
-    <div>
-      <TextFieldRoot>
-        <TextFieldLabel>
-          <Badge class="uppercase" variant="outline">
-            <Show
-              fallback={t("dashboard.timeEntry.new")}
-              when={props.isPending}
-            >
-              {t("dashboard.timeEntry.pending")}
-            </Show>
-          </Badge>
-          <Checkbox
-            checked={props.isChecked}
-            onChange={onCheckChange}
-            size="xs"
-          />
-        </TextFieldLabel>
-      </TextFieldRoot>
-      <Button
-        color="error"
-        disabled={props.isPending}
-        onClick={onDelete}
-        size="xs"
-        variant="outline"
-      >
-        {t("dashboard.timeEntry.delete")}
-      </Button>
-      <Button
-        color="success"
-        disabled={props.isPending}
-        onClick={onCopyEndMonth}
-        size="xs"
-        variant="outline"
-      >
-        {t("dashboard.timeEntry.copyMonthEnd")}
-      </Button>
-      <Button
-        color="success"
-        disabled={props.isPending}
-        onClick={onCopyNextDay}
-        size="xs"
-        variant="outline"
-      >
-        {t("dashboard.timeEntry.copyNextDay")}
-      </Button>
-    </div>
+    <TextFieldRoot>
+      <TextFieldLabel>
+        <Badge class="uppercase" variant="outline">
+          <Show fallback={t("dashboard.timeEntry.new")} when={props.isPending}>
+            {t("dashboard.timeEntry.pending")}
+          </Show>
+        </Badge>
+        <Checkbox
+          checked={props.isChecked}
+          onChange={onCheckChange}
+          size="xs"
+        />
+      </TextFieldLabel>
+    </TextFieldRoot>
   );
 };
 

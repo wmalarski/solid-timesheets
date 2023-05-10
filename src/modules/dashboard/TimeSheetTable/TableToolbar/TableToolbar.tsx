@@ -1,5 +1,9 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { createMutation, useQueryClient } from "@tanstack/solid-query";
+import {
+  createMutation,
+  useIsMutating,
+  useQueryClient,
+} from "@tanstack/solid-query";
 import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import {
@@ -11,16 +15,30 @@ import { formatRequestDate } from "~/utils/format";
 import { useTimeSheetContext } from "../TimeSheetTable.utils";
 import { sumCreatedTimeEntries } from "./TableToolbar.utils";
 
-const MonthSelect: Component = () => {
+type MonthSelectProps = {
+  isPending: boolean;
+};
+
+const MonthSelect: Component<MonthSelectProps> = (props) => {
   const { params, setNextMonth, setPreviousMonth } = useTimeSheetContext();
 
   return (
     <div class="flex gap-1">
-      <Button size="xs" variant="outline" onClick={setPreviousMonth}>
+      <Button
+        disabled={props.isPending}
+        onClick={setPreviousMonth}
+        size="xs"
+        variant="outline"
+      >
         -
       </Button>
       <span>{formatRequestDate(params().date)}</span>
-      <Button size="xs" variant="outline" onClick={setNextMonth}>
+      <Button
+        disabled={props.isPending}
+        onClick={setNextMonth}
+        size="xs"
+        variant="outline"
+      >
         +
       </Button>
     </div>
@@ -33,6 +51,12 @@ export const TableToolbar: Component = () => {
   const { state, setState } = useTimeSheetContext();
 
   const count = createMemo(() => sumCreatedTimeEntries(state));
+
+  const isMutating = useIsMutating();
+
+  const isPending = () => {
+    return isMutating() > 0;
+  };
 
   const onDeleteAllClick = () => {
     setState({ created: {} });
@@ -54,10 +78,75 @@ export const TableToolbar: Component = () => {
     mutation.mutate(entries.map((entry) => entry.args));
   };
 
+  const onDelete = () => {
+    // deleteFromStore({ args: props.args, index: props.index, setState });
+  };
+
+  const onCopyEndMonth = () => {
+    // copyTimeEntryToEndOfMonth({ args: props.args, setState });
+  };
+
+  const onCopyNextDay = () => {
+    // copyTimeEntryToNextDay({ args: props.args, setState });
+  };
+
   return (
     <div class="flex justify-between gap-2 p-2">
-      <MonthSelect />
+      <MonthSelect isPending={isPending()} />
       <div>
+        <Button
+          color="error"
+          disabled={mutation.isPending}
+          onClick={onDelete}
+          size="xs"
+        >
+          {t("dashboard.timeEntry.delete")}
+        </Button>
+        <Button
+          color="success"
+          disabled={mutation.isPending}
+          onClick={onCopyEndMonth}
+          size="xs"
+          variant="outline"
+        >
+          {t("dashboard.timeEntry.copyMonthEnd")}
+        </Button>
+        <Button
+          color="success"
+          disabled={mutation.isPending}
+          onClick={onCopyNextDay}
+          size="xs"
+          variant="outline"
+        >
+          {t("dashboard.timeEntry.copyNextDay")}
+        </Button>
+        <Button
+          color="error"
+          // disabled={props.isPending}
+          onClick={onDelete}
+          size="xs"
+          variant="outline"
+        >
+          {t("dashboard.timeEntry.delete")}
+        </Button>
+        <Button
+          color="success"
+          // disabled={props.isPending}
+          onClick={onCopyEndMonth}
+          size="xs"
+          variant="outline"
+        >
+          {t("dashboard.timeEntry.copyMonthEnd")}
+        </Button>
+        <Button
+          color="success"
+          // disabled={props.isPending}
+          onClick={onCopyNextDay}
+          size="xs"
+          variant="outline"
+        >
+          {t("dashboard.timeEntry.copyNextDay")}
+        </Button>
         <Button
           color="error"
           disabled={count() < 1 || mutation.isPending}
