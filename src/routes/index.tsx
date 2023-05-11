@@ -1,5 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { type Component } from "solid-js";
+import type { Component } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
 import { SignIn } from "~/modules/auth/SignIn";

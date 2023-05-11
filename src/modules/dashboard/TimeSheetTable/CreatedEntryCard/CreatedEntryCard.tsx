@@ -6,7 +6,7 @@ import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
-import { type CreateTimeEntryArgs } from "~/server/timeEntries";
+import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
 import { timeEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
 import { deleteFromStore } from "./CreatedEntryCard.utils";

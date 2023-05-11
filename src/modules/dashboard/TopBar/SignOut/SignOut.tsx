@@ -1,5 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { type Component } from "solid-js";
+import type { Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { createSignOutServerAction } from "~/server/auth";
 

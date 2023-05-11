@@ -15,6 +15,7 @@ import {
 import { formatRequestDate } from "~/utils/format";
 import { useTimeSheetContext } from "../TimeSheetTable.utils";
 import {
+  copyCheckedEntriesToEndOfMonth,
   deleteCheckedEntries,
   sumCreatedTimeEntries,
 } from "./TableToolbar.utils";
@@ -85,6 +86,31 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
   );
 };
 
+type CopyMonthButtonProps = {
+  isPending: boolean;
+};
+
+const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
+  const [t] = useI18n();
+
+  const { setState } = useTimeSheetContext();
+
+  const onCopyEndMonth = () => {
+    copyCheckedEntriesToEndOfMonth({ setState });
+  };
+
+  return (
+    <Button
+      color="success"
+      disabled={props.isPending}
+      onClick={onCopyEndMonth}
+      size="xs"
+    >
+      {t("dashboard.timeEntry.copyMonthEnd")}
+    </Button>
+  );
+};
+
 export const TableToolbar: Component = () => {
   const [t] = useI18n();
 
@@ -135,15 +161,7 @@ export const TableToolbar: Component = () => {
       <MonthSelect isPending={isPending()} />
       <div>
         <DeleteButton isPending={isPending()} />
-        <Button
-          color="success"
-          disabled={mutation.isPending}
-          onClick={onCopyEndMonth}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.timeEntry.copyMonthEnd")}
-        </Button>
+        <CopyMonthButton isPending={isPending()} />
         <Button
           color="success"
           disabled={mutation.isPending}

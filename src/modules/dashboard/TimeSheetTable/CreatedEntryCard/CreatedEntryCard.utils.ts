@@ -1,5 +1,5 @@
 import type { SetStoreFunction } from "solid-js/store";
-import { type CreateTimeEntryArgs } from "~/server/timeEntries";
+import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import { timeEntryMapKey, type TimeSheetStore } from "../TimeSheetTable.utils";
 
 type DeleteFromStoreArgs = {
