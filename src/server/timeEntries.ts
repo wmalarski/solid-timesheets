@@ -186,3 +186,28 @@ export const deleteTimeEntryServerMutation = server$(
     });
   }
 );
+
+const deleteTimeEntriesArgs = z.object({
+  ids: z.array(z.number()),
+});
+
+export type DeleteTimeEntriesArgs = z.infer<typeof deleteTimeEntriesArgs>;
+
+export const deleteTimeEntriesServerMutation = server$(
+  async (data: DeleteTimeEntriesArgs) => {
+    const parsed = deleteTimeEntriesArgs.parse(data);
+
+    const session = await getSessionOrThrow(server$.request);
+
+    await Promise.all(
+      parsed.ids.map((id) => {
+        return fetcher({
+          fetch: server$.fetch,
+          init: { method: "DELETE" },
+          path: `/time_entries/${id}.json`,
+          token: session.token,
+        });
+      })
+    );
+  }
+);

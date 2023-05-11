@@ -9,11 +9,15 @@ import { Button } from "~/components/Button";
 import {
   createTimeEntriesKey,
   createTimeEntriesServerMutation,
+  deleteTimeEntriesServerMutation,
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
 import { formatRequestDate } from "~/utils/format";
 import { useTimeSheetContext } from "../TimeSheetTable.utils";
-import { sumCreatedTimeEntries } from "./TableToolbar.utils";
+import {
+  deleteCheckedEntries,
+  sumCreatedTimeEntries,
+} from "./TableToolbar.utils";
 
 type MonthSelectProps = {
   isPending: boolean;
@@ -42,6 +46,42 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
         +
       </Button>
     </div>
+  );
+};
+
+type DeleteButtonProps = {
+  isPending: boolean;
+};
+
+const DeleteButton: Component<DeleteButtonProps> = (props) => {
+  const [t] = useI18n();
+
+  const { state, setState } = useTimeSheetContext();
+
+  const queryClient = useQueryClient();
+
+  const mutation = createMutation(() => ({
+    mutationFn: deleteTimeEntriesServerMutation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
+      deleteCheckedEntries({ setState });
+    },
+  }));
+
+  const onDeleteClick = () => {
+    const checkedToDelete = Object.keys(state.checked).map(Number);
+    mutation.mutate({ ids: checkedToDelete });
+  };
+
+  return (
+    <Button
+      color="error"
+      disabled={props.isPending}
+      onClick={onDeleteClick}
+      size="xs"
+    >
+      {t("dashboard.timeEntry.delete")}
+    </Button>
   );
 };
 
@@ -94,14 +134,7 @@ export const TableToolbar: Component = () => {
     <div class="flex justify-between gap-2 p-2">
       <MonthSelect isPending={isPending()} />
       <div>
-        <Button
-          color="error"
-          disabled={mutation.isPending}
-          onClick={onDelete}
-          size="xs"
-        >
-          {t("dashboard.timeEntry.delete")}
-        </Button>
+        <DeleteButton isPending={isPending()} />
         <Button
           color="success"
           disabled={mutation.isPending}
