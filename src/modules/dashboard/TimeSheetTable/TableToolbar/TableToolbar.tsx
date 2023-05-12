@@ -17,7 +17,6 @@ import { useTimeSheetContext } from "../TimeSheetTable.utils";
 import {
   copyCheckedEntriesToEndOfMonth,
   deleteCheckedEntries,
-  sumCreatedTimeEntries,
 } from "./TableToolbar.utils";
 
 type MonthSelectProps = {
@@ -116,7 +115,7 @@ export const TableToolbar: Component = () => {
 
   const { state, setState } = useTimeSheetContext();
 
-  const count = createMemo(() => sumCreatedTimeEntries(state));
+  const count = createMemo(() => state.checked.length);
 
   const isMutating = useIsMutating();
 

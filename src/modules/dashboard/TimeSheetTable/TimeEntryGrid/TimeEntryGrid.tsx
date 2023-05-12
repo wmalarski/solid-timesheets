@@ -6,7 +6,12 @@ import { twCx } from "~/components/utils/twCva";
 import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
-import { timeEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
+import {
+  createSheetEntryArgs,
+  sheetEntryMapKey,
+  useTimeSheetContext,
+  type CreateSheetEntry,
+} from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
 import {
   groupIssuesByProject,
@@ -65,29 +70,28 @@ const Cell: Component<CellProps> = (props) => {
 
   const { setState, state } = useTimeSheetContext();
 
-  const key = () => {
-    return timeEntryMapKey({
-      date: props.date,
-      issueId: props.issue.id,
-    });
-  };
-
   const created = createMemo(() => {
-    return state.created[key()] || [];
+    const key = sheetEntryMapKey({ date: props.date, issueId: props.issue.id });
+    const entries: CreateSheetEntry[] = [];
+    state.dateMap[key].forEach((id) => {
+      const entry = state.entriesMap[id];
+      if (entry && entry.kind === "create") {
+        entries.push(entry);
+      }
+    });
+    return entries;
   });
 
   const onCreateClick = () => {
-    const newEntry = {
-      comments: "",
-      hours: 0,
-      issueId: props.issue.id,
-      spentOn: props.date,
-    };
-
-    setState("created", key(), (current) => [
-      ...(current || []),
-      { args: newEntry, isChecked: true },
-    ]);
+    createSheetEntryArgs({
+      args: {
+        comments: "",
+        hours: 0,
+        issueId: props.issue.id,
+        spentOn: props.date,
+      },
+      setState,
+    });
   };
 
   return (
@@ -98,13 +102,7 @@ const Cell: Component<CellProps> = (props) => {
         </Button>
       </div>
       <For each={created()}>
-        {(entry, index) => (
-          <CreatedEntryCard
-            args={entry.args}
-            isChecked={entry.isChecked}
-            index={index()}
-          />
-        )}
+        {(entry) => <CreatedEntryCard args={entry.args} id={entry.id} />}
       </For>
       <For each={props.entries}>
         {(entry) => <UpdatedEntryCard entry={entry} />}

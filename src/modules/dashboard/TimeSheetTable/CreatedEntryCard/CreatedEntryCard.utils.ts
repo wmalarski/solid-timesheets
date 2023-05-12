@@ -1,6 +1,6 @@
 import type { SetStoreFunction } from "solid-js/store";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
-import { timeEntryMapKey, type TimeSheetStore } from "../TimeSheetTable.utils";
+import { sheetEntryMapKey, type TimeSheetStore } from "../TimeSheetTable.utils";
 
 type DeleteFromStoreArgs = {
   args: CreateTimeEntryArgs;
@@ -13,7 +13,7 @@ export const deleteFromStore = ({
   index,
   setState,
 }: DeleteFromStoreArgs) => {
-  const key = timeEntryMapKey({
+  const key = sheetEntryMapKey({
     date: args.spentOn,
     issueId: args.issueId,
   });

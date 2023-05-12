@@ -1,5 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { Show, type Component } from "solid-js";
+import { Show, createMemo, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
@@ -8,7 +8,10 @@ import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import type { UpdateTimeEntryArgs } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryFields } from "../TimeEntryFields";
-import { useTimeSheetContext } from "../TimeSheetTable.utils";
+import {
+  toggleCheckedSheetEntry,
+  useTimeSheetContext,
+} from "../TimeSheetTable.utils";
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
@@ -18,11 +21,11 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCommentsChange = (comments: string) => {
-    setState("updated", props.args.id, "comments", comments);
+    setState("entriesMap", props.args.id, "args", "comments", comments);
   };
 
   const onHoursChange = (hours: number) => {
-    setState("updated", props.args.id, "hours", hours);
+    setState("entriesMap", props.args.id, "args", "hours", hours);
   };
 
   return (
@@ -71,19 +74,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCheckChange = () => {
-    setState(
-      "checked",
-      props.entry.id,
-      !props.isChecked
-        ? {
-            activityId: props.entry.activity.id,
-            comments: props.entry.comments,
-            hours: props.entry.hours,
-            issueId: props.entry.issue.id,
-            spentOn: new Date(props.entry.spent_on),
-          }
-        : undefined
-    );
+    toggleCheckedSheetEntry({ id: props.entry.id, setState });
   };
 
   return (
@@ -110,23 +101,27 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   const { state, setState } = useTimeSheetContext();
 
   const args = () => {
-    return state.updated[props.entry.id];
+    return state.entriesMap[props.entry.id];
   };
 
-  const isChecked = () => {
-    return props.entry.id in state.checked;
-  };
+  const isChecked = createMemo(() => {
+    return state.checked.includes(props.entry.id);
+  });
 
   const onUpdateClick = () => {
-    setState("updated", props.entry.id, {
-      comments: props.entry.comments,
-      hours: props.entry.hours,
+    setState("entriesMap", props.entry.id, {
+      args: {
+        comments: props.entry.comments,
+        hours: props.entry.hours,
+        id: props.entry.id,
+      },
       id: props.entry.id,
+      kind: "update",
     });
   };
 
   const onSettle = () => {
-    setState("updated", props.entry.id, undefined);
+    setState("entriesMap", props.entry.id, undefined);
   };
 
   return (

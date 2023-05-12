@@ -1,13 +1,5 @@
 import { produce, type SetStoreFunction } from "solid-js/store";
-import type { CreateTimeEntryArgs } from "~/server/timeEntries";
-import { getDaysLeftInMonth, isDayOff } from "~/utils/date";
-import { timeEntryMapKey, type TimeSheetStore } from "../TimeSheetTable.utils";
-
-export const sumCreatedTimeEntries = (state: TimeSheetStore) => {
-  return Object.values(state.created).reduce((prev, curr) => {
-    return prev + curr.length;
-  }, 0);
-};
+import { sheetEntryMapKey, type TimeSheetStore } from "../TimeSheetTable.utils";
 
 type DeleteCheckedEntriesArgs = {
   setState: SetStoreFunction<TimeSheetStore>;
@@ -18,27 +10,37 @@ export const deleteCheckedEntries = ({
 }: DeleteCheckedEntriesArgs) => {
   setState(
     produce((store) => {
-      Object.entries(store.created).forEach(([key, entries]) => {
-        const filtered = entries.filter((entry) => !entry.isChecked);
-        store.created[Number(key)] = filtered;
+      store.checked.forEach((id) => {
+        const entry = store.entriesMap[id];
+        delete store.entriesMap[id];
+
+        if (!entry || entry.kind === "update") {
+          return;
+        }
+
+        const key = sheetEntryMapKey({
+          date: entry.args.spentOn,
+          issueId: entry.args.issueId,
+        });
+
+        const ids = store.dateMap[key];
+
+        if (!ids) {
+          return;
+        }
+
+        const index = ids.indexOf(id);
+
+        if (index < 0) {
+          return;
+        }
+
+        ids.splice(index, 1);
       });
 
-      Object.keys(store.checked).forEach((id) => {
-        delete store.updated[Number(id)];
-      });
-
-      store.checked = {};
+      store.checked = [];
     })
   );
-};
-
-const getCreatedEntries = (args: CreateTimeEntryArgs) => {
-  return getDaysLeftInMonth(args.spentOn)
-    .filter((date) => !isDayOff(date))
-    .map((date) => {
-      const key = timeEntryMapKey({ date, issueId: args.issueId });
-      return { args: { ...args, spentOn: date }, key };
-    });
 };
 
 type CopyCheckedEntriesToEndOfMonthArgs = {
@@ -50,28 +52,12 @@ export const copyCheckedEntriesToEndOfMonth = ({
 }: CopyCheckedEntriesToEndOfMonthArgs) => {
   setState(
     produce((store) => {
-      const args: CreateTimeEntryArgs[] = [];
+      // const newEntries = store.checked.map(id => ).flatMap(createSheetEntriesToMonthEnd);
 
-      Object.values(store.checked).flatMap((entry) => {
-        if (entry) {
-          args.push(entry);
-        }
-      });
-
-      Object.values(store.created)
-        .flat()
-        .forEach((entry) => {
-          if (entry.isChecked) {
-            args.push(entry.args);
-          }
-        });
-
-      const newEntries = args.flatMap(getCreatedEntries);
-
-      newEntries.forEach((entry) => {
-        const keyEntries = store.created[entry.key] || [];
+      newEntries.forEach(({ key, ...entry }) => {
+        const keyEntries = store.created[key] || [];
         keyEntries.push({ args: entry.args, isChecked: true });
-        store.created[entry.key] = keyEntries;
+        store.created[key] = keyEntries;
       });
     })
   );

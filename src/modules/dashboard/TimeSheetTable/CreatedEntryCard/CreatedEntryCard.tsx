@@ -1,6 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { useIsMutating } from "@tanstack/solid-query";
-import { Show, type Component } from "solid-js";
+import { Show, createMemo, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
@@ -8,7 +8,7 @@ import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
-import { timeEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
+import { sheetEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
 import { deleteFromStore } from "./CreatedEntryCard.utils";
 
 type CardHeaderProps = {
@@ -24,7 +24,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCheckChange = () => {
-    const key = timeEntryMapKey({
+    const key = sheetEntryMapKey({
       date: props.args.spentOn,
       issueId: props.args.issueId,
     });
@@ -52,14 +52,13 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
 
 type Props = {
   args: CreateTimeEntryArgs;
-  index: number;
-  isChecked: boolean;
+  id: number;
 };
 
 export const CreatedEntryCard: Component<Props> = (props) => {
   const [t] = useI18n();
 
-  const { setState } = useTimeSheetContext();
+  const { state, setState } = useTimeSheetContext();
 
   const isMutating = useIsMutating();
 
@@ -68,11 +67,15 @@ export const CreatedEntryCard: Component<Props> = (props) => {
   };
 
   const key = () => {
-    return timeEntryMapKey({
+    return sheetEntryMapKey({
       date: props.args.spentOn,
       issueId: props.args.issueId,
     });
   };
+
+  const isChecked = createMemo(() => {
+    return state.checked.includes(props.id);
+  });
 
   const onCommentsChange = (comments: string) => {
     setState("created", key(), props.index, "args", "comments", comments);
