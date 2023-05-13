@@ -11,7 +11,34 @@ import { TimeEntryFields } from "../TimeEntryFields";
 import {
   toggleCheckedSheetEntry,
   useTimeSheetContext,
+  type SheetEntryUpdateArgs,
 } from "../TimeSheetTable.utils";
+
+type CardHeaderProps = {
+  entry: TimeEntry;
+  isChecked: boolean;
+};
+
+const CardHeader: Component<CardHeaderProps> = (props) => {
+  const { setState } = useTimeSheetContext();
+
+  const onCheckChange = () => {
+    toggleCheckedSheetEntry({ id: props.entry.id, setState });
+  };
+
+  return (
+    <TextFieldRoot>
+      <TextFieldLabel>
+        <Badge variant="outline">{props.entry.id}</Badge>
+        <Checkbox
+          checked={props.isChecked}
+          onChange={onCheckChange}
+          size="xs"
+        />
+      </TextFieldLabel>
+    </TextFieldRoot>
+  );
+};
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
@@ -65,32 +92,6 @@ const CardContent: Component<CardContentProps> = (props) => {
   );
 };
 
-type CardHeaderProps = {
-  entry: TimeEntry;
-  isChecked: boolean;
-};
-
-const CardHeader: Component<CardHeaderProps> = (props) => {
-  const { setState } = useTimeSheetContext();
-
-  const onCheckChange = () => {
-    toggleCheckedSheetEntry({ id: props.entry.id, setState });
-  };
-
-  return (
-    <TextFieldRoot>
-      <TextFieldLabel>
-        <Badge variant="outline">{props.entry.id}</Badge>
-        <Checkbox
-          checked={props.isChecked}
-          onChange={onCheckChange}
-          size="xs"
-        />
-      </TextFieldLabel>
-    </TextFieldRoot>
-  );
-};
-
 type UpdatedEntryCardProps = {
   entry: TimeEntry;
 };
@@ -109,11 +110,16 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   });
 
   const onUpdateClick = () => {
-    setState("updateMap", props.entry.id, {
+    const args: SheetEntryUpdateArgs = {
+      activityId: props.entry.activity.id,
       comments: props.entry.comments,
       hours: props.entry.hours,
       id: props.entry.id,
-    });
+      issueId: props.entry.issue.id,
+      spentOn: new Date(props.entry.spent_on),
+    };
+
+    setState("updateMap", props.entry.id, args);
   };
 
   const onSettle = () => {

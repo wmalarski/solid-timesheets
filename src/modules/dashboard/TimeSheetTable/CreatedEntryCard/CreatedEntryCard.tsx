@@ -8,12 +8,15 @@ import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
-import { sheetEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
-import { deleteFromStore } from "./CreatedEntryCard.utils";
+import {
+  deleteSheetEntry,
+  toggleCheckedSheetEntry,
+  useTimeSheetContext,
+} from "../TimeSheetTable.utils";
 
 type CardHeaderProps = {
   args: CreateTimeEntryArgs;
-  index: number;
+  id: number;
   isChecked: boolean;
   isPending: boolean;
 };
@@ -24,12 +27,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCheckChange = () => {
-    const key = sheetEntryMapKey({
-      date: props.args.spentOn,
-      issueId: props.args.issueId,
-    });
-
-    setState("created", key, props.index, "isChecked", (current) => !current);
+    toggleCheckedSheetEntry({ id: props.id, setState });
   };
 
   return (
@@ -50,6 +48,33 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   );
 };
 
+type CreateFormProps = {
+  args: CreateTimeEntryArgs;
+  id: number;
+  isPending: boolean;
+};
+
+const CreateForm: Component<CreateFormProps> = (props) => {
+  const { setState } = useTimeSheetContext();
+
+  const onCommentsChange = (comments: string) => {
+    setState("createMap", props.id, "comments", comments);
+  };
+
+  const onHoursChange = (hours: number) => {
+    setState("createMap", props.id, "hours", hours);
+  };
+
+  return (
+    <TimeEntryFields
+      isLoading={props.isPending}
+      data={props.args}
+      onCommentsChange={onCommentsChange}
+      onHoursChange={onHoursChange}
+    />
+  );
+};
+
 type Props = {
   args: CreateTimeEntryArgs;
   id: number;
@@ -66,48 +91,28 @@ export const CreatedEntryCard: Component<Props> = (props) => {
     return isMutating() > 0;
   };
 
-  const key = () => {
-    return sheetEntryMapKey({
-      date: props.args.spentOn,
-      issueId: props.args.issueId,
-    });
-  };
-
   const isChecked = createMemo(() => {
     return state.checked.includes(props.id);
   });
 
-  const onCommentsChange = (comments: string) => {
-    setState("created", key(), props.index, "args", "comments", comments);
-  };
-
-  const onHoursChange = (hours: number) => {
-    setState("created", key(), props.index, "args", "hours", hours);
-  };
-
   const onDelete = () => {
-    deleteFromStore({ args: props.args, index: props.index, setState });
+    deleteSheetEntry({ id: props.id, setState });
   };
 
   return (
     <Card
-      color={props.isChecked ? "accent" : "disabled"}
+      color={isChecked() ? "accent" : "disabled"}
       variant="bordered"
       size="compact"
     >
       <CardBody>
         <CardHeader
-          isChecked={props.isChecked}
           args={props.args}
-          index={props.index}
+          id={props.id}
+          isChecked={isChecked()}
           isPending={isPending()}
         />
-        <TimeEntryFields
-          isLoading={isPending()}
-          data={props.args}
-          onCommentsChange={onCommentsChange}
-          onHoursChange={onHoursChange}
-        />
+        <CreateForm args={props.args} id={props.id} isPending={isPending()} />
         <Button
           color="error"
           disabled={isPending()}

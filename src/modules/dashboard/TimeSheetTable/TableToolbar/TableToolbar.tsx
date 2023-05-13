@@ -13,11 +13,11 @@ import {
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
 import { formatRequestDate } from "~/utils/format";
-import { useTimeSheetContext } from "../TimeSheetTable.utils";
 import {
   copyCheckedEntriesToEndOfMonth,
-  deleteCheckedEntries,
-} from "./TableToolbar.utils";
+  deleteCheckedSheetEntries,
+  useTimeSheetContext,
+} from "../TimeSheetTable.utils";
 
 type MonthSelectProps = {
   isPending: boolean;
@@ -64,7 +64,7 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
     mutationFn: deleteTimeEntriesServerMutation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      deleteCheckedEntries({ setState });
+      deleteCheckedSheetEntries({ setState });
     },
   }));
 

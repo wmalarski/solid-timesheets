@@ -2,10 +2,7 @@ import { createContext, createMemo, useContext } from "solid-js";
 import { createStore, produce, type SetStoreFunction } from "solid-js/store";
 import { useSearchParams } from "solid-start";
 import { z } from "zod";
-import type {
-  CreateTimeEntryArgs,
-  UpdateTimeEntryArgs,
-} from "~/server/timeEntries";
+import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import {
   getDaysLeftInMonth,
   getFirstDayOfMonth,
@@ -89,11 +86,13 @@ export const sheetEntryMapKey = (args: SheetEntryMapKeyArgs) => {
   return `${formatRequestDate(args.date)}-${args.issueId}`;
 };
 
+export type SheetEntryUpdateArgs = CreateTimeEntryArgs & { id: number };
+
 export type TimeSheetStore = {
   checked: number[];
   createMap: Record<number, CreateTimeEntryArgs | undefined>;
   dateMap: Record<string, number[]>;
-  updateMap: Record<number, UpdateTimeEntryArgs | undefined>;
+  updateMap: Record<number, SheetEntryUpdateArgs | undefined>;
 };
 
 export const useCreatedTimeSeries = () => {
@@ -105,6 +104,25 @@ export const useCreatedTimeSeries = () => {
   });
 
   return { setState, state };
+};
+
+type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
+  ReturnType<typeof useTimeSheetSearchParams> & {
+    days: () => Date[];
+  };
+
+export const TimeSheetContext = createContext<TimeSheetContextValue>({
+  days: () => [],
+  params: () => defaultParams,
+  setNextMonth: () => void 0,
+  setPreviousMonth: () => void 0,
+  setState: () => void 0,
+  state: { checked: [], createMap: {}, dateMap: {}, updateMap: {} },
+  toggleProject: () => void 0,
+});
+
+export const useTimeSheetContext = () => {
+  return useContext(TimeSheetContext);
 };
 
 const randomEntryId = () => {
@@ -150,9 +168,41 @@ export const copySheetEntryToEndOfMonth = ({
 }: CopySheetEntryToEndOfMonthArgs) => {
   setState(
     produce((store) => {
-      createSheetEntriesToMonthEnd(args).forEach((entry) => {
-        addSheetEntryToState({ ...entry, store });
+      createSheetEntriesToMonthEnd(args).forEach((entry) =>
+        addSheetEntryToState({ ...entry, store })
+      );
+    })
+  );
+};
+
+type CopyCheckedEntriesToEndOfMonthArgs = {
+  setState: SetStoreFunction<TimeSheetStore>;
+};
+
+export const copyCheckedEntriesToEndOfMonth = ({
+  setState,
+}: CopyCheckedEntriesToEndOfMonthArgs) => {
+  setState(
+    produce((store) => {
+      const newEntries: ReturnType<typeof createSheetEntriesToMonthEnd> = [];
+
+      store.checked.map((id) => {
+        const createArgs = store.createMap[id];
+        if (createArgs) {
+          newEntries.push(...createSheetEntriesToMonthEnd(createArgs));
+          return;
+        }
+
+        const updateArgs = store.updateMap[id];
+        if (updateArgs) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id, ...args } = updateArgs;
+          newEntries.push(...createSheetEntriesToMonthEnd(args));
+          return;
+        }
       });
+
+      newEntries.forEach((entry) => addSheetEntryToState({ ...entry, store }));
     })
   );
 };
@@ -215,21 +265,77 @@ export const toggleCheckedSheetEntry = ({
   );
 };
 
-type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
-  ReturnType<typeof useTimeSheetSearchParams> & {
-    days: () => Date[];
-  };
+type DeleteArgsFromStateArgs = {
+  id: number;
+  store: TimeSheetStore;
+};
 
-export const TimeSheetContext = createContext<TimeSheetContextValue>({
-  days: () => [],
-  params: () => defaultParams,
-  setNextMonth: () => void 0,
-  setPreviousMonth: () => void 0,
-  setState: () => void 0,
-  state: { checked: [], createMap: {}, dateMap: {}, updateMap: {} },
-  toggleProject: () => void 0,
-});
+const deleteArgsFromState = ({ id, store }: DeleteArgsFromStateArgs) => {
+  const updateArgs = store.updateMap[id];
 
-export const useTimeSheetContext = () => {
-  return useContext(TimeSheetContext);
+  if (updateArgs) {
+    delete store.updateMap[id];
+
+    return;
+  }
+
+  const createArgs = store.createMap[id];
+
+  if (createArgs) {
+    delete store.createMap[id];
+
+    const key = sheetEntryMapKey({
+      date: createArgs.spentOn,
+      issueId: createArgs.issueId,
+    });
+
+    const ids = store.dateMap[key];
+
+    if (!ids) {
+      return;
+    }
+
+    const index = ids.indexOf(id);
+
+    if (index < 0) {
+      return;
+    }
+
+    ids.splice(index, 1);
+
+    return;
+  }
+};
+
+type DeleteCheckedSheetEntriesArgs = {
+  setState: SetStoreFunction<TimeSheetStore>;
+};
+
+export const deleteCheckedSheetEntries = ({
+  setState,
+}: DeleteCheckedSheetEntriesArgs) => {
+  setState(
+    produce((store) => {
+      store.checked.forEach((id) => {
+        deleteArgsFromState({ id, store });
+      });
+      store.checked = [];
+    })
+  );
+};
+
+type DeleteSheetEntryArgs = {
+  id: number;
+  setState: SetStoreFunction<TimeSheetStore>;
+};
+
+export const deleteSheetEntry = ({ id, setState }: DeleteSheetEntryArgs) => {
+  setState(
+    produce((store) => {
+      deleteArgsFromState({ id, store });
+
+      const index = store.checked.indexOf(id);
+      store.checked.splice(index, 1);
+    })
+  );
 };
