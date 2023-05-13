@@ -207,23 +207,6 @@ export const copyCheckedEntriesToEndOfMonth = ({
   );
 };
 
-type CreateSheetEntryArgs = {
-  args: CreateTimeEntryArgs;
-  setState: SetStoreFunction<TimeSheetStore>;
-};
-
-export const createSheetEntryArgs = ({
-  args,
-  setState,
-}: CreateSheetEntryArgs) => {
-  setState(
-    produce((store) => {
-      const entry = copySheetEntry(args);
-      addSheetEntryToState({ ...entry, store });
-    })
-  );
-};
-
 type CopySheetEntryToNextDayArgs = {
   args: CreateTimeEntryArgs;
   setState: SetStoreFunction<TimeSheetStore>;
@@ -237,6 +220,59 @@ export const copySheetEntryToNextDay = ({
     produce((store) => {
       const date = getNextDay(args.spentOn);
       const entry = copySheetEntry({ ...args, spentOn: date });
+      addSheetEntryToState({ ...entry, store });
+    })
+  );
+};
+
+type CopyCheckedEntriesToNextDayArgs = {
+  setState: SetStoreFunction<TimeSheetStore>;
+};
+
+export const copyCheckedEntriesToNextDay = ({
+  setState,
+}: CopyCheckedEntriesToNextDayArgs) => {
+  setState(
+    produce((store) => {
+      const newEntries: ReturnType<typeof createSheetEntriesToMonthEnd> = [];
+
+      store.checked.map((id) => {
+        const createArgs = store.createMap[id];
+        if (createArgs) {
+          const date = getNextDay(createArgs.spentOn);
+          const entry = copySheetEntry({ ...createArgs, spentOn: date });
+          newEntries.push(entry);
+          return;
+        }
+
+        const updateArgs = store.updateMap[id];
+        if (updateArgs) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id, ...args } = updateArgs;
+          const date = getNextDay(args.spentOn);
+          const entry = copySheetEntry({ ...args, spentOn: date });
+          newEntries.push(entry);
+          return;
+        }
+      });
+
+      newEntries.forEach((entry) => addSheetEntryToState({ ...entry, store }));
+    })
+  );
+};
+
+type CreateSheetEntryArgs = {
+  args: CreateTimeEntryArgs;
+  setState: SetStoreFunction<TimeSheetStore>;
+};
+
+export const createSheetEntryArgs = ({
+  args,
+  setState,
+}: CreateSheetEntryArgs) => {
+  setState(
+    produce((store) => {
+      const entry = copySheetEntry(args);
       addSheetEntryToState({ ...entry, store });
     })
   );

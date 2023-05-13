@@ -15,6 +15,7 @@ import {
 import { formatRequestDate } from "~/utils/format";
 import {
   copyCheckedEntriesToEndOfMonth,
+  copyCheckedEntriesToNextDay,
   deleteCheckedSheetEntries,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
@@ -68,7 +69,7 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
     },
   }));
 
-  const onDeleteClick = () => {
+  const onClick = () => {
     const checkedToDelete = Object.keys(state.checked).map(Number);
     mutation.mutate({ ids: checkedToDelete });
   };
@@ -77,7 +78,7 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
     <Button
       color="error"
       disabled={props.isPending}
-      onClick={onDeleteClick}
+      onClick={onClick}
       size="xs"
     >
       {t("dashboard.timeEntry.delete")}
@@ -94,7 +95,7 @@ const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
 
   const { setState } = useTimeSheetContext();
 
-  const onCopyEndMonth = () => {
+  const onClick = () => {
     copyCheckedEntriesToEndOfMonth({ setState });
   };
 
@@ -102,10 +103,35 @@ const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
     <Button
       color="success"
       disabled={props.isPending}
-      onClick={onCopyEndMonth}
+      onClick={onClick}
       size="xs"
     >
       {t("dashboard.timeEntry.copyMonthEnd")}
+    </Button>
+  );
+};
+
+type CopyNextDayButtonProps = {
+  isPending: boolean;
+};
+
+const CopyNextDayButton: Component<CopyNextDayButtonProps> = (props) => {
+  const [t] = useI18n();
+
+  const { setState } = useTimeSheetContext();
+
+  const onClick = () => {
+    copyCheckedEntriesToNextDay({ setState });
+  };
+
+  return (
+    <Button
+      color="success"
+      disabled={props.isPending}
+      onClick={onClick}
+      size="xs"
+    >
+      {t("dashboard.timeEntry.copyNextDay")}
     </Button>
   );
 };
@@ -119,9 +145,9 @@ export const TableToolbar: Component = () => {
 
   const isMutating = useIsMutating();
 
-  const isPending = () => {
+  const isPending = createMemo(() => {
     return isMutating() > 0;
-  };
+  });
 
   const queryClient = useQueryClient();
 
@@ -139,60 +165,13 @@ export const TableToolbar: Component = () => {
     // mutation.mutate(entries.map((entry) => entry.args));
   };
 
-  const onDelete = () => {
-    // deleteFromStore({ args: props.args, index: props.index, setState });
-  };
-
-  const onCopyEndMonth = () => {
-    // copyTimeEntryToEndOfMonth({ args: props.args, setState });
-  };
-
-  const onCopyNextDay = () => {
-    // copyTimeEntryToNextDay({ args: props.args, setState });
-  };
-
   return (
     <div class="flex justify-between gap-2 p-2">
       <MonthSelect isPending={isPending()} />
       <div>
         <DeleteButton isPending={isPending()} />
         <CopyMonthButton isPending={isPending()} />
-        <Button
-          color="success"
-          disabled={mutation.isPending}
-          onClick={onCopyNextDay}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.timeEntry.copyNextDay")}
-        </Button>
-        <Button
-          color="error"
-          // disabled={props.isPending}
-          onClick={onDelete}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.timeEntry.delete")}
-        </Button>
-        <Button
-          color="success"
-          // disabled={props.isPending}
-          onClick={onCopyEndMonth}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.timeEntry.copyMonthEnd")}
-        </Button>
-        <Button
-          color="success"
-          // disabled={props.isPending}
-          onClick={onCopyNextDay}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.timeEntry.copyNextDay")}
-        </Button>
+        <CopyNextDayButton isPending={isPending()} />
         <Button
           color="success"
           disabled={count() < 1 || mutation.isPending}

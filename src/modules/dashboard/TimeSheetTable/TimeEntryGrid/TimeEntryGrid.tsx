@@ -71,7 +71,7 @@ const Cell: Component<CellProps> = (props) => {
 
   const created = createMemo(() => {
     const key = sheetEntryMapKey({ date: props.date, issueId: props.issue.id });
-    return state.dateMap[key].flatMap((id) => {
+    return (state.dateMap[key] || []).flatMap((id) => {
       const args = state.createMap[id];
       return args ? [{ args, id }] : [];
     });
