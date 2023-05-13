@@ -89,31 +89,19 @@ export const sheetEntryMapKey = (args: SheetEntryMapKeyArgs) => {
   return `${formatRequestDate(args.date)}-${args.issueId}`;
 };
 
-export type CreateSheetEntry = {
-  args: CreateTimeEntryArgs;
-  id: number;
-  kind: "create";
-};
-
-export type UpdateSheetEntry = {
-  args: UpdateTimeEntryArgs;
-  id: number;
-  kind: "update";
-};
-
-export type SheetEntry = CreateSheetEntry | UpdateSheetEntry;
-
 export type TimeSheetStore = {
   checked: number[];
+  createMap: Record<number, CreateTimeEntryArgs | undefined>;
   dateMap: Record<string, number[]>;
-  entriesMap: Record<number, SheetEntry | undefined>;
+  updateMap: Record<number, UpdateTimeEntryArgs | undefined>;
 };
 
 export const useCreatedTimeSeries = () => {
   const [state, setState] = createStore<TimeSheetStore>({
     checked: [],
+    createMap: {},
     dateMap: {},
-    entriesMap: {},
+    updateMap: {},
   });
 
   return { setState, state };
@@ -125,8 +113,7 @@ const randomEntryId = () => {
 
 const copySheetEntry = (args: CreateTimeEntryArgs) => {
   const key = sheetEntryMapKey({ date: args.spentOn, issueId: args.issueId });
-  const entry = { args, id: randomEntryId(), kind: "create" as const };
-  return { entry, key };
+  return { args, id: randomEntryId(), key };
 };
 
 export const createSheetEntriesToMonthEnd = (args: CreateTimeEntryArgs) => {
@@ -140,15 +127,16 @@ type AddSheetEntryToStateArgs = ReturnType<typeof copySheetEntry> & {
 };
 
 const addSheetEntryToState = ({
-  entry,
+  args,
+  id,
   key,
   store,
 }: AddSheetEntryToStateArgs) => {
   const keyEntries = store.dateMap[key] || [];
-  keyEntries.push(entry.id);
+  keyEntries.push(id);
   store.dateMap[key] = keyEntries;
-  store.entriesMap[entry.id] = entry;
-  store.checked.push(entry.id);
+  store.createMap[id] = args;
+  store.checked.push(id);
 };
 
 type CopySheetEntryToEndOfMonthArgs = {
@@ -162,8 +150,8 @@ export const copySheetEntryToEndOfMonth = ({
 }: CopySheetEntryToEndOfMonthArgs) => {
   setState(
     produce((store) => {
-      createSheetEntriesToMonthEnd(args).forEach(({ key, entry }) => {
-        addSheetEntryToState({ entry, key, store });
+      createSheetEntriesToMonthEnd(args).forEach((entry) => {
+        addSheetEntryToState({ ...entry, store });
       });
     })
   );
@@ -180,8 +168,8 @@ export const createSheetEntryArgs = ({
 }: CreateSheetEntryArgs) => {
   setState(
     produce((store) => {
-      const { key, entry } = copySheetEntry(args);
-      addSheetEntryToState({ entry, key, store });
+      const entry = copySheetEntry(args);
+      addSheetEntryToState({ ...entry, store });
     })
   );
 };
@@ -198,8 +186,8 @@ export const copySheetEntryToNextDay = ({
   setState(
     produce((store) => {
       const date = getNextDay(args.spentOn);
-      const { key, entry } = copySheetEntry({ ...args, spentOn: date });
-      addSheetEntryToState({ entry, key, store });
+      const entry = copySheetEntry({ ...args, spentOn: date });
+      addSheetEntryToState({ ...entry, store });
     })
   );
 };
@@ -238,7 +226,7 @@ export const TimeSheetContext = createContext<TimeSheetContextValue>({
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
   setState: () => void 0,
-  state: { checked: [], dateMap: {}, entriesMap: {} },
+  state: { checked: [], createMap: {}, dateMap: {}, updateMap: {} },
   toggleProject: () => void 0,
 });
 

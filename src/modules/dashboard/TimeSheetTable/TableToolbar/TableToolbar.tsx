@@ -113,7 +113,7 @@ const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
 export const TableToolbar: Component = () => {
   const [t] = useI18n();
 
-  const { state, setState } = useTimeSheetContext();
+  const { state } = useTimeSheetContext();
 
   const count = createMemo(() => state.checked.length);
 
@@ -123,10 +123,6 @@ export const TableToolbar: Component = () => {
     return isMutating() > 0;
   };
 
-  const onDeleteAllClick = () => {
-    setState({ created: {} });
-  };
-
   const queryClient = useQueryClient();
 
   const mutation = createMutation(() => ({
@@ -134,13 +130,13 @@ export const TableToolbar: Component = () => {
     mutationKey: createTimeEntriesKey(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      setState({ created: {} });
+      // setState({ created: {} });
     },
   }));
 
   const onSaveClick = () => {
-    const entries = Object.values(state.created).flat();
-    mutation.mutate(entries.map((entry) => entry.args));
+    // const entries = Object.values(state.created).flat();
+    // mutation.mutate(entries.map((entry) => entry.args));
   };
 
   const onDelete = () => {
@@ -196,15 +192,6 @@ export const TableToolbar: Component = () => {
           variant="outline"
         >
           {t("dashboard.timeEntry.copyNextDay")}
-        </Button>
-        <Button
-          color="error"
-          disabled={count() < 1 || mutation.isPending}
-          onClick={onDeleteAllClick}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.reset", { count: String(count()) })}
         </Button>
         <Button
           color="success"

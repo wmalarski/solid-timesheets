@@ -1,6 +1,48 @@
 import { produce, type SetStoreFunction } from "solid-js/store";
 import { sheetEntryMapKey, type TimeSheetStore } from "../TimeSheetTable.utils";
 
+type DeleteArgsFromStateArgs = {
+  id: number;
+  store: TimeSheetStore;
+};
+
+const deleteArgsFromState = ({ id, store }: DeleteArgsFromStateArgs) => {
+  const updateArgs = store.updateMap[id];
+
+  if (updateArgs) {
+    delete store.updateMap[id];
+
+    return;
+  }
+
+  const createArgs = store.createMap[id];
+
+  if (createArgs) {
+    delete store.createMap[id];
+
+    const key = sheetEntryMapKey({
+      date: createArgs.spentOn,
+      issueId: createArgs.issueId,
+    });
+
+    const ids = store.dateMap[key];
+
+    if (!ids) {
+      return;
+    }
+
+    const index = ids.indexOf(id);
+
+    if (index < 0) {
+      return;
+    }
+
+    ids.splice(index, 1);
+
+    return;
+  }
+};
+
 type DeleteCheckedEntriesArgs = {
   setState: SetStoreFunction<TimeSheetStore>;
 };
@@ -11,33 +53,8 @@ export const deleteCheckedEntries = ({
   setState(
     produce((store) => {
       store.checked.forEach((id) => {
-        const entry = store.entriesMap[id];
-        delete store.entriesMap[id];
-
-        if (!entry || entry.kind === "update") {
-          return;
-        }
-
-        const key = sheetEntryMapKey({
-          date: entry.args.spentOn,
-          issueId: entry.args.issueId,
-        });
-
-        const ids = store.dateMap[key];
-
-        if (!ids) {
-          return;
-        }
-
-        const index = ids.indexOf(id);
-
-        if (index < 0) {
-          return;
-        }
-
-        ids.splice(index, 1);
+        deleteArgsFromState({ id, store });
       });
-
       store.checked = [];
     })
   );

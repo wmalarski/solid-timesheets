@@ -10,7 +10,6 @@ import {
   createSheetEntryArgs,
   sheetEntryMapKey,
   useTimeSheetContext,
-  type CreateSheetEntry,
 } from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
 import {
@@ -72,14 +71,10 @@ const Cell: Component<CellProps> = (props) => {
 
   const created = createMemo(() => {
     const key = sheetEntryMapKey({ date: props.date, issueId: props.issue.id });
-    const entries: CreateSheetEntry[] = [];
-    state.dateMap[key].forEach((id) => {
-      const entry = state.entriesMap[id];
-      if (entry && entry.kind === "create") {
-        entries.push(entry);
-      }
+    return state.dateMap[key].flatMap((id) => {
+      const args = state.createMap[id];
+      return args ? [{ args, id }] : [];
     });
-    return entries;
   });
 
   const onCreateClick = () => {

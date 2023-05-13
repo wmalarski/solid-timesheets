@@ -21,11 +21,11 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCommentsChange = (comments: string) => {
-    setState("entriesMap", props.args.id, "args", "comments", comments);
+    setState("updateMap", props.args.id, "comments", comments);
   };
 
   const onHoursChange = (hours: number) => {
-    setState("entriesMap", props.args.id, "args", "hours", hours);
+    setState("updateMap", props.args.id, "hours", hours);
   };
 
   return (
@@ -101,7 +101,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   const { state, setState } = useTimeSheetContext();
 
   const args = () => {
-    return state.entriesMap[props.entry.id];
+    return state.updateMap[props.entry.id];
   };
 
   const isChecked = createMemo(() => {
@@ -109,19 +109,15 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   });
 
   const onUpdateClick = () => {
-    setState("entriesMap", props.entry.id, {
-      args: {
-        comments: props.entry.comments,
-        hours: props.entry.hours,
-        id: props.entry.id,
-      },
+    setState("updateMap", props.entry.id, {
+      comments: props.entry.comments,
+      hours: props.entry.hours,
       id: props.entry.id,
-      kind: "update",
     });
   };
 
   const onSettle = () => {
-    setState("entriesMap", props.entry.id, undefined);
+    setState("updateMap", props.entry.id, undefined);
   };
 
   return (
