@@ -86,18 +86,20 @@ export const sheetEntryMapKey = (args: SheetEntryMapKeyArgs) => {
   return `${formatRequestDate(args.date)}-${args.issueId}`;
 };
 
-export type SheetEntryUpdateArgs = CreateTimeEntryArgs & { id: number };
+export type SheetEntryData = {
+  args: CreateTimeEntryArgs;
+  id: number;
+  isChecked: boolean;
+};
 
 export type TimeSheetStore = {
-  checked: number[];
-  createMap: Record<number, CreateTimeEntryArgs | undefined>;
+  createMap: Record<number, SheetEntryData | undefined>;
   dateMap: Record<string, number[]>;
-  updateMap: Record<number, SheetEntryUpdateArgs | undefined>;
+  updateMap: Record<number, SheetEntryData | undefined>;
 };
 
 export const useCreatedTimeSeries = () => {
   const [state, setState] = createStore<TimeSheetStore>({
-    checked: [],
     createMap: {},
     dateMap: {},
     updateMap: {},
@@ -117,7 +119,7 @@ export const TimeSheetContext = createContext<TimeSheetContextValue>({
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
   setState: () => void 0,
-  state: { checked: [], createMap: {}, dateMap: {}, updateMap: {} },
+  state: { createMap: {}, dateMap: {}, updateMap: {} },
   toggleProject: () => void 0,
 });
 
@@ -153,8 +155,7 @@ const addSheetEntryToState = ({
   const keyEntries = store.dateMap[key] || [];
   keyEntries.push(id);
   store.dateMap[key] = keyEntries;
-  store.createMap[id] = args;
-  store.checked.push(id);
+  store.createMap[id] = { args, id, isChecked: true };
 };
 
 type CopySheetEntryToEndOfMonthArgs = {
@@ -184,25 +185,20 @@ export const copyCheckedEntriesToEndOfMonth = ({
 }: CopyCheckedEntriesToEndOfMonthArgs) => {
   setState(
     produce((store) => {
-      const newEntries: ReturnType<typeof createSheetEntriesToMonthEnd> = [];
+      const values = [
+        ...Object.values(store.createMap),
+        ...Object.values(store.updateMap),
+      ];
 
-      store.checked.map((id) => {
-        const createArgs = store.createMap[id];
-        if (createArgs) {
-          newEntries.push(...createSheetEntriesToMonthEnd(createArgs));
+      values.forEach((data) => {
+        if (!data) {
           return;
         }
 
-        const updateArgs = store.updateMap[id];
-        if (updateArgs) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id, ...args } = updateArgs;
-          newEntries.push(...createSheetEntriesToMonthEnd(args));
-          return;
-        }
+        createSheetEntriesToMonthEnd(data.args).forEach((entry) =>
+          addSheetEntryToState({ ...entry, store })
+        );
       });
-
-      newEntries.forEach((entry) => addSheetEntryToState({ ...entry, store }));
     })
   );
 };
@@ -234,29 +230,20 @@ export const copyCheckedEntriesToNextDay = ({
 }: CopyCheckedEntriesToNextDayArgs) => {
   setState(
     produce((store) => {
-      const newEntries: ReturnType<typeof createSheetEntriesToMonthEnd> = [];
+      const values = [
+        ...Object.values(store.createMap),
+        ...Object.values(store.updateMap),
+      ];
 
-      store.checked.map((id) => {
-        const createArgs = store.createMap[id];
-        if (createArgs) {
-          const date = getNextDay(createArgs.spentOn);
-          const entry = copySheetEntry({ ...createArgs, spentOn: date });
-          newEntries.push(entry);
+      values.forEach((data) => {
+        if (!data) {
           return;
         }
+        const date = getNextDay(data.args.spentOn);
+        const entry = copySheetEntry({ ...data.args, spentOn: date });
 
-        const updateArgs = store.updateMap[id];
-        if (updateArgs) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id, ...args } = updateArgs;
-          const date = getNextDay(args.spentOn);
-          const entry = copySheetEntry({ ...args, spentOn: date });
-          newEntries.push(entry);
-          return;
-        }
+        addSheetEntryToState({ ...entry, store });
       });
-
-      newEntries.forEach((entry) => addSheetEntryToState({ ...entry, store }));
     })
   );
 };
@@ -278,69 +265,55 @@ export const createSheetEntryArgs = ({
   );
 };
 
-type ToggleCheckedSheetEntryArgs = {
-  id: number;
-  setState: SetStoreFunction<TimeSheetStore>;
-};
-
-export const toggleCheckedSheetEntry = ({
-  id,
-  setState,
-}: ToggleCheckedSheetEntryArgs) => {
-  setState(
-    produce((store) => {
-      const index = store.checked.indexOf(id);
-
-      if (index < 0) {
-        store.checked.push(id);
-        return;
-      }
-
-      store.checked.splice(index, 1);
-    })
-  );
-};
-
-type DeleteArgsFromStateArgs = {
+type DeleteSheetCreateEntryFromStateArgs = {
   id: number;
   store: TimeSheetStore;
 };
 
-const deleteArgsFromState = ({ id, store }: DeleteArgsFromStateArgs) => {
-  const updateArgs = store.updateMap[id];
+const deleteSheetCreateEntryFromState = ({
+  id,
+  store,
+}: DeleteSheetCreateEntryFromStateArgs) => {
+  const data = store.createMap[id];
 
-  if (updateArgs) {
-    delete store.updateMap[id];
-
+  if (!data) {
     return;
   }
 
-  const createArgs = store.createMap[id];
+  delete store.createMap[id];
 
-  if (createArgs) {
-    delete store.createMap[id];
+  const key = sheetEntryMapKey({
+    date: data.args.spentOn,
+    issueId: data.args.issueId,
+  });
 
-    const key = sheetEntryMapKey({
-      date: createArgs.spentOn,
-      issueId: createArgs.issueId,
-    });
+  const ids = store.dateMap[key];
 
-    const ids = store.dateMap[key];
-
-    if (!ids) {
-      return;
-    }
-
-    const index = ids.indexOf(id);
-
-    if (index < 0) {
-      return;
-    }
-
-    ids.splice(index, 1);
-
+  if (!ids) {
     return;
   }
+
+  const index = ids.indexOf(id);
+
+  if (index < 0) {
+    return;
+  }
+
+  ids.splice(index, 1);
+
+  return;
+};
+
+type DeleteSheetUpdateEntryFromStateArgs = {
+  id: number;
+  store: TimeSheetStore;
+};
+
+const deleteSheetUpdateEntryFromState = ({
+  id,
+  store,
+}: DeleteSheetUpdateEntryFromStateArgs) => {
+  delete store.updateMap[id];
 };
 
 type DeleteCheckedSheetEntriesArgs = {
@@ -352,10 +325,12 @@ export const deleteCheckedSheetEntries = ({
 }: DeleteCheckedSheetEntriesArgs) => {
   setState(
     produce((store) => {
-      store.checked.forEach((id) => {
-        deleteArgsFromState({ id, store });
+      Object.keys(store.createMap).forEach((id) => {
+        deleteSheetCreateEntryFromState({ id: Number(id), store });
       });
-      store.checked = [];
+      Object.keys(store.updateMap).forEach((id) => {
+        deleteSheetUpdateEntryFromState({ id: Number(id), store });
+      });
     })
   );
 };
@@ -365,13 +340,13 @@ type DeleteSheetEntryArgs = {
   setState: SetStoreFunction<TimeSheetStore>;
 };
 
-export const deleteSheetEntry = ({ id, setState }: DeleteSheetEntryArgs) => {
+export const deleteSheetCreateEntry = ({
+  id,
+  setState,
+}: DeleteSheetEntryArgs) => {
   setState(
     produce((store) => {
-      deleteArgsFromState({ id, store });
-
-      const index = store.checked.indexOf(id);
-      store.checked.splice(index, 1);
+      deleteSheetCreateEntryFromState({ id, store });
     })
   );
 };

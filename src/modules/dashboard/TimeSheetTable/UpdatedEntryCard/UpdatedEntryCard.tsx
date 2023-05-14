@@ -8,11 +8,8 @@ import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import type { UpdateTimeEntryArgs } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryFields } from "../TimeEntryFields";
-import {
-  toggleCheckedSheetEntry,
-  useTimeSheetContext,
-  type SheetEntryUpdateArgs,
-} from "../TimeSheetTable.utils";
+import type { SheetEntryData } from "../TimeSheetTable.utils";
+import { useTimeSheetContext } from "../TimeSheetTable.utils";
 
 type CardHeaderProps = {
   entry: TimeEntry;
@@ -23,7 +20,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCheckChange = () => {
-    toggleCheckedSheetEntry({ id: props.entry.id, setState });
+    setState("updateMap", props.entry.id, "isChecked", (current) => !current);
   };
 
   return (
@@ -48,11 +45,11 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCommentsChange = (comments: string) => {
-    setState("updateMap", props.args.id, "comments", comments);
+    setState("updateMap", props.args.id, "args", "comments", comments);
   };
 
   const onHoursChange = (hours: number) => {
-    setState("updateMap", props.args.id, "hours", hours);
+    setState("updateMap", props.args.id, "args", "hours", hours);
   };
 
   return (
@@ -110,13 +107,16 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   });
 
   const onUpdateClick = () => {
-    const args: SheetEntryUpdateArgs = {
-      activityId: props.entry.activity.id,
-      comments: props.entry.comments,
-      hours: props.entry.hours,
+    const args: SheetEntryData = {
+      args: {
+        activityId: props.entry.activity.id,
+        comments: props.entry.comments,
+        hours: props.entry.hours,
+        issueId: props.entry.issue.id,
+        spentOn: new Date(props.entry.spent_on),
+      },
       id: props.entry.id,
-      issueId: props.entry.issue.id,
-      spentOn: new Date(props.entry.spent_on),
+      isChecked: false,
     };
 
     setState("updateMap", props.entry.id, args);

@@ -5,26 +5,46 @@ import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
 } from "~/server/timeEntries";
-import type { Issue } from "~/server/types";
+import type { Issue, TimeEntry } from "~/server/types";
 import { getDaysInMonth, getNextMonth } from "~/utils/date";
-import { TableToolbar } from "./TableToolbar";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import {
   TimeSheetContext,
   useCreatedTimeSeries,
-  useTimeSheetContext,
   useTimeSheetSearchParams,
 } from "./TimeSheetTable.utils";
 
-type TimeSheetGridProps = {
+type TimeSheetContextProviderProps = {
+  issues: Issue[];
+  timeEntries: TimeEntry[];
+};
+
+const TimeSheetContextProvider: Component<TimeSheetContextProviderProps> = (
+  props
+) => {
+  const searchParams = useTimeSheetSearchParams();
+  const createParams = useCreatedTimeSeries();
+
+  const days = createMemo(() => getDaysInMonth(searchParams.params().date));
+
+  return (
+    <TimeSheetContext.Provider
+      value={{ ...createParams, ...searchParams, days }}
+    >
+      <TimeEntryGrid issues={props.issues} timeEntries={props.timeEntries} />
+    </TimeSheetContext.Provider>
+  );
+};
+
+type TimeEntriesFetcherProps = {
   issues: Issue[];
 };
 
-const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
-  const { params } = useTimeSheetContext();
+const TimeEntriesFetcher: Component<TimeEntriesFetcherProps> = (props) => {
+  const searchParams = useTimeSheetSearchParams();
 
   const timeEntriesArgs = () => {
-    const from = params().date;
+    const from = searchParams.params().date;
     const to = getNextMonth(from);
     return { from, limit: 100, to };
   };
@@ -38,7 +58,7 @@ const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
     <Suspense
       fallback={<TimeEntryGrid issues={props.issues} timeEntries={[]} />}
     >
-      <TimeEntryGrid
+      <TimeSheetContextProvider
         issues={props.issues}
         timeEntries={timeEntriesQuery.data?.time_entries || []}
       />
@@ -46,7 +66,7 @@ const TimeSheetGrid: Component<TimeSheetGridProps> = (props) => {
   );
 };
 
-const ProjectGrid: Component = () => {
+export const TimeSheetTable: Component = () => {
   const issuesQuery = createQuery(() => ({
     queryFn: (context) => getIssuesServerQuery(context.queryKey),
     queryKey: getIssuesKey({
@@ -58,25 +78,7 @@ const ProjectGrid: Component = () => {
 
   return (
     <Suspense fallback={<TimeEntryGrid issues={[]} timeEntries={[]} />}>
-      <TimeSheetGrid issues={issuesQuery.data?.issues || []} />
+      <TimeEntriesFetcher issues={issuesQuery.data?.issues || []} />
     </Suspense>
-  );
-};
-
-export const TimeSheetTable: Component = () => {
-  const searchParams = useTimeSheetSearchParams();
-  const createParams = useCreatedTimeSeries();
-
-  const days = createMemo(() => getDaysInMonth(searchParams.params().date));
-
-  return (
-    <TimeSheetContext.Provider
-      value={{ ...createParams, ...searchParams, days }}
-    >
-      <div class="flex flex-col">
-        <TableToolbar />
-        <ProjectGrid />
-      </div>
-    </TimeSheetContext.Provider>
   );
 };

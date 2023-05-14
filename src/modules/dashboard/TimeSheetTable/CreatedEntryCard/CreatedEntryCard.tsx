@@ -9,8 +9,7 @@ import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
 import {
-  deleteSheetEntry,
-  toggleCheckedSheetEntry,
+  deleteSheetCreateEntry,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
 
@@ -27,7 +26,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCheckChange = () => {
-    toggleCheckedSheetEntry({ id: props.id, setState });
+    setState("createMap", props.id, "isChecked", (current) => !current);
   };
 
   return (
@@ -96,7 +95,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
   });
 
   const onDelete = () => {
-    deleteSheetEntry({ id: props.id, setState });
+    deleteSheetCreateEntry({ id: props.id, setState });
   };
 
   return (

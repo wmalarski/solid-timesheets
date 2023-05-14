@@ -6,6 +6,7 @@ import { twCx } from "~/components/utils/twCva";
 import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
+import { TableToolbar } from "../TableToolbar";
 import {
   createSheetEntryArgs,
   sheetEntryMapKey,
@@ -226,21 +227,26 @@ export const TimeEntryGrid: Component<Props> = (props) => {
   const { days } = useTimeSheetContext();
 
   return (
-    <div
-      class="w-max-[100vw] grid max-h-[80vh] overflow-scroll"
-      style={{ "grid-template-columns": `repeat(${days().length + 2}, auto)` }}
-    >
-      <Header />
-      <For each={projectGroups()}>
-        {(projectGroup) => (
-          <RowsGroup
-            issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
-            issues={projectGroup.issues}
-            project={projectGroup.project}
-          />
-        )}
-      </For>
-      <Footer timeEntries={props.timeEntries} />
+    <div class="flex flex-col">
+      <TableToolbar />
+      <div
+        class="w-max-[100vw] grid max-h-[80vh] overflow-scroll"
+        style={{
+          "grid-template-columns": `repeat(${days().length + 2}, auto)`,
+        }}
+      >
+        <Header />
+        <For each={projectGroups()}>
+          {(projectGroup) => (
+            <RowsGroup
+              issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
+              issues={projectGroup.issues}
+              project={projectGroup.project}
+            />
+          )}
+        </For>
+        <Footer timeEntries={props.timeEntries} />
+      </div>
     </div>
   );
 };
