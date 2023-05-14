@@ -23,7 +23,7 @@ type TimeSheetContextProviderProps = {
 const TimeSheetContextProvider: Component<TimeSheetContextProviderProps> = (
   props
 ) => {
-  const value = useCreatedTimeSeries();
+  const value = useCreatedTimeSeries({ timeEntries: () => props.timeEntries });
 
   return (
     <TimeSheetContext.Provider value={value}>

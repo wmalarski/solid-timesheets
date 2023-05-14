@@ -11,8 +11,6 @@ import {
   createTimeEntriesServerMutation,
   deleteTimeEntriesServerMutation,
   getAllTimeEntriesKey,
-  type CreateTimeEntryArgs,
-  type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
 import { formatRequestDate } from "~/utils/format";
 import {
@@ -73,7 +71,9 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
   }));
 
   const onClick = () => {
-    const checked = state.checked.filter((id) => id in state.updateMap);
+    const checked = Object.values(state.updateMap).flatMap((entry) =>
+      entry?.isChecked ? [entry.args.id] : []
+    );
     mutation.mutate({ ids: checked });
   };
 
@@ -160,24 +160,14 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
   }));
 
   const onSaveClick = () => {
-    const toCreate: CreateTimeEntryArgs[] = [];
-    const toUpdate: UpdateTimeEntryArgs[] = [];
+    const toCreate = Object.values(state.dateMap)
+      .flatMap((entries) => Object.values(entries))
+      .flatMap((entry) => (entry?.isChecked ? [entry.args] : []));
 
-    state.checked.forEach((id) => {
-      const created = state.createMap[id];
+    // const toUpdate = Object.values(state.updateMap).flatMap((entry) =>
+    //   entry?.isChecked ? [entry.args] : []
+    // );
 
-      if (created) {
-        toCreate.push(created);
-        return;
-      }
-
-      const updated = state.updateMap[id];
-
-      if (updated) {
-        toUpdate.push(updated);
-        return;
-      }
-    });
     mutation.mutate(toCreate);
   };
 
@@ -194,14 +184,10 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 };
 
 export const TableToolbar: Component = () => {
-  const { state } = useTimeSheetContext();
-
-  const count = createMemo(() => state.checked.length);
-
   const isMutating = useIsMutating();
 
   const isDisabled = createMemo(() => {
-    return isMutating() > 0 && count() < 1;
+    return isMutating() > 0;
   });
 
   return (

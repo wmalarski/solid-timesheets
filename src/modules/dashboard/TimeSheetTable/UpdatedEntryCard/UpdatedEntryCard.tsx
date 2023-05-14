@@ -8,7 +8,6 @@ import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import type { UpdateTimeEntryArgs } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryFields } from "../TimeEntryFields";
-import type { SheetEntryData } from "../TimeSheetTable.utils";
 import { useTimeSheetContext } from "../TimeSheetTable.utils";
 
 type CardHeaderProps = {
@@ -98,28 +97,22 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
 
   const { state, setState } = useTimeSheetContext();
 
-  const args = () => {
+  const args = createMemo(() => {
     return state.updateMap[props.entry.id];
-  };
+  });
 
   const isChecked = createMemo(() => {
-    return state.checked.includes(props.entry.id);
+    return args()?.isChecked || false;
   });
 
   const onUpdateClick = () => {
-    const args: SheetEntryData = {
+    setState("updateMap", props.entry.id, {
       args: {
-        activityId: props.entry.activity.id,
         comments: props.entry.comments,
         hours: props.entry.hours,
-        issueId: props.entry.issue.id,
-        spentOn: new Date(props.entry.spent_on),
+        id: props.entry.id,
       },
-      id: props.entry.id,
-      isChecked: false,
-    };
-
-    setState("updateMap", props.entry.id, args);
+    });
   };
 
   const onSettle = () => {
@@ -140,9 +133,9 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
             <CardContent entry={props.entry} onUpdateClick={onUpdateClick} />
           }
         >
-          {(args) => (
+          {(entry) => (
             <div class="flex flex-col gap-2">
-              <UpdateForm args={args()} />
+              <UpdateForm args={entry().args} />
               <Button color="error" onClick={onSettle} size="xs">
                 {t("dashboard.reset")}
               </Button>

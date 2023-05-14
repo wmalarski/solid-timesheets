@@ -6,15 +6,17 @@ import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
-import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
-import { sheetEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
+import {
+  sheetEntryMapKey,
+  useTimeSheetContext,
+  type CreatingEntryData,
+} from "../TimeSheetTable.utils";
 
 type CardHeaderProps = {
-  args: CreateTimeEntryArgs;
-  id: number;
-  isChecked: boolean;
+  entry: CreatingEntryData;
   isPending: boolean;
+  key: string;
 };
 
 const CardHeader: Component<CardHeaderProps> = (props) => {
@@ -23,7 +25,13 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCheckChange = () => {
-    setState("createMap", props.id, "isChecked", (current) => !current);
+    setState(
+      "dateMap",
+      props.key,
+      props.entry.id,
+      "isChecked",
+      (current) => !current
+    );
   };
 
   return (
@@ -35,7 +43,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
           </Show>
         </Badge>
         <Checkbox
-          checked={props.isChecked}
+          checked={props.entry.isChecked}
           onChange={onCheckChange}
           size="xs"
         />
@@ -45,26 +53,33 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
 };
 
 type CreateFormProps = {
-  args: CreateTimeEntryArgs;
-  id: number;
+  entry: CreatingEntryData;
   isPending: boolean;
+  key: string;
 };
 
 const CreateForm: Component<CreateFormProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCommentsChange = (comments: string) => {
-    setState("createMap", props.id, "comments", comments);
+    setState(
+      "dateMap",
+      props.key,
+      props.entry.id,
+      "args",
+      "comments",
+      comments
+    );
   };
 
   const onHoursChange = (hours: number) => {
-    setState("createMap", props.id, "hours", hours);
+    setState("dateMap", props.key, props.entry.id, "args", "hours", hours);
   };
 
   return (
     <TimeEntryFields
       isLoading={props.isPending}
-      data={props.args}
+      data={props.entry.args}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
     />
@@ -72,14 +87,20 @@ const CreateForm: Component<CreateFormProps> = (props) => {
 };
 
 type Props = {
-  args: CreateTimeEntryArgs;
-  id: number;
+  entry: CreatingEntryData;
 };
 
 export const CreatedEntryCard: Component<Props> = (props) => {
   const [t] = useI18n();
 
-  const { setCreatingState } = useTimeSheetContext();
+  const { setState } = useTimeSheetContext();
+
+  const key = () => {
+    return sheetEntryMapKey({
+      date: props.entry.args.spentOn,
+      issueId: props.entry.args.issueId,
+    });
+  };
 
   const isMutating = useIsMutating();
 
@@ -88,15 +109,11 @@ export const CreatedEntryCard: Component<Props> = (props) => {
   };
 
   const isChecked = createMemo(() => {
-    return state.checked.includes(props.id);
+    return props.entry.isChecked;
   });
 
   const onDelete = () => {
-    const key = sheetEntryMapKey({
-      date: props.args.spentOn,
-      issueId: props.args.issueId,
-    });
-    setCreatingState("dateMap", key, props.id, undefined);
+    setState("dateMap", key(), props.entry.id, undefined);
   };
 
   return (
@@ -106,13 +123,8 @@ export const CreatedEntryCard: Component<Props> = (props) => {
       size="compact"
     >
       <CardBody>
-        <CardHeader
-          args={props.args}
-          id={props.id}
-          isChecked={isChecked()}
-          isPending={isPending()}
-        />
-        <CreateForm args={props.args} id={props.id} isPending={isPending()} />
+        <CardHeader entry={props.entry} key={key()} isPending={isPending()} />
+        <CreateForm entry={props.entry} key={key()} isPending={isPending()} />
         <Button
           color="error"
           disabled={isPending()}

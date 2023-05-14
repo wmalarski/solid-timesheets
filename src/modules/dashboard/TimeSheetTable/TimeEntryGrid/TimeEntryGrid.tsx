@@ -73,10 +73,7 @@ const Cell: Component<CellProps> = (props) => {
 
   const created = createMemo(() => {
     const key = sheetEntryMapKey({ date: props.date, issueId: props.issue.id });
-    return (state.dateMap[key] || []).flatMap((id) => {
-      const args = state.createMap[id];
-      return args ? [{ args, id, key }] : [];
-    });
+    return Object.values(state.dateMap[key]);
   });
 
   const onCreateClick = () => {
@@ -100,11 +97,9 @@ const Cell: Component<CellProps> = (props) => {
       </div>
       <For each={created()}>
         {(entry) => (
-          <CreatedEntryCard
-            args={entry.args}
-            id={entry.id}
-            mapKey={entry.key}
-          />
+          <Show when={entry}>
+            {(entry) => <CreatedEntryCard entry={entry()} />}
+          </Show>
         )}
       </For>
       <For each={props.entries}>
