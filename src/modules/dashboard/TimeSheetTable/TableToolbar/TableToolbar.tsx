@@ -19,6 +19,7 @@ import {
   copyCheckedEntriesToEndOfMonth,
   copyCheckedEntriesToNextDay,
   deleteCheckedSheetEntries,
+  useTimeSheetConfig,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
 
@@ -27,7 +28,7 @@ type MonthSelectProps = {
 };
 
 const MonthSelect: Component<MonthSelectProps> = (props) => {
-  const { params, setNextMonth, setPreviousMonth } = useTimeSheetContext();
+  const { params, setNextMonth, setPreviousMonth } = useTimeSheetConfig();
 
   return (
     <div class="flex gap-1">

@@ -10,6 +10,7 @@ import { TableToolbar } from "../TableToolbar";
 import {
   createSheetEntryArgs,
   sheetEntryMapKey,
+  useTimeSheetConfig,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
@@ -33,7 +34,7 @@ const GridCell: Component<JSX.IntrinsicElements["div"]> = (props) => {
 const Header: Component = () => {
   const [, { locale }] = useI18n();
 
-  const { days } = useTimeSheetContext();
+  const { days } = useTimeSheetConfig();
 
   const dayFormat = createMemo(() => {
     return Intl.DateTimeFormat(locale(), { day: "numeric" }).format;
@@ -113,7 +114,7 @@ type RowProps = {
 };
 
 const Row: Component<RowProps> = (props) => {
-  const { days } = useTimeSheetContext();
+  const { days } = useTimeSheetConfig();
 
   const hoursSum = createMemo(() => {
     return sumDayTimeEntriesMap(props.dayEntryMap);
@@ -152,7 +153,7 @@ type RowsGroupProps = {
 };
 
 const RowsGroup: Component<RowsGroupProps> = (props) => {
-  const { toggleProject, days, params } = useTimeSheetContext();
+  const { toggleProject, days, params } = useTimeSheetConfig();
 
   const onToggleProject = () => {
     toggleProject(props.project.id);
@@ -188,7 +189,7 @@ type FooterProps = {
 };
 
 const Footer: Component<FooterProps> = (props) => {
-  const { days } = useTimeSheetContext();
+  const { days } = useTimeSheetConfig();
 
   const timeEntryDayHoursGroups = createMemo(() => {
     return sumTimeEntriesHoursByDay(props.timeEntries);
@@ -224,7 +225,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
   const projectGroups = createMemo(() => groupIssuesByProject(props.issues));
   const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
 
-  const { days } = useTimeSheetContext();
+  const { days } = useTimeSheetConfig();
 
   return (
     <div class="flex flex-col">

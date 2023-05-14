@@ -77,6 +77,22 @@ export const useTimeSheetSearchParams = () => {
   };
 };
 
+type TimeSheetConfigValue = ReturnType<typeof useTimeSheetSearchParams> & {
+  days: () => Date[];
+};
+
+export const TimeSheetConfig = createContext<TimeSheetConfigValue>({
+  days: () => [],
+  params: () => defaultParams,
+  setNextMonth: () => void 0,
+  setPreviousMonth: () => void 0,
+  toggleProject: () => void 0,
+});
+
+export const useTimeSheetConfig = () => {
+  return useContext(TimeSheetConfig);
+};
+
 type SheetEntryMapKeyArgs = {
   issueId: number;
   date: Date;
@@ -108,19 +124,11 @@ export const useCreatedTimeSeries = () => {
   return { setState, state };
 };
 
-type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries> &
-  ReturnType<typeof useTimeSheetSearchParams> & {
-    days: () => Date[];
-  };
+type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries>;
 
 export const TimeSheetContext = createContext<TimeSheetContextValue>({
-  days: () => [],
-  params: () => defaultParams,
-  setNextMonth: () => void 0,
-  setPreviousMonth: () => void 0,
   setState: () => void 0,
   state: { createMap: {}, dateMap: {}, updateMap: {} },
-  toggleProject: () => void 0,
 });
 
 export const useTimeSheetContext = () => {

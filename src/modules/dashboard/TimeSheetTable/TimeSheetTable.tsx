@@ -9,6 +9,7 @@ import type { Issue, TimeEntry } from "~/server/types";
 import { getDaysInMonth, getNextMonth } from "~/utils/date";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import {
+  TimeSheetConfig,
   TimeSheetContext,
   useCreatedTimeSeries,
   useTimeSheetSearchParams,
@@ -22,15 +23,10 @@ type TimeSheetContextProviderProps = {
 const TimeSheetContextProvider: Component<TimeSheetContextProviderProps> = (
   props
 ) => {
-  const searchParams = useTimeSheetSearchParams();
-  const createParams = useCreatedTimeSeries();
-
-  const days = createMemo(() => getDaysInMonth(searchParams.params().date));
+  const value = useCreatedTimeSeries();
 
   return (
-    <TimeSheetContext.Provider
-      value={{ ...createParams, ...searchParams, days }}
-    >
+    <TimeSheetContext.Provider value={value}>
       <TimeEntryGrid issues={props.issues} timeEntries={props.timeEntries} />
     </TimeSheetContext.Provider>
   );
@@ -66,7 +62,7 @@ const TimeEntriesFetcher: Component<TimeEntriesFetcherProps> = (props) => {
   );
 };
 
-export const TimeSheetTable: Component = () => {
+const IssuesFetcher: Component = () => {
   const issuesQuery = createQuery(() => ({
     queryFn: (context) => getIssuesServerQuery(context.queryKey),
     queryKey: getIssuesKey({
@@ -80,5 +76,17 @@ export const TimeSheetTable: Component = () => {
     <Suspense fallback={<TimeEntryGrid issues={[]} timeEntries={[]} />}>
       <TimeEntriesFetcher issues={issuesQuery.data?.issues || []} />
     </Suspense>
+  );
+};
+
+export const TimeSheetTable: Component = () => {
+  const searchParams = useTimeSheetSearchParams();
+
+  const days = createMemo(() => getDaysInMonth(searchParams.params().date));
+
+  return (
+    <TimeSheetConfig.Provider value={{ days, ...searchParams }}>
+      <IssuesFetcher />
+    </TimeSheetConfig.Provider>
   );
 };
