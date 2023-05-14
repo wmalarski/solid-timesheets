@@ -30,7 +30,8 @@
     "vite": "^4.3.5"
   },
   "dependencies": {
-    "@ark-ui/solid": "^0.2.0",
+    "@kobalte/core": "^0.9.6",
+    "@kobalte/tailwindcss": "^0.6.5",
     "@modular-forms/solid": "^0.13.2",
     "@solid-primitives/i18n": "^1.2.4",
     "@solidjs/meta": "^0.28.4",
