@@ -11,6 +11,8 @@ import {
   createTimeEntriesServerMutation,
   deleteTimeEntriesServerMutation,
   getAllTimeEntriesKey,
+  type CreateTimeEntryArgs,
+  type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
 import { formatRequestDate } from "~/utils/format";
 import {
@@ -21,7 +23,7 @@ import {
 } from "../TimeSheetTable.utils";
 
 type MonthSelectProps = {
-  isPending: boolean;
+  isDisabled: boolean;
 };
 
 const MonthSelect: Component<MonthSelectProps> = (props) => {
@@ -30,7 +32,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
   return (
     <div class="flex gap-1">
       <Button
-        disabled={props.isPending}
+        disabled={props.isDisabled}
         onClick={setPreviousMonth}
         size="xs"
         variant="outline"
@@ -39,7 +41,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
       </Button>
       <span>{formatRequestDate(params().date)}</span>
       <Button
-        disabled={props.isPending}
+        disabled={props.isDisabled}
         onClick={setNextMonth}
         size="xs"
         variant="outline"
@@ -51,7 +53,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
 };
 
 type DeleteButtonProps = {
-  isPending: boolean;
+  isDisabled: boolean;
 };
 
 const DeleteButton: Component<DeleteButtonProps> = (props) => {
@@ -70,14 +72,14 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
   }));
 
   const onClick = () => {
-    const checkedToDelete = Object.keys(state.checked).map(Number);
-    mutation.mutate({ ids: checkedToDelete });
+    const checked = state.checked.filter((id) => id in state.updateMap);
+    mutation.mutate({ ids: checked });
   };
 
   return (
     <Button
       color="error"
-      disabled={props.isPending}
+      disabled={props.isDisabled}
       onClick={onClick}
       size="xs"
     >
@@ -87,7 +89,7 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
 };
 
 type CopyMonthButtonProps = {
-  isPending: boolean;
+  isDisabled: boolean;
 };
 
 const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
@@ -102,7 +104,7 @@ const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
   return (
     <Button
       color="success"
-      disabled={props.isPending}
+      disabled={props.isDisabled}
       onClick={onClick}
       size="xs"
     >
@@ -112,7 +114,7 @@ const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
 };
 
 type CopyNextDayButtonProps = {
-  isPending: boolean;
+  isDisabled: boolean;
 };
 
 const CopyNextDayButton: Component<CopyNextDayButtonProps> = (props) => {
@@ -127,7 +129,7 @@ const CopyNextDayButton: Component<CopyNextDayButtonProps> = (props) => {
   return (
     <Button
       color="success"
-      disabled={props.isPending}
+      disabled={props.isDisabled}
       onClick={onClick}
       size="xs"
     >
@@ -136,18 +138,14 @@ const CopyNextDayButton: Component<CopyNextDayButtonProps> = (props) => {
   );
 };
 
-export const TableToolbar: Component = () => {
+type SaveButtonProps = {
+  isDisabled: boolean;
+};
+
+const SaveButton: Component<SaveButtonProps> = (props) => {
   const [t] = useI18n();
 
-  const { state } = useTimeSheetContext();
-
-  const count = createMemo(() => state.checked.length);
-
-  const isMutating = useIsMutating();
-
-  const isPending = createMemo(() => {
-    return isMutating() > 0;
-  });
+  const { state, setState } = useTimeSheetContext();
 
   const queryClient = useQueryClient();
 
@@ -156,31 +154,63 @@ export const TableToolbar: Component = () => {
     mutationKey: createTimeEntriesKey(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      // setState({ created: {} });
+      deleteCheckedSheetEntries({ setState });
     },
   }));
 
   const onSaveClick = () => {
-    // const entries = Object.values(state.created).flat();
-    // mutation.mutate(entries.map((entry) => entry.args));
+    const toCreate: CreateTimeEntryArgs[] = [];
+    const toUpdate: UpdateTimeEntryArgs[] = [];
+
+    state.checked.forEach((id) => {
+      const created = state.createMap[id];
+
+      if (created) {
+        toCreate.push(created);
+        return;
+      }
+
+      const updated = state.updateMap[id];
+
+      if (updated) {
+        toUpdate.push(updated);
+        return;
+      }
+    });
+    mutation.mutate(toCreate);
   };
 
   return (
+    <Button
+      color="primary"
+      disabled={props.isDisabled}
+      onClick={onSaveClick}
+      size="xs"
+    >
+      {t("dashboard.saveAll")}
+    </Button>
+  );
+};
+
+export const TableToolbar: Component = () => {
+  const { state } = useTimeSheetContext();
+
+  const count = createMemo(() => state.checked.length);
+
+  const isMutating = useIsMutating();
+
+  const isDisabled = createMemo(() => {
+    return isMutating() > 0 && count() < 1;
+  });
+
+  return (
     <div class="flex justify-between gap-2 p-2">
-      <MonthSelect isPending={isPending()} />
+      <MonthSelect isDisabled={isDisabled()} />
       <div>
-        <DeleteButton isPending={isPending()} />
-        <CopyMonthButton isPending={isPending()} />
-        <CopyNextDayButton isPending={isPending()} />
-        <Button
-          color="success"
-          disabled={count() < 1 || mutation.isPending}
-          onClick={onSaveClick}
-          size="xs"
-          variant="outline"
-        >
-          {t("dashboard.saveAll", { count: String(count()) })}
-        </Button>
+        <DeleteButton isDisabled={isDisabled()} />
+        <CopyMonthButton isDisabled={isDisabled()} />
+        <CopyNextDayButton isDisabled={isDisabled()} />
+        <SaveButton isDisabled={isDisabled()} />
       </div>
     </div>
   );
