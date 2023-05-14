@@ -75,7 +75,7 @@ const Cell: Component<CellProps> = (props) => {
     const key = sheetEntryMapKey({ date: props.date, issueId: props.issue.id });
     return (state.dateMap[key] || []).flatMap((id) => {
       const args = state.createMap[id];
-      return args ? [{ args, id }] : [];
+      return args ? [{ args, id, key }] : [];
     });
   });
 
@@ -99,7 +99,13 @@ const Cell: Component<CellProps> = (props) => {
         </Button>
       </div>
       <For each={created()}>
-        {(entry) => <CreatedEntryCard args={entry.args} id={entry.id} />}
+        {(entry) => (
+          <CreatedEntryCard
+            args={entry.args}
+            id={entry.id}
+            mapKey={entry.key}
+          />
+        )}
       </For>
       <For each={props.entries}>
         {(entry) => <UpdatedEntryCard entry={entry} />}

@@ -8,10 +8,7 @@ import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import type { CreateTimeEntryArgs } from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
-import {
-  deleteSheetCreateEntry,
-  useTimeSheetContext,
-} from "../TimeSheetTable.utils";
+import { sheetEntryMapKey, useTimeSheetContext } from "../TimeSheetTable.utils";
 
 type CardHeaderProps = {
   args: CreateTimeEntryArgs;
@@ -82,7 +79,7 @@ type Props = {
 export const CreatedEntryCard: Component<Props> = (props) => {
   const [t] = useI18n();
 
-  const { state, setState } = useTimeSheetContext();
+  const { setCreatingState } = useTimeSheetContext();
 
   const isMutating = useIsMutating();
 
@@ -95,7 +92,11 @@ export const CreatedEntryCard: Component<Props> = (props) => {
   });
 
   const onDelete = () => {
-    deleteSheetCreateEntry({ id: props.id, setState });
+    const key = sheetEntryMapKey({
+      date: props.args.spentOn,
+      issueId: props.args.issueId,
+    });
+    setCreatingState("dateMap", key, props.id, undefined);
   };
 
   return (
