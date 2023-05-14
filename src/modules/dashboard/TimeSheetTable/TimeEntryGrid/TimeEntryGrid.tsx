@@ -73,7 +73,7 @@ const Cell: Component<CellProps> = (props) => {
 
   const created = createMemo(() => {
     const key = sheetEntryMapKey({ date: props.date, issueId: props.issue.id });
-    return Object.values(state.dateMap[key]);
+    return Object.values(state.dateMap[key] || {});
   });
 
   const onCreateClick = () => {

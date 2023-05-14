@@ -19,7 +19,9 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const onCheckChange = () => {
-    setState("updateMap", props.entry.id, "isChecked", (current) => !current);
+    setState("updateMap", props.entry.id, (current) => ({
+      isChecked: !current?.isChecked,
+    }));
   };
 
   return (
@@ -116,7 +118,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   };
 
   const onSettle = () => {
-    setState("updateMap", props.entry.id, undefined);
+    setState("updateMap", props.entry.id, "isEditing", false);
   };
 
   return (
@@ -133,13 +135,23 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
             <CardContent entry={props.entry} onUpdateClick={onUpdateClick} />
           }
         >
-          {(entry) => (
-            <div class="flex flex-col gap-2">
-              <UpdateForm args={entry().args} />
-              <Button color="error" onClick={onSettle} size="xs">
-                {t("dashboard.reset")}
-              </Button>
-            </div>
+          {(args) => (
+            <Show
+              when={args().isEditing}
+              fallback={
+                <CardContent
+                  entry={props.entry}
+                  onUpdateClick={onUpdateClick}
+                />
+              }
+            >
+              <div class="flex flex-col gap-2">
+                <UpdateForm args={args().args} />
+                <Button color="error" onClick={onSettle} size="xs">
+                  {t("dashboard.reset")}
+                </Button>
+              </div>
+            </Show>
           )}
         </Show>
       </CardBody>

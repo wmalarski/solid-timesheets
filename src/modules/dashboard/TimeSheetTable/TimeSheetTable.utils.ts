@@ -115,6 +115,7 @@ export type CreatingEntryData = {
 export type UpdatingEntryData = {
   args: UpdateTimeEntryArgs;
   isChecked: boolean;
+  isEditing: boolean;
 };
 
 export type EntriesStore = {

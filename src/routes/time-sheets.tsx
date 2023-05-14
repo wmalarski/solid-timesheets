@@ -1,10 +1,16 @@
-import { Suspense } from "solid-js";
+import { Suspense, lazy } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
 import { TimeSheetTable } from "~/modules/dashboard/TimeSheetTable";
 import { TopBar } from "~/modules/dashboard/TopBar";
 import { getSession } from "~/server/session";
 import { paths } from "~/utils/paths";
+
+const ToastProvider = lazy(() =>
+  import("~/components/Toast").then((module) => ({
+    default: module.ToastProvider,
+  }))
+);
 
 export const routeData = () => {
   return createServerData$(async (_source, { request }) => {
@@ -26,6 +32,9 @@ export default function TimeSheets() {
       <TopBar />
       <Suspense>
         <TimeSheetTable />
+      </Suspense>
+      <Suspense>
+        <ToastProvider />
       </Suspense>
     </main>
   );

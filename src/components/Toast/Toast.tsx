@@ -2,9 +2,9 @@ import { Toast } from "@kobalte/core";
 import type { Component, JSX } from "solid-js";
 import { twCx } from "../utils/twCva";
 
-export const ToastRegion = Toast.Region;
+const ToastRegion = Toast.Region;
 
-export const ToastList: Component<Toast.ToastListProps> = (props) => {
+const ToastList: Component<Toast.ToastListProps> = (props) => {
   return (
     <Toast.List
       {...props}
@@ -90,5 +90,14 @@ export const ToastProgressFill: Component<Toast.ToastProgressFillProps> = (
         props.class
       )}
     />
+  );
+};
+
+export const ToastProvider: Component = () => {
+  return (
+    <></>
+    // <ToastRegion>
+    //   <ToastList />
+    // </ToastRegion>
   );
 };
