@@ -7,7 +7,6 @@ import {
 import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import {
-  createTimeEntriesKey,
   createTimeEntriesServerMutation,
   deleteTimeEntriesServerMutation,
   getAllTimeEntriesKey,
@@ -152,7 +151,6 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
   const mutation = createMutation(() => ({
     mutationFn: createTimeEntriesServerMutation,
-    mutationKey: createTimeEntriesKey(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       deleteCheckedSheetEntries({ setState });

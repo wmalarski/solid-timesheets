@@ -78,8 +78,8 @@ const CreateForm: Component<CreateFormProps> = (props) => {
 
   return (
     <TimeEntryFields
-      isLoading={props.isPending}
       data={props.entry.args}
+      isLoading={props.isPending}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
     />
@@ -104,9 +104,9 @@ export const CreatedEntryCard: Component<Props> = (props) => {
 
   const isMutating = useIsMutating();
 
-  const isPending = () => {
+  const isPending = createMemo(() => {
     return isMutating() > 0;
-  };
+  });
 
   const isChecked = createMemo(() => {
     return props.entry.isChecked;

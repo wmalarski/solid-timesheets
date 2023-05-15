@@ -1,11 +1,20 @@
 import { useI18n } from "@solid-primitives/i18n";
+import {
+  createMutation,
+  useIsMutating,
+  useQueryClient,
+} from "@tanstack/solid-query";
 import { Show, createMemo, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
-import type { UpdateTimeEntryArgs } from "~/server/timeEntries";
+import {
+  getAllTimeEntriesKey,
+  updateTimeEntryServerMutation,
+  type UpdateTimeEntryArgs,
+} from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { TimeEntryFields } from "../TimeEntryFields";
 import { useTimeSheetContext } from "../TimeSheetTable.utils";
@@ -13,6 +22,7 @@ import { useTimeSheetContext } from "../TimeSheetTable.utils";
 type CardHeaderProps = {
   entry: TimeEntry;
   isChecked: boolean;
+  isPending: boolean;
 };
 
 const CardHeader: Component<CardHeaderProps> = (props) => {
@@ -40,6 +50,7 @@ const CardHeader: Component<CardHeaderProps> = (props) => {
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
+  isPending: boolean;
 };
 
 const UpdateForm: Component<UpdateFormProps> = (props) => {
@@ -56,15 +67,16 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
   return (
     <TimeEntryFields
       data={props.args}
+      isLoading={props.isPending}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
-      isLoading={false}
     />
   );
 };
 
 type CardContentProps = {
   entry: TimeEntry;
+  isPending: boolean;
   onUpdateClick: () => void;
 };
 
@@ -83,10 +95,51 @@ const CardContent: Component<CardContentProps> = (props) => {
         </span>
         <span class="px-3 py-1 text-xs">{props.entry.hours}</span>
       </div>
-      <Button onClick={props.onUpdateClick} size="xs" color="secondary">
+      <Button
+        color="secondary"
+        disabled={props.isPending}
+        onClick={props.onUpdateClick}
+        size="xs"
+      >
         {t("dashboard.timeEntry.update")}
       </Button>
     </div>
+  );
+};
+
+type SaveButtonProps = {
+  args: UpdateTimeEntryArgs;
+  isPending: boolean;
+};
+
+const SaveButton: Component<SaveButtonProps> = (props) => {
+  const [t] = useI18n();
+
+  const { setState } = useTimeSheetContext();
+
+  const queryClient = useQueryClient();
+
+  const mutation = createMutation(() => ({
+    mutationFn: updateTimeEntryServerMutation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
+      setState("updateMap", props.args.id, "isEditing", false);
+    },
+  }));
+
+  const onSaveClick = () => {
+    mutation.mutate(props.args);
+  };
+
+  return (
+    <Button
+      color="error"
+      disabled={props.isPending}
+      onClick={onSaveClick}
+      size="xs"
+    >
+      {t("dashboard.timeEntry.save")}
+    </Button>
   );
 };
 
@@ -99,57 +152,88 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
 
   const { state, setState } = useTimeSheetContext();
 
-  const args = createMemo(() => {
+  const isMutating = useIsMutating();
+
+  const isPending = createMemo(() => {
+    return isMutating() > 0;
+  });
+
+  const defaultArgs = createMemo(() => {
+    return {
+      comments: props.entry.comments,
+      hours: props.entry.hours,
+      id: props.entry.id,
+    };
+  });
+
+  const entry = createMemo(() => {
     return state.updateMap[props.entry.id];
   });
 
   const isChecked = createMemo(() => {
-    return args()?.isChecked || false;
+    return entry()?.isChecked || false;
   });
 
   const onUpdateClick = () => {
     setState("updateMap", props.entry.id, {
-      args: {
-        comments: props.entry.comments,
-        hours: props.entry.hours,
-        id: props.entry.id,
-      },
+      args: defaultArgs(),
+      isEditing: true,
     });
   };
 
-  const onSettle = () => {
-    setState("updateMap", props.entry.id, "isEditing", false);
+  const onResetClick = () => {
+    setState("updateMap", props.entry.id, {
+      args: defaultArgs(),
+      isEditing: false,
+    });
   };
 
   return (
     <Card
       color={isChecked() ? "accent" : "disabled"}
-      variant="bordered"
       size="compact"
+      variant="bordered"
     >
       <CardBody>
-        <CardHeader entry={props.entry} isChecked={isChecked()} />
+        <CardHeader
+          entry={props.entry}
+          isChecked={isChecked()}
+          isPending={isPending()}
+        />
         <Show
-          when={args()}
+          when={entry()}
           fallback={
-            <CardContent entry={props.entry} onUpdateClick={onUpdateClick} />
+            <CardContent
+              entry={props.entry}
+              isPending={isPending()}
+              onUpdateClick={onUpdateClick}
+            />
           }
         >
-          {(args) => (
+          {(entry) => (
             <Show
-              when={args().isEditing}
+              when={entry().isEditing}
               fallback={
                 <CardContent
                   entry={props.entry}
+                  isPending={isPending()}
                   onUpdateClick={onUpdateClick}
                 />
               }
             >
               <div class="flex flex-col gap-2">
-                <UpdateForm args={args().args} />
-                <Button color="error" onClick={onSettle} size="xs">
-                  {t("dashboard.reset")}
-                </Button>
+                <UpdateForm args={entry().args} isPending={isPending()} />
+                <div class="flex gap-2">
+                  <Button
+                    color="error"
+                    disabled={isPending()}
+                    onClick={onResetClick}
+                    size="xs"
+                  >
+                    {t("dashboard.reset")}
+                  </Button>
+                  <SaveButton args={entry().args} isPending={isPending()} />
+                </div>
               </div>
             </Show>
           )}

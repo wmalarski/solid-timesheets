@@ -93,10 +93,6 @@ export const createTimeEntryServerMutation = server$(
   }
 );
 
-export const createTimeEntriesKey = () => {
-  return ["createTimeEntries"] as const;
-};
-
 export const createTimeEntriesArgs = z.array(createTimeEntryArgs);
 
 export type CreateTimeEntriesArgs = z.infer<typeof createTimeEntriesArgs>;
