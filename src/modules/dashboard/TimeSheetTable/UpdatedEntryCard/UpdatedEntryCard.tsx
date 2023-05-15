@@ -5,48 +5,17 @@ import {
   useQueryClient,
 } from "@tanstack/solid-query";
 import { Show, createMemo, type Component } from "solid-js";
-import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
-import { Checkbox } from "~/components/Checkbox";
-import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import {
   getAllTimeEntriesKey,
   updateTimeEntryServerMutation,
   type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
-import type { TimeEntry } from "~/server/types";
+import type { Issue, Project, TimeEntry } from "~/server/types";
+import { CardHeader } from "../CardHeader";
 import { TimeEntryFields } from "../TimeEntryFields";
 import { useTimeSheetContext } from "../TimeSheetTable.utils";
-
-type CardHeaderProps = {
-  entry: TimeEntry;
-  isChecked: boolean;
-  isPending: boolean;
-};
-
-const CardHeader: Component<CardHeaderProps> = (props) => {
-  const { setState } = useTimeSheetContext();
-
-  const onCheckChange = () => {
-    setState("updateMap", props.entry.id, (current) => ({
-      isChecked: !current?.isChecked,
-    }));
-  };
-
-  return (
-    <TextFieldRoot>
-      <TextFieldLabel>
-        <Badge variant="outline">{props.entry.id}</Badge>
-        <Checkbox
-          checked={props.isChecked}
-          onChange={onCheckChange}
-          size="xs"
-        />
-      </TextFieldLabel>
-    </TextFieldRoot>
-  );
-};
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
@@ -147,6 +116,8 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
 type UpdatedEntryCardProps = {
   entry: TimeEntry;
+  issue: Issue;
+  project: Project;
 };
 
 export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
@@ -190,6 +161,10 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
     });
   };
 
+  const onCheckChange = (isChecked: boolean) => {
+    setState("updateMap", props.entry.id, "isChecked", isChecked);
+  };
+
   return (
     <Card
       color={isChecked() ? "accent" : "disabled"}
@@ -198,9 +173,11 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
     >
       <CardBody>
         <CardHeader
-          entry={props.entry}
           isChecked={isChecked()}
           isPending={isPending()}
+          issue={props.issue}
+          onChange={onCheckChange}
+          project={props.project}
         />
         <Show
           when={entry()}

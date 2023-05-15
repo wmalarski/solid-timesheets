@@ -65,6 +65,7 @@ type CellProps = {
   date: Date;
   entries?: TimeEntry[];
   issue: Issue;
+  project: Project;
 };
 
 const Cell: Component<CellProps> = (props) => {
@@ -99,12 +100,24 @@ const Cell: Component<CellProps> = (props) => {
       <For each={created()}>
         {(entry) => (
           <Show when={entry}>
-            {(entry) => <CreatedEntryCard entry={entry()} />}
+            {(entry) => (
+              <CreatedEntryCard
+                entry={entry()}
+                issue={props.issue}
+                project={props.project}
+              />
+            )}
           </Show>
         )}
       </For>
       <For each={props.entries}>
-        {(entry) => <UpdatedEntryCard entry={entry} />}
+        {(entry) => (
+          <UpdatedEntryCard
+            entry={entry}
+            issue={props.issue}
+            project={props.project}
+          />
+        )}
       </For>
     </GridCell>
   );
@@ -113,6 +126,7 @@ const Cell: Component<CellProps> = (props) => {
 type RowProps = {
   dayEntryMap?: Map<string, TimeEntry[]>;
   issue: Issue;
+  project: Project;
 };
 
 const Row: Component<RowProps> = (props) => {
@@ -133,9 +147,10 @@ const Row: Component<RowProps> = (props) => {
       <For each={days()}>
         {(day) => (
           <Cell
-            issue={props.issue}
             date={day}
             entries={props.dayEntryMap?.get(formatRequestDate(day))}
+            issue={props.issue}
+            project={props.project}
           />
         )}
       </For>
@@ -184,7 +199,11 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
       <Show when={isExpanded()}>
         <For each={props.issues}>
           {(issue) => (
-            <Row dayEntryMap={props.issueDayMap?.get(issue.id)} issue={issue} />
+            <Row
+              dayEntryMap={props.issueDayMap?.get(issue.id)}
+              issue={issue}
+              project={props.project}
+            />
           )}
         </For>
       </Show>

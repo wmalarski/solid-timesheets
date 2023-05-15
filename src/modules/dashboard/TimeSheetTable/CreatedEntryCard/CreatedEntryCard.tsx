@@ -4,61 +4,21 @@ import {
   useIsMutating,
   useQueryClient,
 } from "@tanstack/solid-query";
-import { Show, createMemo, type Component } from "solid-js";
-import { Badge } from "~/components/Badge";
+import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
-import { Checkbox } from "~/components/Checkbox";
-import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
 import {
   createTimeEntryServerMutation,
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
+import type { Issue, Project } from "~/server/types";
+import { CardHeader } from "../CardHeader";
 import { TimeEntryFields } from "../TimeEntryFields";
 import {
   sheetEntryMapKey,
   useTimeSheetContext,
   type CreatingEntryData,
 } from "../TimeSheetTable.utils";
-
-type CardHeaderProps = {
-  entry: CreatingEntryData;
-  isPending: boolean;
-  key: string;
-};
-
-const CardHeader: Component<CardHeaderProps> = (props) => {
-  const [t] = useI18n();
-
-  const { setState } = useTimeSheetContext();
-
-  const onCheckChange = () => {
-    setState(
-      "dateMap",
-      props.key,
-      props.entry.id,
-      "isChecked",
-      (current) => !current
-    );
-  };
-
-  return (
-    <TextFieldRoot>
-      <TextFieldLabel>
-        <Badge class="uppercase" variant="outline">
-          <Show fallback={t("dashboard.timeEntry.new")} when={props.isPending}>
-            {t("dashboard.timeEntry.pending")}
-          </Show>
-        </Badge>
-        <Checkbox
-          checked={props.entry.isChecked}
-          onChange={onCheckChange}
-          size="xs"
-        />
-      </TextFieldLabel>
-    </TextFieldRoot>
-  );
-};
 
 type CreateFormProps = {
   entry: CreatingEntryData;
@@ -133,6 +93,8 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
 type Props = {
   entry: CreatingEntryData;
+  issue: Issue;
+  project: Project;
 };
 
 export const CreatedEntryCard: Component<Props> = (props) => {
@@ -161,6 +123,10 @@ export const CreatedEntryCard: Component<Props> = (props) => {
     setState("dateMap", key(), props.entry.id, undefined);
   };
 
+  const onCheckChange = (isChecked: boolean) => {
+    setState("dateMap", key(), props.entry.id, "isChecked", isChecked);
+  };
+
   return (
     <Card
       color={isChecked() ? "accent" : "disabled"}
@@ -168,7 +134,13 @@ export const CreatedEntryCard: Component<Props> = (props) => {
       size="compact"
     >
       <CardBody>
-        <CardHeader entry={props.entry} key={key()} isPending={isPending()} />
+        <CardHeader
+          isChecked={props.entry.isChecked}
+          isPending={isPending()}
+          issue={props.issue}
+          onChange={onCheckChange}
+          project={props.project}
+        />
         <CreateForm entry={props.entry} key={key()} isPending={isPending()} />
         <div class="flex justify-end gap-2">
           <Button
