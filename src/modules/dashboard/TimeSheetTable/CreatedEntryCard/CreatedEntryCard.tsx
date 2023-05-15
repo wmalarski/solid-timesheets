@@ -11,7 +11,7 @@ import {
   createTimeEntryServerMutation,
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
-import type { Issue, Project } from "~/server/types";
+import type { Issue } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { TimeEntryFields } from "../TimeEntryFields";
 import {
@@ -94,7 +94,6 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 type Props = {
   entry: CreatingEntryData;
   issue: Issue;
-  project: Project;
 };
 
 export const CreatedEntryCard: Component<Props> = (props) => {
@@ -103,10 +102,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const key = () => {
-    return sheetEntryMapKey({
-      date: props.entry.args.spentOn,
-      issueId: props.entry.args.issueId,
-    });
+    return sheetEntryMapKey({ date: props.entry.args.spentOn });
   };
 
   const isMutating = useIsMutating();
@@ -139,7 +135,6 @@ export const CreatedEntryCard: Component<Props> = (props) => {
           isPending={isPending()}
           issue={props.issue}
           onChange={onCheckChange}
-          project={props.project}
         />
         <CreateForm entry={props.entry} key={key()} isPending={isPending()} />
         <div class="flex justify-end gap-2">

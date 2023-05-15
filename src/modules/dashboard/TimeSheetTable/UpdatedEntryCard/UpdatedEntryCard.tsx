@@ -12,7 +12,7 @@ import {
   updateTimeEntryServerMutation,
   type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
-import type { Issue, Project, TimeEntry } from "~/server/types";
+import type { Issue, TimeEntry } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { TimeEntryFields } from "../TimeEntryFields";
 import { useTimeSheetContext } from "../TimeSheetTable.utils";
@@ -117,7 +117,6 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 type UpdatedEntryCardProps = {
   entry: TimeEntry;
   issue: Issue;
-  project: Project;
 };
 
 export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
@@ -162,7 +161,10 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   };
 
   const onCheckChange = (isChecked: boolean) => {
-    setState("updateMap", props.entry.id, "isChecked", isChecked);
+    setState("updateMap", props.entry.id, (current) => ({
+      ...current,
+      isChecked,
+    }));
   };
 
   return (
@@ -177,7 +179,6 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
           isPending={isPending()}
           issue={props.issue}
           onChange={onCheckChange}
-          project={props.project}
         />
         <Show
           when={entry()}

@@ -2,14 +2,13 @@ import type { Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Checkbox, type CheckboxProps } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
-import type { Issue, Project } from "~/server/types";
+import type { Issue } from "~/server/types";
 
 type Props = {
   isChecked: boolean;
   isPending: boolean;
   issue: Issue;
   onChange: (isChecked: boolean) => void;
-  project: Project;
 };
 
 export const CardHeader: Component<Props> = (props) => {
@@ -32,8 +31,10 @@ export const CardHeader: Component<Props> = (props) => {
           />
         </TextFieldLabel>
       </TextFieldRoot>
-      <span class="text-xs font-semibold uppercase">{props.project.name}</span>
-      <span class="text-sm">{props.issue.subject}</span>
+      <span class="text-xs font-semibold uppercase">
+        {props.issue.project.name}
+      </span>
+      <span class="text-base">{props.issue.subject}</span>
     </header>
   );
 };

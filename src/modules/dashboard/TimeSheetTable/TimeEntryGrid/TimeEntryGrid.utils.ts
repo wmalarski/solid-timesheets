@@ -1,4 +1,4 @@
-import type { Issue, Project, TimeEntry } from "~/server/types";
+import type { Issue, TimeEntry } from "~/server/types";
 
 const getOrSetDefault = <K, V>(
   map: Map<K, V>,
@@ -14,40 +14,38 @@ const getOrSetDefault = <K, V>(
   return newValue;
 };
 
-export const groupTimeEntries = (entries: TimeEntry[]) => {
-  const map = new Map<number, Map<number, Map<string, TimeEntry[]>>>();
-  const fallbackProjectMap = () => new Map<number, Map<string, TimeEntry[]>>();
-  const fallbackIssueMap = () => new Map<string, TimeEntry[]>();
-  const fallbackDayArray = () => new Array<TimeEntry>();
-
-  entries.forEach((entry) => {
-    const project = getOrSetDefault(map, entry.project.id, fallbackProjectMap);
-    const issue = getOrSetDefault(project, entry.issue.id, fallbackIssueMap);
-    const day = getOrSetDefault(issue, entry.spent_on, fallbackDayArray);
-
-    day.push(entry);
-  });
-
-  return map;
+export const groupIssues = (issues: Issue[]) => {
+  return new Map(issues.map((issue) => [issue.id, issue]));
 };
 
-export const groupIssuesByProject = (issues: Issue[]) => {
-  const projectMap = new Map<number, Project>();
-  const map = new Map<number, Issue[]>();
+type GroupTimeEntriesArgs = {
+  entries: TimeEntry[];
+  issuesMap: Map<number, Issue>;
+};
 
-  const fallbackArray = () => new Array<Issue>();
+export type IssueTimeEntryPair = {
+  entry: TimeEntry;
+  issue: Issue;
+};
 
-  issues.forEach((issue) => {
-    const project = getOrSetDefault(map, issue.project.id, fallbackArray);
+export const groupTimeEntries = ({
+  entries,
+  issuesMap,
+}: GroupTimeEntriesArgs) => {
+  const dayMap = new Map<string, IssueTimeEntryPair[]>();
+  const fallbackDayArray = () => new Array<IssueTimeEntryPair>();
 
-    projectMap.set(issue.project.id, issue.project);
-    project.push(issue);
+  entries.forEach((entry) => {
+    const issue = issuesMap.get(entry.issue.id);
+    if (!issue) {
+      return;
+    }
+
+    const day = getOrSetDefault(dayMap, entry.spent_on, fallbackDayArray);
+    day.push({ entry, issue });
   });
 
-  return Array.from(projectMap.values()).map((project) => ({
-    issues: map.get(project.id) || [],
-    project,
-  }));
+  return dayMap;
 };
 
 export const sumTimeEntriesHoursByDay = (timeEntries: TimeEntry[]) => {

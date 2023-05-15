@@ -98,12 +98,11 @@ export const useTimeSheetConfig = () => {
 };
 
 type SheetEntryMapKeyArgs = {
-  issueId: number;
   date: Date;
 };
 
 export const sheetEntryMapKey = (args: SheetEntryMapKeyArgs) => {
-  return `${formatRequestDate(args.date)}-${args.issueId}`;
+  return formatRequestDate(args.date);
 };
 
 export type CreatingEntryData = {
@@ -178,7 +177,7 @@ const randomEntryId = () => {
 };
 
 const copySheetEntry = (args: CreateTimeEntryArgs) => {
-  const key = sheetEntryMapKey({ date: args.spentOn, issueId: args.issueId });
+  const key = sheetEntryMapKey({ date: args.spentOn });
   return { args, id: randomEntryId(), key };
 };
 

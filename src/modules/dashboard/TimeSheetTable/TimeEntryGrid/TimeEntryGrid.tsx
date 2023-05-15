@@ -1,26 +1,23 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { For, Show, createMemo, type Component, type JSX } from "solid-js";
-import { Badge } from "~/components/Badge";
+import { For, createMemo, type Component, type JSX } from "solid-js";
 import { Button } from "~/components/Button";
-import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import { twCx } from "~/components/utils/twCva";
-import type { Issue, Project, TimeEntry } from "~/server/types";
+import type { Issue, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
 import { TableToolbar } from "../TableToolbar";
 import {
-  createSheetEntryArgs,
   sheetEntryMapKey,
   useTimeSheetConfig,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
 import {
-  groupIssuesByProject,
+  groupIssues,
   groupTimeEntries,
   sumDayTimeEntriesHours,
-  sumDayTimeEntriesMap,
   sumTimeEntriesHoursByDay,
+  type IssueTimeEntryPair,
 } from "./TimeEntryGrid.utils";
 
 const GridCell: Component<JSX.IntrinsicElements["div"]> = (props) => {
@@ -47,7 +44,6 @@ const Header: Component = () => {
 
   return (
     <>
-      <GridCell class="bg-base-100 sticky left-0 top-0 z-30 flex p-2" />
       <For each={days()}>
         {(date) => (
           <GridCell class="bg-base-100 sticky top-0 z-20 flex flex-col p-2">
@@ -63,9 +59,8 @@ const Header: Component = () => {
 
 type CellProps = {
   date: Date;
-  entries?: TimeEntry[];
-  issue: Issue;
-  project: Project;
+  issuesMap: Map<number, Issue>;
+  pairs?: IssueTimeEntryPair[];
 };
 
 const Cell: Component<CellProps> = (props) => {
@@ -74,20 +69,32 @@ const Cell: Component<CellProps> = (props) => {
   const { setState, state } = useTimeSheetContext();
 
   const created = createMemo(() => {
-    const key = sheetEntryMapKey({ date: props.date, issueId: props.issue.id });
-    return Object.values(state.dateMap[key] || {});
+    const key = sheetEntryMapKey({ date: props.date });
+    const entries = Object.values(state.dateMap[key] || {});
+    return entries.flatMap((entry) => {
+      if (!entry) {
+        return [];
+      }
+
+      const issue = props.issuesMap.get(entry.args.issueId);
+      if (!issue) {
+        return [];
+      }
+
+      return [{ entry, issue }];
+    });
   });
 
   const onCreateClick = () => {
-    createSheetEntryArgs({
-      args: {
-        comments: "",
-        hours: 0,
-        issueId: props.issue.id,
-        spentOn: props.date,
-      },
-      setState,
-    });
+    // createSheetEntryArgs({
+    //   args: {
+    //     comments: "",
+    //     hours: 0,
+    //     issueId: props.issue.id,
+    //     spentOn: props.date,
+    //   },
+    //   setState,
+    // });
   };
 
   return (
@@ -98,118 +105,101 @@ const Cell: Component<CellProps> = (props) => {
         </Button>
       </div>
       <For each={created()}>
-        {(entry) => (
-          <Show when={entry}>
-            {(entry) => (
-              <CreatedEntryCard
-                entry={entry()}
-                issue={props.issue}
-                project={props.project}
-              />
-            )}
-          </Show>
-        )}
+        {(pair) => <CreatedEntryCard entry={pair.entry} issue={pair.issue} />}
       </For>
-      <For each={props.entries}>
-        {(entry) => (
-          <UpdatedEntryCard
-            entry={entry}
-            issue={props.issue}
-            project={props.project}
-          />
-        )}
+      <For each={props.pairs}>
+        {(pair) => <UpdatedEntryCard entry={pair.entry} issue={pair.issue} />}
       </For>
     </GridCell>
   );
 };
 
-type RowProps = {
-  dayEntryMap?: Map<string, TimeEntry[]>;
-  issue: Issue;
-  project: Project;
-};
+// type RowProps = {
+//   dayEntryMap?: Map<string, TimeEntry[]>;
+//   issue: Issue;
+//   project: Project;
+// };
 
-const Row: Component<RowProps> = (props) => {
-  const { days } = useTimeSheetConfig();
+// const Row: Component<RowProps> = (props) => {
+//   const { days } = useTimeSheetConfig();
 
-  const hoursSum = createMemo(() => {
-    return sumDayTimeEntriesMap(props.dayEntryMap);
-  });
+//   const hoursSum = createMemo(() => {
+//     return sumDayTimeEntriesMap(props.dayEntryMap);
+//   });
 
-  return (
-    <>
-      <GridCell class="bg-base-100 sticky left-0 z-10 flex w-64">
-        <div class="flex flex-col p-2">
-          <Badge variant="outline">{props.issue.id}</Badge>
-          <span>{props.issue.subject}</span>
-        </div>
-      </GridCell>
-      <For each={days()}>
-        {(day) => (
-          <Cell
-            date={day}
-            entries={props.dayEntryMap?.get(formatRequestDate(day))}
-            issue={props.issue}
-            project={props.project}
-          />
-        )}
-      </For>
-      <GridCell class="bg-base-100 sticky right-0 z-10 flex border-l-[1px]">
-        <div class="flex flex-col p-2">
-          <span>{hoursSum()}</span>
-        </div>
-      </GridCell>
-    </>
-  );
-};
+//   return (
+//     <>
+//       <GridCell class="bg-base-100 sticky left-0 z-10 flex w-64">
+//         <div class="flex flex-col p-2">
+//           <Badge variant="outline">{props.issue.id}</Badge>
+//           <span>{props.issue.subject}</span>
+//         </div>
+//       </GridCell>
+//       <For each={days()}>
+//         {(day) => (
+//           <Cell
+//             date={day}
+//             entries={props.dayEntryMap?.get(formatRequestDate(day))}
+//             issue={props.issue}
+//           />
+//         )}
+//       </For>
+//       <GridCell class="bg-base-100 sticky right-0 z-10 flex border-l-[1px]">
+//         <div class="flex flex-col p-2">
+//           <span>{hoursSum()}</span>
+//         </div>
+//       </GridCell>
+//     </>
+//   );
+// };
 
-type RowsGroupProps = {
-  issueDayMap?: Map<number, Map<string, TimeEntry[]>>;
-  issues: Issue[];
-  project: Project;
-};
+// type RowsGroupProps = {
+//   issueDayMap?: Map<number, Map<string, TimeEntry[]>>;
+//   issues: Issue[];
+//   project: Project;
+// };
 
-const RowsGroup: Component<RowsGroupProps> = (props) => {
-  const { toggleProject, days, params } = useTimeSheetConfig();
+// const RowsGroup: Component<RowsGroupProps> = (props) => {
+//   const { toggleProject, days, params } = useTimeSheetConfig();
 
-  const onToggleProject = () => {
-    toggleProject(props.project.id);
-  };
+//   const onToggleProject = () => {
+//     toggleProject(props.project.id);
+//   };
 
-  const isExpanded = createMemo(() => {
-    return !params().hidden.includes(props.project.id);
-  });
+//   const isExpanded = createMemo(() => {
+//     return !params().hidden.includes(props.project.id);
+//   });
 
-  return (
-    <>
-      <GridCell
-        class="bg-base-200 z-10 flex p-2"
-        style={{ "grid-column": `1 / span ${days().length + 2}` }}
-      >
-        <div class="sticky left-2 flex items-center gap-2 text-xl">
-          <Badge variant="outline">{props.project.id}</Badge>
-          <span>{props.project.name}</span>
-          <Button onClick={onToggleProject} size="xs" variant="ghost">
-            <ChevronDownIcon
-              class={twCx("h-4 w-4", { "rotate-180": isExpanded() })}
-            />
-          </Button>
-        </div>
-      </GridCell>
-      <Show when={isExpanded()}>
-        <For each={props.issues}>
-          {(issue) => (
-            <Row
-              dayEntryMap={props.issueDayMap?.get(issue.id)}
-              issue={issue}
-              project={props.project}
-            />
-          )}
-        </For>
-      </Show>
-    </>
-  );
-};
+//   return (
+//     <>
+//       <GridCell
+//         class="bg-base-200 z-10 flex p-2"
+//         style={{ "grid-column": `1 / span ${days().length + 2}` }}
+//       >
+//         <div class="sticky left-2 flex items-center gap-2 text-xl">
+//           <Badge variant="outline">{props.project.id}</Badge>
+//           <span>{props.project.name}</span>
+//           <Button onClick={onToggleProject} size="xs" variant="ghost">
+//             <ChevronDownIcon
+//               class={twCx("h-4 w-4", { "rotate-180": isExpanded() })}
+//             />
+//           </Button>
+//         </div>
+//       </GridCell>
+//       <Show when={isExpanded()}>
+//         <For each={props.issues}>
+//           {(issue) => (
+//             <Row
+//               dayEntryMap={props.issueDayMap?.get(issue.id)}
+//               issue={issue}
+//               project={props.project}
+//             />
+//           )}
+//         </For>
+//       </Show>
+//     </>
+//   );
+// };
 
 type FooterProps = {
   timeEntries: TimeEntry[];
@@ -228,7 +218,6 @@ const Footer: Component<FooterProps> = (props) => {
 
   return (
     <>
-      <GridCell class="bg-base-100 sticky bottom-0 left-0 z-30 flex border-t-[1px] p-2" />
       <For each={days()}>
         {(day) => (
           <GridCell class="bg-base-100 sticky bottom-0 z-20 flex flex-col border-t-[1px] p-2">
@@ -249,8 +238,14 @@ type Props = {
 };
 
 export const TimeEntryGrid: Component<Props> = (props) => {
-  const projectGroups = createMemo(() => groupIssuesByProject(props.issues));
-  const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
+  const issuesMap = createMemo(() => groupIssues(props.issues));
+
+  const timeEntryGroups = createMemo(() =>
+    groupTimeEntries({
+      entries: props.timeEntries,
+      issuesMap: issuesMap(),
+    })
+  );
 
   const { days } = useTimeSheetConfig();
 
@@ -260,19 +255,20 @@ export const TimeEntryGrid: Component<Props> = (props) => {
       <div
         class="w-max-[100vw] grid max-h-[80vh] overflow-scroll"
         style={{
-          "grid-template-columns": `auto repeat(${days().length}, 250px) auto`,
+          "grid-template-columns": `repeat(${days().length}, 250px) auto`,
         }}
       >
         <Header />
-        <For each={projectGroups()}>
-          {(projectGroup) => (
-            <RowsGroup
-              issueDayMap={timeEntryGroups().get(projectGroup.project.id)}
-              issues={projectGroup.issues}
-              project={projectGroup.project}
+        <For each={days()}>
+          {(day) => (
+            <Cell
+              date={day}
+              issuesMap={issuesMap()}
+              pairs={timeEntryGroups().get(formatRequestDate(day))}
             />
           )}
         </For>
+        <GridCell class="bg-base-100 sticky bottom-0 right-0 z-30 flex border-l-[1px] p-2" />
         <Footer timeEntries={props.timeEntries} />
       </div>
     </div>
