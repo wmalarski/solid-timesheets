@@ -13,7 +13,9 @@ export const SignOut: Component = () => {
       <Button
         disabled={signOut.pending}
         isLoading={signOut.pending}
+        size="sm"
         type="submit"
+        variant="outline"
       >
         {t("signOut.button")}
       </Button>

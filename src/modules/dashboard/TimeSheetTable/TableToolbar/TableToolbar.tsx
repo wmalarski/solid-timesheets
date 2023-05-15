@@ -12,7 +12,6 @@ import {
   deleteTimeEntriesServerMutation,
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
-import { formatRequestDate } from "~/utils/format";
 import {
   copyCheckedEntriesToEndOfMonth,
   copyCheckedEntriesToNextDay,
@@ -26,10 +25,19 @@ type MonthSelectProps = {
 };
 
 const MonthSelect: Component<MonthSelectProps> = (props) => {
+  const [, { locale }] = useI18n();
+
   const { params, setNextMonth, setPreviousMonth } = useTimeSheetConfig();
 
+  const date = createMemo(() => {
+    return Intl.DateTimeFormat(locale(), {
+      month: "long",
+      year: "numeric",
+    }).format(params().date);
+  });
+
   return (
-    <div class="flex gap-1">
+    <div class="flex items-center gap-1">
       <Button
         disabled={props.isDisabled}
         onClick={setPreviousMonth}
@@ -38,7 +46,6 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
       >
         <ChevronDownIcon class="h-4 w-4 rotate-90" />
       </Button>
-      <span>{formatRequestDate(params().date)}</span>
       <Button
         disabled={props.isDisabled}
         onClick={setNextMonth}
@@ -47,6 +54,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
       >
         <ChevronDownIcon class="h-4 w-4 -rotate-90" />
       </Button>
+      <span class="text-2xl">{date()}</span>
     </div>
   );
 };
@@ -190,7 +198,7 @@ export const TableToolbar: Component = () => {
   });
 
   return (
-    <div class="flex justify-between gap-2 p-2">
+    <div class="flex items-center justify-between gap-2 border-b-[1px] border-gray-300 p-2">
       <MonthSelect isDisabled={isDisabled()} />
       <div class="flex gap-2">
         <DeleteButton isDisabled={isDisabled()} />

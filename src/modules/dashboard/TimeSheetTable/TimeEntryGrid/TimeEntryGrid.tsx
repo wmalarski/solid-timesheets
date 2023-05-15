@@ -29,8 +29,14 @@ const GridCell: Component<JSX.IntrinsicElements["div"]> = (props) => {
   );
 };
 
-const Header: Component = () => {
-  const [, { locale }] = useI18n();
+type HeaderProps = {
+  issues: Issue[];
+};
+
+const Header: Component<HeaderProps> = (props) => {
+  const [t, { locale }] = useI18n();
+
+  const { setState } = useTimeSheetContext();
 
   const { days } = useTimeSheetConfig();
 
@@ -42,13 +48,30 @@ const Header: Component = () => {
     return Intl.DateTimeFormat(locale(), { weekday: "long" }).format;
   });
 
+  const onCreateClick = () => {
+    // createSheetEntryArgs({
+    //   args: {
+    //     comments: "",
+    //     hours: 0,
+    //     issueId: props.issue.id,
+    //     spentOn: props.date,
+    //   },
+    //   setState,
+    // });
+  };
+
   return (
     <>
       <For each={days()}>
         {(date) => (
-          <GridCell class="bg-base-100 sticky top-0 z-20 flex flex-col p-2">
-            <span class="text-3xl">{dayFormat()(date)}</span>
-            <span>{weekdayFormat()(date)}</span>
+          <GridCell class="bg-base-100 sticky top-0 z-20 flex items-center justify-between gap-2 p-2">
+            <div class="flex flex-col ">
+              <span class="text-3xl">{dayFormat()(date)}</span>
+              <span>{weekdayFormat()(date)}</span>
+            </div>
+            <Button onClick={onCreateClick} variant="outline" size="xs">
+              ➕ {t("dashboard.create")}
+            </Button>
           </GridCell>
         )}
       </For>
@@ -64,9 +87,7 @@ type CellProps = {
 };
 
 const Cell: Component<CellProps> = (props) => {
-  const [t] = useI18n();
-
-  const { setState, state } = useTimeSheetContext();
+  const { state } = useTimeSheetContext();
 
   const created = createMemo(() => {
     const key = sheetEntryMapKey({ date: props.date });
@@ -85,25 +106,8 @@ const Cell: Component<CellProps> = (props) => {
     });
   });
 
-  const onCreateClick = () => {
-    // createSheetEntryArgs({
-    //   args: {
-    //     comments: "",
-    //     hours: 0,
-    //     issueId: props.issue.id,
-    //     spentOn: props.date,
-    //   },
-    //   setState,
-    // });
-  };
-
   return (
     <GridCell class="flex flex-col gap-2 p-2">
-      <div class="flex justify-end">
-        <Button onClick={onCreateClick} variant="ghost" size="xs">
-          ➕ {t("dashboard.create")}
-        </Button>
-      </div>
       <For each={created()}>
         {(pair) => <CreatedEntryCard entry={pair.entry} issue={pair.issue} />}
       </For>
@@ -113,93 +117,6 @@ const Cell: Component<CellProps> = (props) => {
     </GridCell>
   );
 };
-
-// type RowProps = {
-//   dayEntryMap?: Map<string, TimeEntry[]>;
-//   issue: Issue;
-//   project: Project;
-// };
-
-// const Row: Component<RowProps> = (props) => {
-//   const { days } = useTimeSheetConfig();
-
-//   const hoursSum = createMemo(() => {
-//     return sumDayTimeEntriesMap(props.dayEntryMap);
-//   });
-
-//   return (
-//     <>
-//       <GridCell class="bg-base-100 sticky left-0 z-10 flex w-64">
-//         <div class="flex flex-col p-2">
-//           <Badge variant="outline">{props.issue.id}</Badge>
-//           <span>{props.issue.subject}</span>
-//         </div>
-//       </GridCell>
-//       <For each={days()}>
-//         {(day) => (
-//           <Cell
-//             date={day}
-//             entries={props.dayEntryMap?.get(formatRequestDate(day))}
-//             issue={props.issue}
-//           />
-//         )}
-//       </For>
-//       <GridCell class="bg-base-100 sticky right-0 z-10 flex border-l-[1px]">
-//         <div class="flex flex-col p-2">
-//           <span>{hoursSum()}</span>
-//         </div>
-//       </GridCell>
-//     </>
-//   );
-// };
-
-// type RowsGroupProps = {
-//   issueDayMap?: Map<number, Map<string, TimeEntry[]>>;
-//   issues: Issue[];
-//   project: Project;
-// };
-
-// const RowsGroup: Component<RowsGroupProps> = (props) => {
-//   const { toggleProject, days, params } = useTimeSheetConfig();
-
-//   const onToggleProject = () => {
-//     toggleProject(props.project.id);
-//   };
-
-//   const isExpanded = createMemo(() => {
-//     return !params().hidden.includes(props.project.id);
-//   });
-
-//   return (
-//     <>
-//       <GridCell
-//         class="bg-base-200 z-10 flex p-2"
-//         style={{ "grid-column": `1 / span ${days().length + 2}` }}
-//       >
-//         <div class="sticky left-2 flex items-center gap-2 text-xl">
-//           <Badge variant="outline">{props.project.id}</Badge>
-//           <span>{props.project.name}</span>
-//           <Button onClick={onToggleProject} size="xs" variant="ghost">
-//             <ChevronDownIcon
-//               class={twCx("h-4 w-4", { "rotate-180": isExpanded() })}
-//             />
-//           </Button>
-//         </div>
-//       </GridCell>
-//       <Show when={isExpanded()}>
-//         <For each={props.issues}>
-//           {(issue) => (
-//             <Row
-//               dayEntryMap={props.issueDayMap?.get(issue.id)}
-//               issue={issue}
-//               project={props.project}
-//             />
-//           )}
-//         </For>
-//       </Show>
-//     </>
-//   );
-// };
 
 type FooterProps = {
   timeEntries: TimeEntry[];
@@ -258,7 +175,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
           "grid-template-columns": `repeat(${days().length}, 250px) auto`,
         }}
       >
-        <Header />
+        <Header issues={props.issues} />
         <For each={days()}>
           {(day) => (
             <Cell
