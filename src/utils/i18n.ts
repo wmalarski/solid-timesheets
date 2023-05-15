@@ -3,34 +3,33 @@ import { createI18nContext } from "@solid-primitives/i18n";
 const dict = {
   en: {
     dashboard: {
-      create: "➕ New",
-      reset: "❌ Reset",
-      saveAll: "✅ Save",
+      create: "New",
+      reset: "Reset",
+      saveAll: "Save",
       timeEntry: {
-        cancel: "❌ Cancel",
         comments: {
           label: "Comments",
           placeholder: "Write",
         },
         copyMonthEnd: "Copy Month End",
         copyNextDay: "Copy Next Day",
-        delete: "❌ Delete",
+        delete: "Delete",
         hours: {
           label: "Hours",
           placeholder: "Write",
         },
         new: "New",
         pending: "Pending",
-        save: "✅ Save",
-        update: "✅ Update",
+        save: "Save",
+        update: "Update",
       },
-      title: "Time Sheets ⏲️",
+      title: "Time Sheets",
     },
     footer: {
       madeBy: "Made by wmalarski",
     },
     home: {
-      title: "Time Sheets ⏲️",
+      title: "⏲️ Time Sheets",
     },
     signIn: {
       button: "Sign In",

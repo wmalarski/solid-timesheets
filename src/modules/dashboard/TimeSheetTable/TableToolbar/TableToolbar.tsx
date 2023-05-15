@@ -6,6 +6,7 @@ import {
 } from "@tanstack/solid-query";
 import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
+import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import {
   createTimeEntriesServerMutation,
   deleteTimeEntriesServerMutation,
@@ -33,18 +34,18 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
         disabled={props.isDisabled}
         onClick={setPreviousMonth}
         size="xs"
-        variant="outline"
+        variant="ghost"
       >
-        -
+        <ChevronDownIcon class="h-4 w-4 rotate-90" />
       </Button>
       <span>{formatRequestDate(params().date)}</span>
       <Button
         disabled={props.isDisabled}
         onClick={setNextMonth}
         size="xs"
-        variant="outline"
+        variant="ghost"
       >
-        +
+        <ChevronDownIcon class="h-4 w-4 -rotate-90" />
       </Button>
     </div>
   );
@@ -78,12 +79,12 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
 
   return (
     <Button
-      color="error"
       disabled={props.isDisabled}
       onClick={onClick}
       size="xs"
+      variant="outline"
     >
-      {t("dashboard.timeEntry.delete")}
+      ❌ {t("dashboard.timeEntry.delete")}
     </Button>
   );
 };
@@ -103,12 +104,12 @@ const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
 
   return (
     <Button
-      color="success"
       disabled={props.isDisabled}
       onClick={onClick}
       size="xs"
+      variant="outline"
     >
-      {t("dashboard.timeEntry.copyMonthEnd")}
+      ⏭️ {t("dashboard.timeEntry.copyMonthEnd")}
     </Button>
   );
 };
@@ -128,12 +129,12 @@ const CopyNextDayButton: Component<CopyNextDayButtonProps> = (props) => {
 
   return (
     <Button
-      color="success"
       disabled={props.isDisabled}
       onClick={onClick}
       size="xs"
+      variant="outline"
     >
-      {t("dashboard.timeEntry.copyNextDay")}
+      1️⃣ {t("dashboard.timeEntry.copyNextDay")}
     </Button>
   );
 };
@@ -171,12 +172,12 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
   return (
     <Button
-      color="primary"
       disabled={props.isDisabled}
       onClick={onSaveClick}
       size="xs"
+      variant="outline"
     >
-      {t("dashboard.saveAll")}
+      ✅ {t("dashboard.saveAll")}
     </Button>
   );
 };
@@ -191,10 +192,10 @@ export const TableToolbar: Component = () => {
   return (
     <div class="flex justify-between gap-2 p-2">
       <MonthSelect isDisabled={isDisabled()} />
-      <div>
+      <div class="flex gap-2">
         <DeleteButton isDisabled={isDisabled()} />
-        <CopyMonthButton isDisabled={isDisabled()} />
         <CopyNextDayButton isDisabled={isDisabled()} />
+        <CopyMonthButton isDisabled={isDisabled()} />
         <SaveButton isDisabled={isDisabled()} />
       </div>
     </div>

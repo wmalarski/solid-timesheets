@@ -1,11 +1,19 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { useIsMutating } from "@tanstack/solid-query";
+import {
+  createMutation,
+  useIsMutating,
+  useQueryClient,
+} from "@tanstack/solid-query";
 import { Show, createMemo, type Component } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { Checkbox } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
+import {
+  createTimeEntryServerMutation,
+  getAllTimeEntriesKey,
+} from "~/server/timeEntries";
 import { TimeEntryFields } from "../TimeEntryFields";
 import {
   sheetEntryMapKey,
@@ -86,6 +94,43 @@ const CreateForm: Component<CreateFormProps> = (props) => {
   );
 };
 
+type SaveButtonProps = {
+  entry: CreatingEntryData;
+  isPending: boolean;
+  key: string;
+};
+
+const SaveButton: Component<SaveButtonProps> = (props) => {
+  const [t] = useI18n();
+
+  const { setState } = useTimeSheetContext();
+
+  const queryClient = useQueryClient();
+
+  const mutation = createMutation(() => ({
+    mutationFn: createTimeEntryServerMutation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
+      setState("dateMap", props.key, props.entry.id, undefined);
+    },
+  }));
+
+  const onSaveClick = () => {
+    mutation.mutate(props.entry.args);
+  };
+
+  return (
+    <Button
+      disabled={props.isPending}
+      onClick={onSaveClick}
+      size="xs"
+      variant="outline"
+    >
+      ✅ {t("dashboard.timeEntry.save")}
+    </Button>
+  );
+};
+
 type Props = {
   entry: CreatingEntryData;
 };
@@ -125,14 +170,17 @@ export const CreatedEntryCard: Component<Props> = (props) => {
       <CardBody>
         <CardHeader entry={props.entry} key={key()} isPending={isPending()} />
         <CreateForm entry={props.entry} key={key()} isPending={isPending()} />
-        <Button
-          color="error"
-          disabled={isPending()}
-          onClick={onDelete}
-          size="xs"
-        >
-          {t("dashboard.timeEntry.delete")}
-        </Button>
+        <div class="flex justify-end gap-2">
+          <Button
+            disabled={isPending()}
+            onClick={onDelete}
+            size="xs"
+            variant="outline"
+          >
+            ❌ {t("dashboard.timeEntry.delete")}
+          </Button>
+          <SaveButton entry={props.entry} isPending={isPending()} key={key()} />
+        </div>
       </CardBody>
     </Card>
   );

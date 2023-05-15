@@ -95,14 +95,16 @@ const CardContent: Component<CardContentProps> = (props) => {
         </span>
         <span class="px-3 py-1 text-xs">{props.entry.hours}</span>
       </div>
-      <Button
-        color="secondary"
-        disabled={props.isPending}
-        onClick={props.onUpdateClick}
-        size="xs"
-      >
-        {t("dashboard.timeEntry.update")}
-      </Button>
+      <div class="flex justify-end">
+        <Button
+          disabled={props.isPending}
+          onClick={props.onUpdateClick}
+          size="xs"
+          variant="outline"
+        >
+          📝 {t("dashboard.timeEntry.update")}
+        </Button>
+      </div>
     </div>
   );
 };
@@ -133,12 +135,12 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
   return (
     <Button
-      color="error"
       disabled={props.isPending}
       onClick={onSaveClick}
       size="xs"
+      variant="outline"
     >
-      {t("dashboard.timeEntry.save")}
+      ✅ {t("dashboard.timeEntry.save")}
     </Button>
   );
 };
@@ -223,14 +225,14 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
             >
               <div class="flex flex-col gap-2">
                 <UpdateForm args={entry().args} isPending={isPending()} />
-                <div class="flex gap-2">
+                <div class="flex justify-end gap-2">
                   <Button
-                    color="error"
                     disabled={isPending()}
                     onClick={onResetClick}
                     size="xs"
+                    variant="outline"
                   >
-                    {t("dashboard.reset")}
+                    🔄 {t("dashboard.reset")}
                   </Button>
                   <SaveButton args={entry().args} isPending={isPending()} />
                 </div>

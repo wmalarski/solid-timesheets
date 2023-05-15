@@ -2,6 +2,7 @@ import { useI18n } from "@solid-primitives/i18n";
 import { For, Show, createMemo, type Component, type JSX } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Button } from "~/components/Button";
+import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import { twCx } from "~/components/utils/twCva";
 import type { Issue, Project, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
@@ -90,9 +91,9 @@ const Cell: Component<CellProps> = (props) => {
 
   return (
     <GridCell class="flex flex-col gap-2 p-2">
-      <div>
+      <div class="flex justify-end">
         <Button onClick={onCreateClick} variant="ghost" size="xs">
-          {t("dashboard.create")}
+          ➕ {t("dashboard.create")}
         </Button>
       </div>
       <For each={created()}>
@@ -160,6 +161,10 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
     toggleProject(props.project.id);
   };
 
+  const isExpanded = createMemo(() => {
+    return !params().hidden.includes(props.project.id);
+  });
+
   return (
     <>
       <GridCell
@@ -169,12 +174,14 @@ const RowsGroup: Component<RowsGroupProps> = (props) => {
         <div class="sticky left-2 flex items-center gap-2 text-xl">
           <Badge variant="outline">{props.project.id}</Badge>
           <span>{props.project.name}</span>
-          <Button onClick={onToggleProject} size="xs">
-            ^
+          <Button onClick={onToggleProject} size="xs" variant="ghost">
+            <ChevronDownIcon
+              class={twCx("h-4 w-4", { "rotate-180": isExpanded() })}
+            />
           </Button>
         </div>
       </GridCell>
-      <Show when={!params().hidden.includes(props.project.id)}>
+      <Show when={isExpanded()}>
         <For each={props.issues}>
           {(issue) => (
             <Row dayEntryMap={props.issueDayMap?.get(issue.id)} issue={issue} />
@@ -234,7 +241,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
       <div
         class="w-max-[100vw] grid max-h-[80vh] overflow-scroll"
         style={{
-          "grid-template-columns": `repeat(${days().length + 2}, auto)`,
+          "grid-template-columns": `auto repeat(${days().length}, 250px) auto`,
         }}
       >
         <Header />

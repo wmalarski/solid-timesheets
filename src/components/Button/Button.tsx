@@ -8,7 +8,7 @@ import {
 import { A } from "solid-start";
 import { twCva } from "../utils/twCva";
 
-export const buttonClass = twCva("btn", {
+export const buttonClass = twCva("btn no-animation", {
   defaultVariants: {
     color: "none",
     isLoading: false,
