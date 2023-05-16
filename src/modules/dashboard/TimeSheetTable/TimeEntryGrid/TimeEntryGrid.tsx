@@ -1,17 +1,17 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { For, createMemo, type Component, type JSX } from "solid-js";
-import { Button } from "~/components/Button";
 import { twCx } from "~/components/utils/twCva";
 import type { Issue, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
-import { TableToolbar } from "../TableToolbar";
 import {
   sheetEntryMapKey,
   useTimeSheetConfig,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
+import { CreateEntryMenu } from "./CreateEntryMenu";
+import { TableToolbar } from "./TableToolbar";
 import {
   groupIssues,
   groupTimeEntries,
@@ -34,9 +34,7 @@ type HeaderProps = {
 };
 
 const Header: Component<HeaderProps> = (props) => {
-  const [t, { locale }] = useI18n();
-
-  const { setState } = useTimeSheetContext();
+  const [, { locale }] = useI18n();
 
   const { days } = useTimeSheetConfig();
 
@@ -48,18 +46,6 @@ const Header: Component<HeaderProps> = (props) => {
     return Intl.DateTimeFormat(locale(), { weekday: "long" }).format;
   });
 
-  const onCreateClick = () => {
-    // createSheetEntryArgs({
-    //   args: {
-    //     comments: "",
-    //     hours: 0,
-    //     issueId: props.issue.id,
-    //     spentOn: props.date,
-    //   },
-    //   setState,
-    // });
-  };
-
   return (
     <>
       <For each={days()}>
@@ -69,9 +55,7 @@ const Header: Component<HeaderProps> = (props) => {
               <span class="text-3xl">{dayFormat()(date)}</span>
               <span>{weekdayFormat()(date)}</span>
             </div>
-            <Button onClick={onCreateClick} variant="outline" size="xs">
-              ➕ {t("dashboard.create")}
-            </Button>
+            <CreateEntryMenu issues={props.issues} />
           </GridCell>
         )}
       </For>

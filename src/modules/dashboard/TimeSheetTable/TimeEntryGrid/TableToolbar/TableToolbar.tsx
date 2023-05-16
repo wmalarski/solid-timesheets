@@ -18,7 +18,7 @@ import {
   deleteCheckedSheetEntries,
   useTimeSheetConfig,
   useTimeSheetContext,
-} from "../TimeSheetTable.utils";
+} from "../../TimeSheetTable.utils";
 
 type MonthSelectProps = {
   isDisabled: boolean;
