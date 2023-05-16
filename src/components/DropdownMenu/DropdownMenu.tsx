@@ -43,7 +43,7 @@ export const DropdownMenuIcon: Component<
 export const DropdownMenuPortal = KobalteDropdownMenu.Portal;
 
 export const dropdownMenuContentClass = twCva([
-  "min-w-[220px] p-2 bg-white shadow-sm outline-none",
+  "min-w-[220px] p-2 bg-base-100 border-[1px] border-base-300 outline-none",
   styles.content,
 ]);
 
@@ -104,12 +104,12 @@ export const DropdownMenuSub = KobalteDropdownMenu.Sub;
 export const dropdownMenuItemClass = twCva([
   "relative flex h-8 select-none items-center pl-2 pr-6 text-base leading-none outline-none",
   "ui-disabled:opacity-50 ui-disabled:pointer-events-none",
-  "ui-highlighted:outline-none ui-highlighted:bg-base-100",
+  "ui-highlighted:outline-none ui-highlighted:bg-base-200",
 ]);
 
 export const dropdownMenuSubTriggerClass = twCva([
   dropdownMenuItemClass,
-  "ui-expanded:bg-white ui-expanded:text-accent-content",
+  "ui-expanded:bg-base-100 ui-expanded:text-accent-content",
 ]);
 
 export const DropdownMenuSubTrigger: Component<
@@ -149,7 +149,10 @@ export const DropdownMenuItemLabel: Component<
   KobalteDropdownMenu.DropdownMenuItemLabelProps
 > = (props) => {
   return (
-    <KobalteDropdownMenu.ItemLabel {...props} class={twCx("", props.class)} />
+    <KobalteDropdownMenu.ItemLabel
+      {...props}
+      class={twCx("text-base overflow-ellipsis", props.class)}
+    />
   );
 };
 
@@ -159,7 +162,7 @@ export const DropdownMenuItemDescription: Component<
   return (
     <KobalteDropdownMenu.ItemDescription
       {...props}
-      class={twCx("", props.class)}
+      class={twCx("text-xs font-semibold uppercase", props.class)}
     />
   );
 };

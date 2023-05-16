@@ -55,7 +55,7 @@ const Header: Component<HeaderProps> = (props) => {
               <span class="text-3xl">{dayFormat()(date)}</span>
               <span>{weekdayFormat()(date)}</span>
             </div>
-            <CreateEntryMenu issues={props.issues} />
+            <CreateEntryMenu date={date} issues={props.issues} />
           </GridCell>
         )}
       </For>

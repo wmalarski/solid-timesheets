@@ -1,37 +1,43 @@
 import { useI18n } from "@solid-primitives/i18n";
-import type { Component } from "solid-js";
+import { For, type Component } from "solid-js";
 import {
   DropdownMenuArrow,
   DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuItem,
+  DropdownMenuItemDescription,
+  DropdownMenuItemLabel,
   DropdownMenuPortal,
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
 import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import type { Issue } from "~/server/types";
-import { useTimeSheetContext } from "../../TimeSheetTable.utils";
+import {
+  createSheetEntryArgs,
+  useTimeSheetContext,
+} from "../../TimeSheetTable.utils";
 
 type Props = {
   issues: Issue[];
+  date: Date;
 };
 
-export const CreateEntryMenu: Component<Props> = () => {
+export const CreateEntryMenu: Component<Props> = (props) => {
   const [t] = useI18n();
 
   const { setState } = useTimeSheetContext();
 
-  const onCreateClick = () => {
-    // createSheetEntryArgs({
-    //   args: {
-    //     comments: "",
-    //     hours: 0,
-    //     issueId: props.issue.id,
-    //     spentOn: props.date,
-    //   },
-    //   setState,
-    // });
+  const onCreateClick = (issue: Issue) => {
+    createSheetEntryArgs({
+      args: {
+        comments: "",
+        hours: 0,
+        issueId: issue.id,
+        spentOn: props.date,
+      },
+      setState,
+    });
   };
 
   return (
@@ -43,10 +49,20 @@ export const CreateEntryMenu: Component<Props> = () => {
         </DropdownMenuIcon>
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
-        <DropdownMenuContent>
-          <DropdownMenuItem>Commit</DropdownMenuItem>
-          <DropdownMenuItem>Push</DropdownMenuItem>
-          <DropdownMenuItem disabled>Update Project</DropdownMenuItem>
+        <DropdownMenuContent class="max-h-96 overflow-y-scroll">
+          <For each={props.issues}>
+            {(issue) => (
+              <DropdownMenuItem
+                onClick={() => onCreateClick(issue)}
+                class="flex h-12 flex-col items-start justify-center"
+              >
+                <DropdownMenuItemDescription>
+                  {issue.project.name}
+                </DropdownMenuItemDescription>
+                <DropdownMenuItemLabel>{issue.subject}</DropdownMenuItemLabel>
+              </DropdownMenuItem>
+            )}
+          </For>
           <DropdownMenuArrow />
         </DropdownMenuContent>
       </DropdownMenuPortal>

@@ -17,7 +17,7 @@ export const SignOut: Component = () => {
         type="submit"
         variant="outline"
       >
-        {t("signOut.button")}
+        🚪 {t("signOut.button")}
       </Button>
     </Form>
   );
