@@ -23,7 +23,10 @@
   transform-origin: var(--kb-menu-content-transform-origin);
   animation: contentHide 250ms ease-in forwards;
 }
-
 .content[data-expanded] {
   animation: contentShow 250ms ease-out;
+}
+
+.portal {
+  z-index: 100 !important;
 }

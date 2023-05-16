@@ -73,7 +73,7 @@ export const ToastProgressTrack: Component<Toast.ToastProgressTrackProps> = (
   return (
     <Toast.ProgressTrack
       {...props}
-      class={twCx("h-2 w-full bg-accent rounded-sm", props.class)}
+      class={twCx("h-2 w-full bg-accent", props.class)}
     />
   );
 };
@@ -85,7 +85,7 @@ export const ToastProgressFill: Component<Toast.ToastProgressFillProps> = (
     <Toast.ProgressFill
       {...props}
       class={twCx(
-        "bg-base-300 rounded-sm h-full",
+        "bg-base-300 h-full",
         "w-[var(--kb-toast-progress-fill-width)] transition-[width] duration-200 ease-linear",
         props.class
       )}

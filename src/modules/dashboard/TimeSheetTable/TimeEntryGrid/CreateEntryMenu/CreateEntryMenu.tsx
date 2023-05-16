@@ -36,8 +36,8 @@ export const CreateEntryMenu: Component<Props> = () => {
 
   return (
     <DropdownMenuRoot>
-      <DropdownMenuTrigger>
-        <span>➕ {t("dashboard.create")}</span>
+      <DropdownMenuTrigger size="xs" variant="outline">
+        <span>{t("dashboard.create")}</span>
         <DropdownMenuIcon>
           <ChevronDownIcon />
         </DropdownMenuIcon>

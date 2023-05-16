@@ -1,44 +1,31 @@
 import { DropdownMenu as KobalteDropdownMenu } from "@kobalte/core";
-import type { Component } from "solid-js";
+import type { VariantProps } from "class-variance-authority";
+import { createSignal, onMount, splitProps, type Component } from "solid-js";
+import { buttonClass } from "../Button";
 import { twCva, twCx } from "../utils/twCva";
 import styles from "./DropdownMenu.module.css";
 
 export const DropdownMenuRoot = KobalteDropdownMenu.Root;
 
-export const DropdownMenuTrigger: Component<
-  KobalteDropdownMenu.DropdownMenuTriggerProps
-> = (props) => {
-  /*
-.dropdown-menu__trigger {
-  appearance: none;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  width: auto;
-  outline: none;
-  border-radius: 6px;
-  padding: 0 16px;
-  background-color: hsl(200 98% 39%);
-  color: white;
-  font-size: 16px;
-  gap: 8px;
-  line-height: 0;
-  transition: 250ms background-color;
-}
-.dropdown-menu__trigger:hover {
-  background-color: hsl(201 96% 32%);
-}
-.dropdown-menu__trigger:focus-visible {
-  outline: 2px solid hsl(200 98% 39%);
-  outline-offset: 2px;
-}
-.dropdown-menu__trigger:active {
-  background-color: hsl(201 90% 27%);
-}
-  */
+export type DropdownMenuTriggerProps =
+  KobalteDropdownMenu.DropdownMenuTriggerProps &
+    VariantProps<typeof buttonClass>;
+
+export const DropdownMenuTrigger: Component<DropdownMenuTriggerProps> = (
+  props
+) => {
+  const [split, rest] = splitProps(props, [
+    "color",
+    "isLoading",
+    "size",
+    "variant",
+  ]);
+
   return (
-    <KobalteDropdownMenu.Trigger {...props} class={twCx("btn", props.class)} />
+    <KobalteDropdownMenu.Trigger
+      {...rest}
+      class={buttonClass({ class: props.class, ...split })}
+    />
   );
 };
 
@@ -48,11 +35,7 @@ export const DropdownMenuIcon: Component<
   return (
     <KobalteDropdownMenu.Icon
       {...props}
-      class={twCx(
-        "h-5 w-5 flex-[0_0_20px] rotate-0",
-        "ui-expanded:rotate-180",
-        props.class
-      )}
+      class={twCx("h-4 w-4 rotate-0", "ui-expanded:rotate-180", props.class)}
     />
   );
 };
@@ -60,16 +43,23 @@ export const DropdownMenuIcon: Component<
 export const DropdownMenuPortal = KobalteDropdownMenu.Portal;
 
 export const dropdownMenuContentClass = twCva([
-  "min-w-[220px] p-2 bg-white rounded-md border-[1px] border-base-300 outline-none",
+  "min-w-[220px] p-2 bg-white shadow-sm outline-none",
   styles.content,
 ]);
 
 export const DropdownMenuContent: Component<
   KobalteDropdownMenu.DropdownMenuContentProps
 > = (props) => {
+  const [ref, setRef] = createSignal<HTMLDivElement>();
+
+  onMount(() => {
+    ref()?.parentElement?.classList.add(styles.portal);
+  });
+
   return (
     <KobalteDropdownMenu.Content
       {...props}
+      ref={setRef}
       class={dropdownMenuContentClass({ class: props.class })}
     />
   );
@@ -112,9 +102,9 @@ export const DropdownMenuGroupLabel: Component<
 export const DropdownMenuSub = KobalteDropdownMenu.Sub;
 
 export const dropdownMenuItemClass = twCva([
-  "relative flex h-8 select-none items-center rounded pl-2 pr-6 text-base leading-none outline-none",
+  "relative flex h-8 select-none items-center pl-2 pr-6 text-base leading-none outline-none",
   "ui-disabled:opacity-50 ui-disabled:pointer-events-none",
-  "ui-highlighted:outline-none ui-highlighted:bg-accent ui-highlighted:text-white",
+  "ui-highlighted:outline-none ui-highlighted:bg-base-100",
 ]);
 
 export const dropdownMenuSubTriggerClass = twCva([
@@ -181,7 +171,7 @@ export const DropdownMenuItemIndicator: Component<
     <KobalteDropdownMenu.ItemIndicator
       {...props}
       class={twCx(
-        "absolute left-0 h-5 w-5 inline-flex items-center justify-center",
+        "absolute left-0 h-4 w-4 inline-flex items-center justify-center",
         props.class
       )}
     />
