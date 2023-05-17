@@ -1,6 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { For, createMemo, type Component, type JSX } from "solid-js";
-import { twCx } from "~/components/utils/twCva";
+import { For, createMemo, type Component } from "solid-js";
+import { GridCell } from "~/components/Grid";
 import type { Issue, TimeEntry } from "~/server/types";
 import { formatRequestDate } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
@@ -19,15 +19,6 @@ import {
   sumTimeEntriesHoursByDay,
   type IssueTimeEntryPair,
 } from "./TimeEntryGrid.utils";
-
-const GridCell: Component<JSX.IntrinsicElements["div"]> = (props) => {
-  return (
-    <div
-      {...props}
-      class={twCx("border-b-[1px] border-r-[1px] border-gray-300", props.class)}
-    />
-  );
-};
 
 type HeaderProps = {
   issues: Issue[];
@@ -50,8 +41,12 @@ const Header: Component<HeaderProps> = (props) => {
     <>
       <For each={days()}>
         {(date) => (
-          <GridCell class="bg-base-100 sticky top-0 z-20 flex items-center justify-between gap-2 p-2">
-            <div class="flex flex-col ">
+          <GridCell
+            bg="base-100"
+            class="z-20 flex items-center justify-between gap-2"
+            sticky="top"
+          >
+            <div class="flex flex-col">
               <span class="text-3xl">{dayFormat()(date)}</span>
               <span>{weekdayFormat()(date)}</span>
             </div>
@@ -59,7 +54,7 @@ const Header: Component<HeaderProps> = (props) => {
           </GridCell>
         )}
       </For>
-      <GridCell class="bg-base-100 sticky right-0 top-0 z-30 flex border-l-[1px] p-2" />
+      <GridCell bg="base-100" borders="left" sticky="topRight" class="z-30" />
     </>
   );
 };
@@ -91,7 +86,7 @@ const Cell: Component<CellProps> = (props) => {
   });
 
   return (
-    <GridCell class="flex flex-col gap-2 p-2">
+    <GridCell class="flex flex-col gap-2">
       <For each={created()}>
         {(pair) => <CreatedEntryCard entry={pair.entry} issue={pair.issue} />}
       </For>
@@ -121,14 +116,19 @@ const Footer: Component<FooterProps> = (props) => {
     <>
       <For each={days()}>
         {(day) => (
-          <GridCell class="bg-base-100 sticky bottom-0 z-20 flex flex-col border-t-[1px] p-2">
+          <GridCell bg="base-100" borders="top" class="z-20" sticky="bottom">
             <span class="font-semibold">
               {timeEntryDayHoursGroups().get(formatRequestDate(day))}
             </span>
           </GridCell>
         )}
       </For>
-      <GridCell class="bg-base-100 sticky bottom-0 right-0 z-30 flex border-l-[1px] border-t-[1px] p-2">
+      <GridCell
+        bg="base-100"
+        borders="topLeft"
+        class="z-30"
+        sticky="bottomRight"
+      >
         <span class="font-bold">{timeEntryHours()}</span>
       </GridCell>
     </>
@@ -160,6 +160,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
         style={{
           "grid-template-columns": `repeat(${days().length}, 250px) auto`,
           "grid-template-rows": "auto 1fr auto",
+          "max-height": "calc(100vh - 114px)",
         }}
       >
         <Header issues={props.issues} />
@@ -172,7 +173,12 @@ export const TimeEntryGrid: Component<Props> = (props) => {
             />
           )}
         </For>
-        <GridCell class="bg-base-100 sticky bottom-0 right-0 z-30 flex border-l-[1px] p-2" />
+        <GridCell
+          bg="base-100"
+          borders="left"
+          class="z-30"
+          sticky="bottomRight"
+        />
         <Footer timeEntries={props.timeEntries} />
       </div>
     </div>
