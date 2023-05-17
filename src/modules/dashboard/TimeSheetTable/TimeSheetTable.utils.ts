@@ -396,6 +396,54 @@ export const createSheetEntryArgs = ({
   );
 };
 
+type CopyCreatedToCurrentDayArgs = {
+  id: number;
+  key: string;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyCreatedToCurrentDay = ({
+  id,
+  key,
+  setState,
+}: CopyCreatedToCurrentDayArgs) => {
+  setState(
+    produce((store) => {
+      const entry = store.dateMap[key]?.[id];
+
+      if (!entry) {
+        return;
+      }
+
+      const newEntry = copySheetEntry(entry.args);
+      addSheetEntryToState({ ...newEntry, store });
+    })
+  );
+};
+
+type CopyUpdatedToCurrentDayArgs = {
+  id: number;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyUpdatedToCurrentDay = ({
+  id,
+  setState,
+}: CopyUpdatedToCurrentDayArgs) => {
+  setState(
+    produce((store) => {
+      const args = store.timeEntryMap.get(id);
+
+      if (!args) {
+        return;
+      }
+
+      const newEntry = copySheetEntry(args);
+      addSheetEntryToState({ ...newEntry, store });
+    })
+  );
+};
+
 type DeleteCheckedSheetEntriesArgs = {
   setState: SetStoreFunction<EntriesStore>;
 };

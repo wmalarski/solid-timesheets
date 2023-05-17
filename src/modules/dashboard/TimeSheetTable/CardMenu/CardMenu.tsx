@@ -17,8 +17,10 @@ import {
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
 import {
+  copyCreatedToCurrentDay,
   copyCreatedToEndOfMonth,
   copyCreatedToNextDay,
+  copyUpdatedToCurrentDay,
   copyUpdatedToEndOfMonth,
   copyUpdatedToNextDay,
   useTimeSheetContext,
@@ -100,6 +102,23 @@ const CopyNextDayItem: Component<CopyNextDayItemProps> = (props) => {
   );
 };
 
+type CopyCurrentDayItemProps = {
+  isDisabled: boolean;
+  onClick: () => void;
+};
+
+const CopyCurrentDayItem: Component<CopyCurrentDayItemProps> = (props) => {
+  const [t] = useI18n();
+
+  return (
+    <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
+      <DropdownMenuItemLabel>
+        1️⃣ {t("dashboard.timeEntry.copyCurrentDay")}
+      </DropdownMenuItemLabel>
+    </DropdownMenuItem>
+  );
+};
+
 type CreatedCardMenuProps = {
   id: number;
   isDisabled: boolean;
@@ -113,6 +132,10 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
 
   const onDeleteClick = () => {
     setState("dateMap", props.key, props.id, undefined);
+  };
+
+  const onCopyCurrentDayClick = () => {
+    copyCreatedToCurrentDay({ id: props.id, key: props.key, setState });
   };
 
   const onCopyMonthClick = () => {
@@ -137,13 +160,17 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
       <DropdownMenuPortal>
         <DropdownMenuContent>
           <DeleteItem isDisabled={props.isDisabled} onClick={onDeleteClick} />
-          <CopyMonthItem
+          <CopyCurrentDayItem
             isDisabled={props.isDisabled}
-            onClick={onCopyMonthClick}
+            onClick={onCopyCurrentDayClick}
           />
           <CopyNextDayItem
             isDisabled={props.isDisabled}
             onClick={onCopyNextDayClick}
+          />
+          <CopyMonthItem
+            isDisabled={props.isDisabled}
+            onClick={onCopyMonthClick}
           />
           <DropdownMenuArrow />
         </DropdownMenuContent>
@@ -160,6 +187,10 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
   const [t] = useI18n();
 
   const { setState } = useTimeSheetContext();
+
+  const onCopyCurrentDayClick = () => {
+    copyUpdatedToCurrentDay({ id: props.id, setState });
+  };
 
   const onCopyMonthClick = () => {
     copyUpdatedToEndOfMonth({ id: props.id, setState });
@@ -183,6 +214,10 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
       <DropdownMenuPortal>
         <DropdownMenuContent>
           <DeleteUpdatedItem id={props.id} isDisabled={props.isDisabled} />
+          <CopyCurrentDayItem
+            isDisabled={props.isDisabled}
+            onClick={onCopyCurrentDayClick}
+          />
           <CopyMonthItem
             isDisabled={props.isDisabled}
             onClick={onCopyMonthClick}
