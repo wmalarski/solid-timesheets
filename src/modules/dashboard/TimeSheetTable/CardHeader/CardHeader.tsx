@@ -1,4 +1,4 @@
-import type { Component } from "solid-js";
+import type { Component, JSX } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { Checkbox, type CheckboxProps } from "~/components/Checkbox";
 import { TextFieldLabel, TextFieldRoot } from "~/components/TextField";
@@ -9,6 +9,7 @@ type Props = {
   isPending: boolean;
   issue: Issue;
   onChange: (isChecked: boolean) => void;
+  menu: JSX.Element;
 };
 
 export const CardHeader: Component<Props> = (props) => {
@@ -18,19 +19,22 @@ export const CardHeader: Component<Props> = (props) => {
 
   return (
     <header class="flex flex-col gap-2">
-      <TextFieldRoot>
-        <TextFieldLabel>
-          <Badge class="uppercase" variant="outline">
-            {props.issue.id}
-          </Badge>
-          <Checkbox
-            checked={props.isChecked}
-            disabled={props.isPending}
-            onChange={onCheckChange}
-            size="xs"
-          />
-        </TextFieldLabel>
-      </TextFieldRoot>
+      <div class="flex items-center gap-2">
+        <TextFieldRoot class="grow">
+          <TextFieldLabel>
+            <Badge class="uppercase" variant="outline">
+              {props.issue.id}
+            </Badge>
+            <Checkbox
+              checked={props.isChecked}
+              disabled={props.isPending}
+              onChange={onCheckChange}
+              size="xs"
+            />
+          </TextFieldLabel>
+        </TextFieldRoot>
+        {props.menu}
+      </div>
       <span class="text-xs font-semibold uppercase">
         {props.issue.project.name}
       </span>

@@ -13,6 +13,7 @@ import {
 } from "~/server/timeEntries";
 import type { Issue } from "~/server/types";
 import { CardHeader } from "../CardHeader";
+import { CreatedCardMenu } from "../CardMenu";
 import { TimeEntryFields } from "../TimeEntryFields";
 import {
   sheetEntryMapKey,
@@ -134,6 +135,13 @@ export const CreatedEntryCard: Component<Props> = (props) => {
           isChecked={props.entry.isChecked}
           isPending={isPending()}
           issue={props.issue}
+          menu={
+            <CreatedCardMenu
+              id={props.entry.id}
+              isDisabled={isPending()}
+              key={key()}
+            />
+          }
           onChange={onCheckChange}
         />
         <CreateForm entry={props.entry} key={key()} isPending={isPending()} />

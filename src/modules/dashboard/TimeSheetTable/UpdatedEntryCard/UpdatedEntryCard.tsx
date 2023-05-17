@@ -14,6 +14,7 @@ import {
 } from "~/server/timeEntries";
 import type { Issue, TimeEntry } from "~/server/types";
 import { CardHeader } from "../CardHeader";
+import { UpdatedCardMenu } from "../CardMenu";
 import { TimeEntryFields } from "../TimeEntryFields";
 import { useTimeSheetContext } from "../TimeSheetTable.utils";
 
@@ -178,6 +179,9 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
           isChecked={isChecked()}
           isPending={isPending()}
           issue={props.issue}
+          menu={
+            <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
+          }
           onChange={onCheckChange}
         />
         <Show
