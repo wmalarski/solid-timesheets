@@ -108,12 +108,10 @@ export const sheetEntryMapKey = (args: SheetEntryMapKeyArgs) => {
 export type CreatingEntryData = {
   args: CreateTimeEntryArgs;
   id: number;
-  isChecked: boolean;
 };
 
 export type UpdatingEntryData = {
   args: UpdateTimeEntryArgs;
-  isChecked: boolean;
   isEditing: boolean;
 };
 
@@ -198,7 +196,7 @@ const addSheetEntryToState = ({
   store,
 }: AddSheetEntryToStateArgs) => {
   const keyEntries = store.dateMap[key] || {};
-  keyEntries[id] = { args, id, isChecked: true };
+  keyEntries[id] = { args, id };
   store.dateMap[key] = keyEntries;
 };
 

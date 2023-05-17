@@ -29,7 +29,7 @@ export const TopBar: Component = () => {
     <header class="flex justify-between border-b-[1px] border-gray-300 p-2">
       <nav>
         <LinkButton class="text-4xl" variant="ghost" href={paths.timeSheets}>
-          ⏲️ {t("dashboard.title")}
+          ⏲{t("dashboard.title")}
         </LinkButton>
       </nav>
       <div class="flex items-center justify-center gap-2">

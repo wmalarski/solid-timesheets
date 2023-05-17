@@ -112,27 +112,14 @@ export const CreatedEntryCard: Component<Props> = (props) => {
     return isMutating() > 0;
   });
 
-  const isChecked = createMemo(() => {
-    return props.entry.isChecked;
-  });
-
   const onDelete = () => {
     setState("dateMap", key(), props.entry.id, undefined);
   };
 
-  const onCheckChange = (isChecked: boolean) => {
-    setState("dateMap", key(), props.entry.id, "isChecked", isChecked);
-  };
-
   return (
-    <Card
-      color={isChecked() ? "accent" : "disabled"}
-      variant="bordered"
-      size="compact"
-    >
+    <Card color="accent" variant="bordered" size="compact">
       <CardBody>
         <CardHeader
-          isChecked={props.entry.isChecked}
           isPending={isPending()}
           issue={props.issue}
           menu={
@@ -142,7 +129,6 @@ export const CreatedEntryCard: Component<Props> = (props) => {
               key={key()}
             />
           }
-          onChange={onCheckChange}
         />
         <CreateForm entry={props.entry} key={key()} isPending={isPending()} />
         <div class="flex justify-end gap-2">

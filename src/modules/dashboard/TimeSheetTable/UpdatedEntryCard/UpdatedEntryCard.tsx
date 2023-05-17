@@ -143,10 +143,6 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
     return state.updateMap[props.entry.id];
   });
 
-  const isChecked = createMemo(() => {
-    return entry()?.isChecked || false;
-  });
-
   const onUpdateClick = () => {
     setState("updateMap", props.entry.id, {
       args: defaultArgs(),
@@ -161,28 +157,19 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
     });
   };
 
-  const onCheckChange = (isChecked: boolean) => {
-    setState("updateMap", props.entry.id, (current) => ({
-      ...current,
-      isChecked,
-    }));
-  };
-
   return (
     <Card
-      color={isChecked() ? "accent" : "disabled"}
+      color={entry()?.isEditing ? "accent" : "disabled"}
       size="compact"
       variant="bordered"
     >
       <CardBody>
         <CardHeader
-          isChecked={isChecked()}
           isPending={isPending()}
           issue={props.issue}
           menu={
             <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
           }
-          onChange={onCheckChange}
         />
         <Show
           when={entry()}

@@ -35,7 +35,7 @@ const Title: Component = () => {
 
   return (
     <h1 class="max-6-xs my-16 text-center text-6xl font-thin uppercase">
-      ⏲️ {t("home.title")}
+      ⏲{t("home.title")}
     </h1>
   );
 };

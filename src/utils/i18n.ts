@@ -25,13 +25,13 @@ const dict = {
         save: "Save",
         update: "Update",
       },
-      title: "Time Sheets",
+      title: "Timesheets",
     },
     footer: {
       madeBy: "Made by wmalarski",
     },
     home: {
-      title: "⏲️ Time Sheets",
+      title: "Timesheets",
     },
     signIn: {
       button: "Sign In",
