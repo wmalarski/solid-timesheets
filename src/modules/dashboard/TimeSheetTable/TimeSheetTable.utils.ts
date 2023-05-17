@@ -244,6 +244,56 @@ const getCheckedCreateEntries = (store: EntriesStore) => {
   return args;
 };
 
+type CopyCreatedToEndOfMonthArgs = {
+  id: number;
+  key: string;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyCreatedToEndOfMonth = ({
+  id,
+  key,
+  setState,
+}: CopyCreatedToEndOfMonthArgs) => {
+  setState(
+    produce((store) => {
+      const entry = store.dateMap[key]?.[id];
+
+      if (!entry) {
+        return;
+      }
+
+      createSheetEntriesToMonthEnd(entry.args).forEach((entry) =>
+        addSheetEntryToState({ ...entry, store })
+      );
+    })
+  );
+};
+
+type CopyUpdatedToEndOfMonthArgs = {
+  id: number;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyUpdatedToEndOfMonth = ({
+  id,
+  setState,
+}: CopyUpdatedToEndOfMonthArgs) => {
+  setState(
+    produce((store) => {
+      const args = store.timeEntryMap.get(id);
+
+      if (!args) {
+        return;
+      }
+
+      createSheetEntriesToMonthEnd(args).forEach((entry) =>
+        addSheetEntryToState({ ...entry, store })
+      );
+    })
+  );
+};
+
 type CopyCheckedEntriesToEndOfMonthArgs = {
   setState: SetStoreFunction<EntriesStore>;
 };
@@ -258,6 +308,55 @@ export const copyCheckedEntriesToEndOfMonth = ({
           addSheetEntryToState({ ...entry, store })
         );
       });
+    })
+  );
+};
+
+type CopyCreatedToNextDayArgs = {
+  id: number;
+  key: string;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyCreatedToNextDay = ({
+  id,
+  key,
+  setState,
+}: CopyCreatedToNextDayArgs) => {
+  setState(
+    produce((store) => {
+      const entry = store.dateMap[key]?.[id];
+
+      if (!entry) {
+        return;
+      }
+
+      const date = getNextDay(entry.args.spentOn);
+      const newEntry = copySheetEntry({ ...entry.args, spentOn: date });
+      addSheetEntryToState({ ...newEntry, store });
+    })
+  );
+};
+
+type CopyUpdatedToNextDayArgs = {
+  id: number;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyUpdatedToNextDay = ({
+  id,
+  setState,
+}: CopyUpdatedToNextDayArgs) => {
+  setState(
+    produce((store) => {
+      const args = store.timeEntryMap.get(id);
+
+      if (!args) {
+        return;
+      }
+      const date = getNextDay(args.spentOn);
+      const newEntry = copySheetEntry({ ...args, spentOn: date });
+      addSheetEntryToState({ ...newEntry, store });
     })
   );
 };
