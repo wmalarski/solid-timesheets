@@ -12,9 +12,11 @@ export const CardHeader: Component<Props> = (props) => {
   return (
     <header class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
-        <Badge class="uppercase" variant="outline">
-          {props.issue.id}
-        </Badge>
+        <div class="grow">
+          <Badge class="uppercase" variant="outline">
+            {props.issue.id}
+          </Badge>
+        </div>
         {props.menu}
       </div>
       <span class="text-xs font-semibold uppercase">

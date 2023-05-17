@@ -37,6 +37,7 @@ export const SignIn: Component = () => {
             <TextFieldInput
               id="token"
               name="token"
+              type="password"
               variant="bordered"
               placeholder={t("signIn.placeholder")}
             />

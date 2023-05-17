@@ -51,7 +51,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
       >
         <ChevronDownIcon class="h-4 w-4 -rotate-90" />
       </Button>
-      <span class="text-2xl">{date()}</span>
+      <span class="text-base sm:text-lg md:text-2xl">{date()}</span>
     </div>
   );
 };
@@ -76,7 +76,7 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
       size="xs"
       variant="outline"
     >
-      ❌ {t("dashboard.reset")}
+      ❌<span class="hidden pl-1 sm:block">{t("dashboard.reset")}</span>
     </Button>
   );
 };
@@ -119,12 +119,14 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
       size="xs"
       variant="outline"
     >
-      ✅ {t("dashboard.saveAll")}
+      ✅<span class="hidden pl-1 sm:block">{t("dashboard.saveAll")}</span>
     </Button>
   );
 };
 
 export const TableToolbar: Component = () => {
+  const [t] = useI18n();
+
   const isMutating = useIsMutating();
 
   const isDisabled = createMemo(() => {
@@ -134,9 +136,18 @@ export const TableToolbar: Component = () => {
   return (
     <div class="flex items-center justify-between gap-2 border-b-[1px] border-gray-300 p-2">
       <MonthSelect isDisabled={isDisabled()} />
-      <div class="flex gap-2">
+      <div class="flex gap-1">
         <DeleteButton isDisabled={isDisabled()} />
         <SaveButton isDisabled={isDisabled()} />
+        <Button
+          disabled={isDisabled()}
+          // onClick={onSaveClick}
+          size="xs"
+          variant="outline"
+          aria-label=""
+        >
+          🗒️<span class="hidden pl-1 sm:block">{t("dashboard.report")}</span>
+        </Button>
       </div>
     </div>
   );

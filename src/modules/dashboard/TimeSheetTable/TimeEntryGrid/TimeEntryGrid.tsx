@@ -122,12 +122,14 @@ const Footer: Component<FooterProps> = (props) => {
       <For each={days()}>
         {(day) => (
           <GridCell class="bg-base-100 sticky bottom-0 z-20 flex flex-col border-t-[1px] p-2">
-            <span>{timeEntryDayHoursGroups().get(formatRequestDate(day))}</span>
+            <span class="font-semibold">
+              {timeEntryDayHoursGroups().get(formatRequestDate(day))}
+            </span>
           </GridCell>
         )}
       </For>
       <GridCell class="bg-base-100 sticky bottom-0 right-0 z-30 flex border-l-[1px] border-t-[1px] p-2">
-        {timeEntryHours()}
+        <span class="font-bold">{timeEntryHours()}</span>
       </GridCell>
     </>
   );
@@ -151,12 +153,13 @@ export const TimeEntryGrid: Component<Props> = (props) => {
   const { days } = useTimeSheetConfig();
 
   return (
-    <div class="flex flex-col">
+    <div class="flex grow flex-col">
       <TableToolbar />
       <div
-        class="w-max-[100vw] grid max-h-[80vh] overflow-scroll"
+        class="w-max-[100vw] grid grow overflow-scroll"
         style={{
           "grid-template-columns": `repeat(${days().length}, 250px) auto`,
+          "grid-template-rows": "auto 1fr auto",
         }}
       >
         <Header issues={props.issues} />

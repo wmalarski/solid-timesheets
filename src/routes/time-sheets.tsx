@@ -28,7 +28,7 @@ export default function TimeSheets() {
   useRouteData<typeof routeData>();
 
   return (
-    <main class="mx-auto flex flex-col text-gray-700">
+    <main class="mx-auto flex h-screen flex-col text-gray-700">
       <TopBar />
       <Suspense>
         <TimeSheetTable />

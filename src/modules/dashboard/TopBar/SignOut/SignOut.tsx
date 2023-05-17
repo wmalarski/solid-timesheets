@@ -15,7 +15,6 @@ export const SignOut: Component = () => {
         isLoading={signOut.pending}
         size="sm"
         type="submit"
-        variant="outline"
       >
         🚪 {t("signOut.button")}
       </Button>

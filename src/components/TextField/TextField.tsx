@@ -33,7 +33,7 @@ export type TextFieldDescriptionProps = JSX.IntrinsicElements["span"];
 export const TextFieldDescription: Component<TextFieldDescriptionProps> = (
   props
 ) => {
-  return <span {...props} class={twCx("label-text-alt", props.class)} />;
+  return <span {...props} class={twCx("label-text-alt pt-2", props.class)} />;
 };
 
 export type TextFieldErrorMessageProps = JSX.IntrinsicElements["span"];

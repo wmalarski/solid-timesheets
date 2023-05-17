@@ -16,7 +16,11 @@ const UserInfo = () => {
   return (
     <Suspense>
       <Show when={userQuery.data?.user}>
-        {(user) => <span>{`${user().firstname} ${user().lastname}`}</span>}
+        {(user) => (
+          <span class="hidden text-sm sm:block md:text-base">{`${
+            user().firstname
+          } ${user().lastname}`}</span>
+        )}
       </Show>
     </Suspense>
   );
@@ -28,7 +32,11 @@ export const TopBar: Component = () => {
   return (
     <header class="flex justify-between border-b-[1px] border-gray-300 p-2">
       <nav>
-        <LinkButton class="text-4xl" variant="ghost" href={paths.timeSheets}>
+        <LinkButton
+          class="text-xl sm:text-2xl md:text-4xl"
+          variant="ghost"
+          href={paths.timeSheets}
+        >
           ⏲{t("dashboard.title")}
         </LinkButton>
       </nav>
