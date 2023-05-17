@@ -93,41 +93,6 @@ export const createTimeEntryServerMutation = server$(
   }
 );
 
-export const createTimeEntriesArgs = z.array(createTimeEntryArgs);
-
-export type CreateTimeEntriesArgs = z.infer<typeof createTimeEntriesArgs>;
-
-export const createTimeEntriesServerMutation = server$(
-  async (data: CreateTimeEntriesArgs) => {
-    const parsed = createTimeEntriesArgs.parse(data);
-
-    const session = await getSessionOrThrow(server$.request);
-
-    return Promise.all(
-      parsed.map((entry) =>
-        jsonFetcher<TimeEntry>({
-          fetch: server$.fetch,
-          init: {
-            body: JSON.stringify({
-              time_entry: {
-                activity_id: entry.activityId,
-                comments: entry.comments,
-                hours: `${entry.hours}`,
-                issue_id: entry.issueId,
-                spent_on: entry.spentOn && formatRequestDate(entry.spentOn),
-                user_id: session.id,
-              },
-            }),
-            method: "POST",
-          },
-          path: "/time_entries.json",
-          token: session.token,
-        })
-      )
-    );
-  }
-);
-
 export const updateTimeEntryArgs = z.intersection(
   createTimeEntryArgs.partial(),
   z.object({ id: z.number() })
@@ -159,6 +124,64 @@ export const updateTimeEntryServerMutation = server$(
       path: `/time_entries/${parsed.id}.json`,
       token: session.token,
     });
+  }
+);
+
+export const upsertTimeEntriesArgs = z.object({
+  create: z.array(createTimeEntryArgs),
+  update: z.array(updateTimeEntryArgs),
+});
+
+export type UpsertTimeEntriesArgs = z.infer<typeof upsertTimeEntriesArgs>;
+
+export const upsertTimeEntriesServerMutation = server$(
+  async (data: UpsertTimeEntriesArgs) => {
+    const parsed = upsertTimeEntriesArgs.parse(data);
+
+    const session = await getSessionOrThrow(server$.request);
+
+    await Promise.all([
+      ...parsed.create.map((entry) =>
+        jsonFetcher<TimeEntry>({
+          fetch: server$.fetch,
+          init: {
+            body: JSON.stringify({
+              time_entry: {
+                activity_id: entry.activityId,
+                comments: entry.comments,
+                hours: entry.hours,
+                issue_id: entry.issueId,
+                spent_on: entry.spentOn && formatRequestDate(entry.spentOn),
+                user_id: session.id,
+              },
+            }),
+            method: "POST",
+          },
+          path: "/time_entries.json",
+          token: session.token,
+        })
+      ),
+      ...parsed.update.map((entry) =>
+        jsonFetcher<TimeEntry>({
+          fetch: server$.fetch,
+          init: {
+            body: JSON.stringify({
+              time_entry: {
+                activity_id: entry.activityId,
+                comments: entry.comments,
+                hours: entry.hours,
+                issue_id: entry.issueId,
+                spent_on: entry.spentOn && formatRequestDate(entry.spentOn),
+                user_id: session.id,
+              },
+            }),
+            method: "PUT",
+          },
+          path: `/time_entries/${entry.id}.json`,
+          token: session.token,
+        })
+      ),
+    ]);
   }
 );
 

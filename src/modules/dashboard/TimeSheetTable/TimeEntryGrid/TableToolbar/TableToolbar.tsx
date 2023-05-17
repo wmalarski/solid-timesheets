@@ -8,8 +8,8 @@ import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import {
-  createTimeEntriesServerMutation,
   getAllTimeEntriesKey,
+  upsertTimeEntriesServerMutation,
 } from "~/server/timeEntries";
 import {
   resetSheetEntries,
@@ -93,7 +93,7 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
   const queryClient = useQueryClient();
 
   const mutation = createMutation(() => ({
-    mutationFn: createTimeEntriesServerMutation,
+    mutationFn: upsertTimeEntriesServerMutation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       resetSheetEntries({ setState });
@@ -101,15 +101,15 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
   }));
 
   const onSaveClick = () => {
-    const toCreate = Object.values(state.dateMap)
+    const create = Object.values(state.dateMap)
       .flatMap((entries) => Object.values(entries))
-      .flatMap((entry) => (entry?.isChecked ? [entry.args] : []));
+      .flatMap((entry) => (entry ? [entry.args] : []));
 
-    // const toUpdate = Object.values(state.updateMap).flatMap((entry) =>
-    //   entry?.isChecked ? [entry.args] : []
-    // );
+    const update = Object.values(state.updateMap).flatMap((entry) =>
+      entry?.isEditing ? [entry.args] : []
+    );
 
-    mutation.mutate(toCreate);
+    mutation.mutate({ create, update });
   };
 
   return (
