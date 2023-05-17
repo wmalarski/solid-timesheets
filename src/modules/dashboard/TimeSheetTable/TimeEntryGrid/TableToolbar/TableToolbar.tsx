@@ -9,13 +9,10 @@ import { Button } from "~/components/Button";
 import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import {
   createTimeEntriesServerMutation,
-  deleteTimeEntriesServerMutation,
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
 import {
-  copyCheckedEntriesToEndOfMonth,
-  copyCheckedEntriesToNextDay,
-  deleteCheckedSheetEntries,
+  resetSheetEntries,
   useTimeSheetConfig,
   useTimeSheetContext,
 } from "../../TimeSheetTable.utils";
@@ -66,48 +63,10 @@ type DeleteButtonProps = {
 const DeleteButton: Component<DeleteButtonProps> = (props) => {
   const [t] = useI18n();
 
-  const { state, setState } = useTimeSheetContext();
-
-  const queryClient = useQueryClient();
-
-  const mutation = createMutation(() => ({
-    mutationFn: deleteTimeEntriesServerMutation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      deleteCheckedSheetEntries({ setState });
-    },
-  }));
-
-  const onClick = () => {
-    const checked = Object.values(state.updateMap).flatMap((entry) =>
-      entry?.isChecked ? [entry.args.id] : []
-    );
-    mutation.mutate({ ids: checked });
-  };
-
-  return (
-    <Button
-      disabled={props.isDisabled}
-      onClick={onClick}
-      size="xs"
-      variant="outline"
-    >
-      ❌ {t("dashboard.timeEntry.delete")}
-    </Button>
-  );
-};
-
-type CopyMonthButtonProps = {
-  isDisabled: boolean;
-};
-
-const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
-  const [t] = useI18n();
-
   const { setState } = useTimeSheetContext();
 
   const onClick = () => {
-    copyCheckedEntriesToEndOfMonth({ setState });
+    resetSheetEntries({ setState });
   };
 
   return (
@@ -117,32 +76,7 @@ const CopyMonthButton: Component<CopyMonthButtonProps> = (props) => {
       size="xs"
       variant="outline"
     >
-      ⏭️ {t("dashboard.timeEntry.copyMonthEnd")}
-    </Button>
-  );
-};
-
-type CopyNextDayButtonProps = {
-  isDisabled: boolean;
-};
-
-const CopyNextDayButton: Component<CopyNextDayButtonProps> = (props) => {
-  const [t] = useI18n();
-
-  const { setState } = useTimeSheetContext();
-
-  const onClick = () => {
-    copyCheckedEntriesToNextDay({ setState });
-  };
-
-  return (
-    <Button
-      disabled={props.isDisabled}
-      onClick={onClick}
-      size="xs"
-      variant="outline"
-    >
-      1️⃣ {t("dashboard.timeEntry.copyNextDay")}
+      ❌ {t("dashboard.reset")}
     </Button>
   );
 };
@@ -162,7 +96,7 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
     mutationFn: createTimeEntriesServerMutation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      deleteCheckedSheetEntries({ setState });
+      resetSheetEntries({ setState });
     },
   }));
 
@@ -202,8 +136,6 @@ export const TableToolbar: Component = () => {
       <MonthSelect isDisabled={isDisabled()} />
       <div class="flex gap-2">
         <DeleteButton isDisabled={isDisabled()} />
-        <CopyNextDayButton isDisabled={isDisabled()} />
-        <CopyMonthButton isDisabled={isDisabled()} />
         <SaveButton isDisabled={isDisabled()} />
       </div>
     </div>

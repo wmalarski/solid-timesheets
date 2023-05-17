@@ -202,48 +202,6 @@ const addSheetEntryToState = ({
   store.dateMap[key] = keyEntries;
 };
 
-const getCheckedCreatingEntries = (store: EntriesStore) => {
-  const args: CreateTimeEntryArgs[] = [];
-
-  Object.values(store.dateMap).forEach((entries) => {
-    Object.values(entries).forEach((entry) => {
-      if (entry?.isChecked) {
-        args.push(entry.args);
-      }
-    });
-  });
-
-  return args;
-};
-
-const getCheckedUpdatingEntries = (store: EntriesStore) => {
-  const args: UpdateTimeEntryArgs[] = [];
-
-  Object.values(store.updateMap).forEach((entry) => {
-    if (entry?.isChecked) {
-      args.push(entry.args);
-    }
-  });
-
-  return args;
-};
-
-const getCheckedCreateEntries = (store: EntriesStore) => {
-  const args = getCheckedCreatingEntries(store);
-
-  Object.values(store.updateMap).forEach((updateEntry) => {
-    if (!updateEntry?.isChecked) {
-      return;
-    }
-    const createEntry = store.timeEntryMap.get(updateEntry.args.id);
-    if (createEntry) {
-      args.push(createEntry);
-    }
-  });
-
-  return args;
-};
-
 type CopyCreatedToEndOfMonthArgs = {
   id: number;
   key: string;
@@ -294,24 +252,6 @@ export const copyUpdatedToEndOfMonth = ({
   );
 };
 
-type CopyCheckedEntriesToEndOfMonthArgs = {
-  setState: SetStoreFunction<EntriesStore>;
-};
-
-export const copyCheckedEntriesToEndOfMonth = ({
-  setState,
-}: CopyCheckedEntriesToEndOfMonthArgs) => {
-  setState(
-    produce((store) => {
-      getCheckedCreateEntries(store).forEach((args) => {
-        createSheetEntriesToMonthEnd(args).forEach((entry) =>
-          addSheetEntryToState({ ...entry, store })
-        );
-      });
-    })
-  );
-};
-
 type CopyCreatedToNextDayArgs = {
   id: number;
   key: string;
@@ -357,24 +297,6 @@ export const copyUpdatedToNextDay = ({
       const date = getNextDay(args.spentOn);
       const newEntry = copySheetEntry({ ...args, spentOn: date });
       addSheetEntryToState({ ...newEntry, store });
-    })
-  );
-};
-
-type CopyCheckedEntriesToNextDayArgs = {
-  setState: SetStoreFunction<EntriesStore>;
-};
-
-export const copyCheckedEntriesToNextDay = ({
-  setState,
-}: CopyCheckedEntriesToNextDayArgs) => {
-  setState(
-    produce((store) => {
-      getCheckedCreateEntries(store).forEach((args) => {
-        const date = getNextDay(args.spentOn);
-        const entry = copySheetEntry({ ...args, spentOn: date });
-        addSheetEntryToState({ ...entry, store });
-      });
     })
   );
 };
@@ -444,25 +366,15 @@ export const copyUpdatedToCurrentDay = ({
   );
 };
 
-type DeleteCheckedSheetEntriesArgs = {
+type ResetSheetEntriesArgs = {
   setState: SetStoreFunction<EntriesStore>;
 };
 
-export const deleteCheckedSheetEntries = ({
-  setState,
-}: DeleteCheckedSheetEntriesArgs) => {
+export const resetSheetEntries = ({ setState }: ResetSheetEntriesArgs) => {
   setState(
     produce((store) => {
-      Object.values(store.dateMap).forEach((entries) => {
-        Object.values(entries).forEach((entry) => {
-          if (entry?.isChecked) {
-            delete entries[entry.id];
-          }
-        });
-      });
-      getCheckedUpdatingEntries(store).forEach((entry) => {
-        delete store.updateMap[entry.id];
-      });
+      store.dateMap = {};
+      store.updateMap = {};
     })
   );
 };
