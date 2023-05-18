@@ -1,3 +1,4 @@
+import { toaster } from "@kobalte/core";
 import { useI18n } from "@solid-primitives/i18n";
 import {
   createMutation,
@@ -5,8 +6,15 @@ import {
   useQueryClient,
 } from "@tanstack/solid-query";
 import { createMemo, type Component } from "solid-js";
+import { AlertIcon } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
+import {
+  ToastContent,
+  ToastDescription,
+  ToastRoot,
+  ToastTitle,
+} from "~/components/Toast";
 import {
   getAllTimeEntriesKey,
   upsertTimeEntriesServerMutation,
@@ -65,8 +73,21 @@ const DeleteButton: Component<DeleteButtonProps> = (props) => {
 
   const { setState } = useTimeSheetContext();
 
+  const showToast = () => {
+    toaster.show((props) => (
+      <ToastRoot toastId={props.toastId} variant="success">
+        <AlertIcon variant="success" />
+        <ToastContent>
+          <ToastTitle>Event has been created</ToastTitle>
+          <ToastDescription>Monday, January 3rd at 6:00pm</ToastDescription>
+        </ToastContent>
+      </ToastRoot>
+    ));
+  };
+
   const onClick = () => {
     resetSheetEntries({ setState });
+    showToast();
   };
 
   return (

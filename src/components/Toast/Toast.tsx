@@ -1,5 +1,7 @@
 import { Toast } from "@kobalte/core";
-import type { Component, JSX } from "solid-js";
+import type { VariantProps } from "class-variance-authority";
+import { splitProps, type Component, type JSX } from "solid-js";
+import { alertClass } from "../Alert";
 import { twCx } from "../utils/twCva";
 
 const ToastRegion = Toast.Region;
@@ -9,26 +11,34 @@ const ToastList: Component<Toast.ToastListProps> = (props) => {
     <Toast.List
       {...props}
       class={twCx(
-        "p-4 fixed bottom-0 right-0 flex gap-2 w-96 max-w-[100vw] m-0 list-none z-50 outline-none",
+        "p-4 fixed bottom-0 right-0 flex flex-col gap-2 w-96 max-w-[100vw] m-0 list-none z-50 outline-none",
         props.class
       )}
     />
   );
 };
 
-export const ToastRoot: Component<Toast.ToastRootProps> = (props) => {
+export type ToastRootProps = Toast.ToastRootProps &
+  VariantProps<typeof alertClass>;
+
+export const ToastRoot: Component<ToastRootProps> = (props) => {
+  const [split, rest] = splitProps(props, ["variant"]);
+
   return (
     <Toast.Root
-      {...props}
-      class={twCx(
-        "flex flex-col items-center justify-between gap-2 p-3 bg-white",
-        "ui-opened:animate-slideIn ui-opened:duration-150 ui-opened:ease-out",
-        "ui-closed:animate-hide ui-closed:duration-100 ui-closed:ease-in",
-        "ui-swipe-move:translate-x-[var(--kb-toast-swipe-move-x)]",
-        "ui-swipe-cancel:translate-x-0 ui-swipe-cancel:transition-transform",
-        "ui-swipe-end:animate-swipeOut ui-swipe-end:duration-100 ui-swipe-end:ease-out",
-        props.class
-      )}
+      {...rest}
+      class={alertClass({
+        class: twCx(
+          "flex items-start justify-between gap-2 p-3",
+          "ui-opened:animate-slideIn ui-opened:duration-150 ui-opened:ease-out",
+          "ui-closed:animate-hide ui-closed:duration-100 ui-closed:ease-in",
+          "ui-swipe-move:translate-x-[var(--kb-toast-swipe-move-x)]",
+          "ui-swipe-cancel:translate-x-0 ui-swipe-cancel:transition-transform",
+          "ui-swipe-end:animate-swipeOut ui-swipe-end:duration-100 ui-swipe-end:ease-out",
+          props.class
+        ),
+        ...split,
+      })}
     />
   );
 };
@@ -37,7 +47,10 @@ export const ToastContent: Component<JSX.IntrinsicElements["div"]> = (
   props
 ) => {
   return (
-    <div {...props} class={twCx("flex items-start w-full", props.class)} />
+    <div
+      {...props}
+      class={twCx("flex flex-col items-start w-full", props.class)}
+    />
   );
 };
 
@@ -95,9 +108,8 @@ export const ToastProgressFill: Component<Toast.ToastProgressFillProps> = (
 
 export const ToastProvider: Component = () => {
   return (
-    <></>
-    // <ToastRegion>
-    //   <ToastList />
-    // </ToastRegion>
+    <ToastRegion aria-label="Notifications">
+      <ToastList />
+    </ToastRegion>
   );
 };
