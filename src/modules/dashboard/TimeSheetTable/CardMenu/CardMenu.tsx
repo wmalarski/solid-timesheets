@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
 import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
+import { showToast } from "~/components/Toast";
 import {
   deleteTimeEntryServerMutation,
   getAllTimeEntriesKey,
@@ -49,15 +50,29 @@ type DeleteUpdatedItemProps = {
 };
 
 const DeleteUpdatedItem: Component<DeleteUpdatedItemProps> = (props) => {
+  const [t] = useI18n();
+
   const { setState } = useTimeSheetContext();
 
   const queryClient = useQueryClient();
 
   const mutation = createMutation(() => ({
     mutationFn: deleteTimeEntryServerMutation,
+    onError: () => {
+      showToast({
+        description: t("dashboard.toasts.wrong"),
+        title: t("dashboard.toasts.error"),
+        variant: "error",
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       setState("updateMap", props.id, undefined);
+      showToast({
+        description: t("dashboard.toasts.remove"),
+        title: t("dashboard.toasts.success"),
+        variant: "success",
+      });
     },
   }));
 

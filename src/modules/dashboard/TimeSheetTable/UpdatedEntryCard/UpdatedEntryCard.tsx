@@ -7,6 +7,7 @@ import {
 import { Show, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
+import { showToast } from "~/components/Toast";
 import {
   getAllTimeEntriesKey,
   updateTimeEntryServerMutation,
@@ -93,9 +94,21 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
   const mutation = createMutation(() => ({
     mutationFn: updateTimeEntryServerMutation,
+    onError: () => {
+      showToast({
+        description: t("dashboard.toasts.wrong"),
+        title: t("dashboard.toasts.error"),
+        variant: "error",
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       setState("updateMap", props.args.id, "isEditing", false);
+      showToast({
+        description: t("dashboard.toasts.updated"),
+        title: t("dashboard.toasts.success"),
+        variant: "success",
+      });
     },
   }));
 

@@ -27,6 +27,15 @@ const dict = {
         update: "Update",
       },
       title: "Timesheets",
+      toasts: {
+        create: "Created time entry",
+        error: "Error",
+        remove: "Time entries removed",
+        saved: "Saved time entries",
+        success: "Success",
+        updated: "Updated time entry",
+        wrong: "Something wrong happened",
+      },
     },
     footer: {
       madeBy: "Made by wmalarski",

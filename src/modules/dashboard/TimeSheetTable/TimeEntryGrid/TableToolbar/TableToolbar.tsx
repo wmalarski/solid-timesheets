@@ -1,4 +1,3 @@
-import { toaster } from "@kobalte/core";
 import { useI18n } from "@solid-primitives/i18n";
 import {
   createMutation,
@@ -6,15 +5,9 @@ import {
   useQueryClient,
 } from "@tanstack/solid-query";
 import { createMemo, type Component } from "solid-js";
-import { AlertIcon } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
-import {
-  ToastContent,
-  ToastDescription,
-  ToastRoot,
-  ToastTitle,
-} from "~/components/Toast";
+import { showToast } from "~/components/Toast";
 import {
   getAllTimeEntriesKey,
   upsertTimeEntriesServerMutation,
@@ -64,30 +57,17 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
   );
 };
 
-type DeleteButtonProps = {
+type ResetButtonProps = {
   isDisabled: boolean;
 };
 
-const DeleteButton: Component<DeleteButtonProps> = (props) => {
+const ResetButton: Component<ResetButtonProps> = (props) => {
   const [t] = useI18n();
 
   const { setState } = useTimeSheetContext();
 
-  const showToast = () => {
-    toaster.show((props) => (
-      <ToastRoot toastId={props.toastId} variant="success">
-        <AlertIcon variant="success" />
-        <ToastContent>
-          <ToastTitle>Event has been created</ToastTitle>
-          <ToastDescription>Monday, January 3rd at 6:00pm</ToastDescription>
-        </ToastContent>
-      </ToastRoot>
-    ));
-  };
-
   const onClick = () => {
     resetSheetEntries({ setState });
-    showToast();
   };
 
   return (
@@ -115,9 +95,21 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
   const mutation = createMutation(() => ({
     mutationFn: upsertTimeEntriesServerMutation,
+    onError: () => {
+      showToast({
+        description: t("dashboard.toasts.wrong"),
+        title: t("dashboard.toasts.error"),
+        variant: "error",
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       resetSheetEntries({ setState });
+      showToast({
+        description: t("dashboard.toasts.saved"),
+        title: t("dashboard.toasts.success"),
+        variant: "success",
+      });
     },
   }));
 
@@ -158,7 +150,7 @@ export const TableToolbar: Component = () => {
     <div class="flex items-center justify-between gap-2 border-b-[1px] border-gray-300 p-2">
       <MonthSelect isDisabled={isDisabled()} />
       <div class="flex gap-1">
-        <DeleteButton isDisabled={isDisabled()} />
+        <ResetButton isDisabled={isDisabled()} />
         <SaveButton isDisabled={isDisabled()} />
         <Button
           disabled={isDisabled()}
