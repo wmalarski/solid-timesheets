@@ -17,6 +17,7 @@ export const DropdownMenuTrigger: Component<DropdownMenuTriggerProps> = (
   const [split, rest] = splitProps(props, [
     "color",
     "isLoading",
+    "shape",
     "size",
     "variant",
   ]);
@@ -35,7 +36,7 @@ export const DropdownMenuIcon: Component<
   return (
     <KobalteDropdownMenu.Icon
       {...props}
-      class={twCx("h-4 w-4 rotate-0", "ui-expanded:rotate-180", props.class)}
+      class={twCx("rotate-0", "ui-expanded:rotate-180", props.class)}
     />
   );
 };

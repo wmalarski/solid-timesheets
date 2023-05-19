@@ -4,9 +4,9 @@ import { twCva } from "../utils/twCva";
 
 export const badgeClass = twCva("badge", {
   defaultVariants: {
-    color: "none",
+    color: null,
     size: "md",
-    variant: "none",
+    variant: null,
   },
   variants: {
     color: {
@@ -14,7 +14,6 @@ export const badgeClass = twCva("badge", {
       error: "badge-error",
       ghost: "badge-ghost",
       info: "badge-info",
-      none: "",
       primary: "badge-primary",
       secondary: "badge-secondary",
       success: "badge-success",
@@ -27,7 +26,6 @@ export const badgeClass = twCva("badge", {
       xs: "badge-xs",
     },
     variant: {
-      none: "",
       outline: "badge-outline",
     },
   },

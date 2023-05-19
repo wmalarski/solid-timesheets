@@ -46,16 +46,15 @@ export const TextFieldErrorMessage: Component<TextFieldErrorMessageProps> = (
 
 export const textFieldInputClass = twCva("input", {
   defaultVariants: {
-    color: "none",
+    color: null,
     size: "md",
-    variant: "none",
+    variant: null,
   },
   variants: {
     color: {
       accent: "input-accent",
       error: "input-error",
       info: "input-info",
-      none: "",
       primary: "input-primary",
       secondary: "input-secondary",
       success: "input-success",
@@ -70,7 +69,6 @@ export const textFieldInputClass = twCva("input", {
     variant: {
       bordered: "input-bordered",
       ghost: "input-ghost",
-      none: "",
     },
   },
 });

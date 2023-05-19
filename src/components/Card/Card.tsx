@@ -10,9 +10,9 @@ import { twCva, twCx } from "../utils/twCva";
 
 export const cardClass = twCva("card", {
   defaultVariants: {
-    color: "none",
-    size: "none",
-    variant: "none",
+    color: null,
+    size: null,
+    variant: null,
   },
   variants: {
     color: {
@@ -21,7 +21,6 @@ export const cardClass = twCva("card", {
       disabled: "border-l-8 border-l-base-200",
       error: "border-l-8 border-l-error",
       info: "border-l-8 border-l-info",
-      none: "",
       primary: "border-l-8 border-l-primary",
       secondary: "border-l-8 border-l-secondary",
       success: "border-l-8 border-l-success",
@@ -29,13 +28,11 @@ export const cardClass = twCva("card", {
     },
     size: {
       compact: "card-compact",
-      none: "",
       normal: "card-normal",
       side: "card-side",
     },
     variant: {
       bordered: "card-bordered",
-      none: "",
     },
   },
 });

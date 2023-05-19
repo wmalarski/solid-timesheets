@@ -42,7 +42,7 @@ export const CreateEntryMenu: Component<Props> = (props) => {
 
   return (
     <DropdownMenuRoot>
-      <DropdownMenuTrigger size="xs" variant="outline">
+      <DropdownMenuTrigger shape="circle" size="xs" variant="outline">
         <span>{t("dashboard.create")}</span>
         <DropdownMenuIcon>
           <IoChevronDownSharp />

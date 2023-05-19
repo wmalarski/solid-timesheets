@@ -10,17 +10,17 @@ import { twCva } from "../utils/twCva";
 
 export const buttonClass = twCva("btn no-animation flex items-center gap-1", {
   defaultVariants: {
-    color: "none",
+    color: null,
     isLoading: false,
+    shape: null,
     size: "md",
-    variant: "none",
+    variant: null,
   },
   variants: {
     color: {
       accent: "btn-accent",
       error: "btn-error",
       info: "btn-info",
-      none: "",
       primary: "btn-primary",
       secondary: "btn-secondary",
       success: "btn-success",
@@ -30,14 +30,16 @@ export const buttonClass = twCva("btn no-animation flex items-center gap-1", {
       false: "",
       true: "loading",
     },
-    size: {
+    shape: {
       block: "btn-block",
       circle: "btn-circle",
+      square: "btn-square",
+      wide: "btn-wide",
+    },
+    size: {
       lg: "btn-lg",
       md: "btn-md",
       sm: "btn-sm",
-      square: "btn-square",
-      wide: "btn-wide",
       xs: "btn-xs",
     },
     variant: {
@@ -46,7 +48,6 @@ export const buttonClass = twCva("btn no-animation flex items-center gap-1", {
       ghost: "btn-ghost",
       glass: "glass",
       link: "btn-link",
-      none: "",
       outline: "btn-outline",
     },
   },
@@ -59,6 +60,7 @@ export const Button: Component<ButtonProps> = (props) => {
   const [split, rest] = splitProps(props, [
     "color",
     "isLoading",
+    "shape",
     "size",
     "variant",
   ]);
@@ -70,12 +72,11 @@ export const Button: Component<ButtonProps> = (props) => {
 
 export const buttonGroupClass = twCva("btn-group", {
   defaultVariants: {
-    direction: "none",
+    direction: null,
   },
   variants: {
     direction: {
       horizontal: "btn-group-horizontal",
-      none: "",
       vertical: "btn-group-vertical",
     },
   },
@@ -99,6 +100,7 @@ export const LinkButton: Component<LinkButtonProps> = (props) => {
   const [split, rest] = splitProps(props, [
     "color",
     "isLoading",
+    "shape",
     "size",
     "variant",
   ]);

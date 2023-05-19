@@ -174,6 +174,7 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
     <DropdownMenuRoot>
       <DropdownMenuTrigger
         aria-label={t("dashboard.timeEntry.more")}
+        shape="square"
         size="xs"
         variant="outline"
       >
@@ -229,6 +230,7 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
     <DropdownMenuRoot>
       <DropdownMenuTrigger
         aria-label={t("dashboard.timeEntry.more")}
+        shape="square"
         size="xs"
         variant="outline"
       >

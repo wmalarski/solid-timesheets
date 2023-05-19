@@ -6,14 +6,13 @@ export const gridCellClass = twCva(
   "border-b-[1px] border-r-[1px] border-gray-300 p-2",
   {
     defaultVariants: {
-      bg: "none",
+      bg: null,
       borders: null,
       sticky: null,
     },
     variants: {
       bg: {
         "base-100": "bg-base-100",
-        none: "",
       },
       borders: {
         left: "border-l-[1px]",
