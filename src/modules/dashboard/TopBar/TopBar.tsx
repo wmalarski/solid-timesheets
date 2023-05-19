@@ -1,5 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { createQuery } from "@tanstack/solid-query";
+import { IoTimerSharp } from "solid-icons/io";
 import { Show, Suspense, type Component } from "solid-js";
 import { LinkButton } from "~/components/Button";
 import { getCurrentUserKey, getCurrentUserServerQuery } from "~/server/users";
@@ -17,7 +18,7 @@ const UserInfo = () => {
     <Suspense>
       <Show when={userQuery.data?.user}>
         {(user) => (
-          <span class="hidden text-sm sm:block md:text-base">{`${
+          <span class="hidden text-xs sm:block md:text-sm">{`${
             user().firstname
           } ${user().lastname}`}</span>
         )}
@@ -37,10 +38,11 @@ export const TopBar: Component = () => {
           variant="ghost"
           href={paths.timeSheets}
         >
-          ⏲{t("dashboard.title")}
+          <IoTimerSharp />
+          {t("dashboard.title")}
         </LinkButton>
       </nav>
-      <div class="flex items-center justify-center gap-2">
+      <div class="flex items-center justify-center gap-4">
         <UserInfo />
         <SignOut />
       </div>

@@ -4,9 +4,15 @@ import {
   useIsMutating,
   useQueryClient,
 } from "@tanstack/solid-query";
+import {
+  IoChevronBackSharp,
+  IoChevronForwardSharp,
+  IoDownloadSharp,
+  IoReloadSharp,
+  IoSaveSharp,
+} from "solid-icons/io";
 import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
-import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import { showToast } from "~/components/Toast";
 import {
   getAllTimeEntriesKey,
@@ -42,7 +48,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
         size="xs"
         variant="ghost"
       >
-        <ChevronDownIcon class="h-4 w-4 rotate-90" />
+        <IoChevronBackSharp />
       </Button>
       <Button
         disabled={props.isDisabled}
@@ -50,7 +56,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
         size="xs"
         variant="ghost"
       >
-        <ChevronDownIcon class="h-4 w-4 -rotate-90" />
+        <IoChevronForwardSharp />
       </Button>
       <span class="text-base sm:text-lg md:text-2xl">{date()}</span>
     </div>
@@ -77,7 +83,8 @@ const ResetButton: Component<ResetButtonProps> = (props) => {
       size="xs"
       variant="outline"
     >
-      ❌<span class="hidden pl-1 sm:block">{t("dashboard.reset")}</span>
+      <IoReloadSharp />
+      <span class="hidden sm:block">{t("dashboard.reset")}</span>
     </Button>
   );
 };
@@ -132,7 +139,8 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
       size="xs"
       variant="outline"
     >
-      ✅<span class="hidden pl-1 sm:block">{t("dashboard.saveAll")}</span>
+      <IoSaveSharp />
+      <span class="hidden sm:block">{t("dashboard.saveAll")}</span>
     </Button>
   );
 };
@@ -159,7 +167,8 @@ export const TableToolbar: Component = () => {
           variant="outline"
           aria-label=""
         >
-          🗒️<span class="hidden pl-1 sm:block">{t("dashboard.report")}</span>
+          <IoDownloadSharp />
+          <span class="hidden sm:block">{t("dashboard.report")}</span>
         </Button>
       </div>
     </div>

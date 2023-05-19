@@ -28,6 +28,9 @@ dependencies:
   daisyui:
     specifier: ^2.51.6
     version: 2.51.6(autoprefixer@10.4.14)(postcss@8.4.23)
+  solid-icons:
+    specifier: ^1.0.4
+    version: 1.0.4(solid-js@1.7.5)
   solid-js:
     specifier: ^1.7.5
     version: 1.7.5
@@ -4415,6 +4418,15 @@ packages:
     resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
     engines: {node: '>=12'}
     dev: true
+
+  /solid-icons@1.0.4(solid-js@1.7.5):
+    resolution: {integrity: sha512-gJTp4in3+OYCs9WvDkSLt4Los2unR3Uoder8wjh15GsfP20xiNOLfPTJllXmn+fI8+k3x7bRYtLGIgWd9fUQug==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      solid-js: '*'
+    dependencies:
+      solid-js: 1.7.5
+    dev: false
 
   /solid-js@1.7.5:
     resolution: {integrity: sha512-GfJ8na1e9FG1oAF5xC24BM+ATLym0sfH+ZblkbBFpueYdq3fWAoA5Ve+jGeIeLI7jmMGfa0rUaKruszNm2sH8w==}

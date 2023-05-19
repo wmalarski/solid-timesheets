@@ -151,7 +151,10 @@ export const DropdownMenuItemLabel: Component<
   return (
     <KobalteDropdownMenu.ItemLabel
       {...props}
-      class={twCx("text-base overflow-ellipsis", props.class)}
+      class={twCx(
+        "text-base overflow-ellipsis flex gap-1 items-center",
+        props.class
+      )}
     />
   );
 };

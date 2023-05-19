@@ -1,4 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
+import { IoChevronDownSharp } from "solid-icons/io";
 import { For, type Component } from "solid-js";
 import {
   DropdownMenuArrow,
@@ -11,7 +12,6 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
-import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import type { Issue } from "~/server/types";
 import {
   createSheetEntryArgs,
@@ -45,7 +45,7 @@ export const CreateEntryMenu: Component<Props> = (props) => {
       <DropdownMenuTrigger size="xs" variant="outline">
         <span>{t("dashboard.create")}</span>
         <DropdownMenuIcon>
-          <ChevronDownIcon />
+          <IoChevronDownSharp />
         </DropdownMenuIcon>
       </DropdownMenuTrigger>
       <DropdownMenuPortal>

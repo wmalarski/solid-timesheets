@@ -8,7 +8,7 @@ import {
 import { A } from "solid-start";
 import { twCva } from "../utils/twCva";
 
-export const buttonClass = twCva("btn no-animation", {
+export const buttonClass = twCva("btn no-animation flex items-center gap-1", {
   defaultVariants: {
     color: "none",
     isLoading: false,

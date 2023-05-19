@@ -1,4 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
+import { IoLogOutSharp } from "solid-icons/io";
 import type { Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { createSignOutServerAction } from "~/server/auth";
@@ -15,8 +16,10 @@ export const SignOut: Component = () => {
         isLoading={signOut.pending}
         size="sm"
         type="submit"
+        variant="outline"
       >
-        🚪 {t("signOut.button")}
+        <IoLogOutSharp />
+        {t("signOut.button")}
       </Button>
     </Form>
   );

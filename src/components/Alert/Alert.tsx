@@ -1,10 +1,12 @@
 import type { VariantProps } from "class-variance-authority";
+import {
+  IoAlertCircleSharp,
+  IoCheckmarkCircleSharp,
+  IoInformationCircleSharp,
+  IoWarningSharp,
+} from "solid-icons/io";
 import { splitProps, type Component, type JSX } from "solid-js";
 import { Dynamic } from "solid-js/web";
-import { ErrorIcon } from "../Icons/ErrorIcon";
-import { InfoIcon } from "../Icons/InfoIcon";
-import { SuccessIcon } from "../Icons/SuccessIcon";
-import { WarningIcon } from "../Icons/WarningIcon";
 import { twCva } from "../utils/twCva";
 
 export const alertClass = twCva("alert justify-start", {
@@ -33,12 +35,12 @@ export const Alert: Component<AlertProps> = (props) => {
 
 const alertIconMap: Record<
   "error" | "info" | "success" | "warning",
-  Component<JSX.IntrinsicElements["svg"]>
+  typeof IoWarningSharp
 > = {
-  error: ErrorIcon,
-  info: InfoIcon,
-  success: SuccessIcon,
-  warning: WarningIcon,
+  error: IoAlertCircleSharp,
+  info: IoInformationCircleSharp,
+  success: IoCheckmarkCircleSharp,
+  warning: IoWarningSharp,
 };
 
 export type AlertIconProps = {

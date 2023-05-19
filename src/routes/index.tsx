@@ -1,4 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
+import { IoTimerSharp } from "solid-icons/io";
 import type { Component } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
@@ -34,8 +35,9 @@ const Title: Component = () => {
   const [t] = useI18n();
 
   return (
-    <h1 class="max-6-xs my-16 text-center text-6xl font-thin uppercase">
-      ⏲{t("home.title")}
+    <h1 class="max-6-xs my-16 flex items-center text-center text-6xl font-thin uppercase">
+      <IoTimerSharp />
+      {t("home.title")}
     </h1>
   );
 };

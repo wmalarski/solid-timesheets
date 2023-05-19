@@ -4,6 +4,7 @@ import {
   useIsMutating,
   useQueryClient,
 } from "@tanstack/solid-query";
+import { IoPencilSharp, IoReloadSharp, IoSaveSharp } from "solid-icons/io";
 import { Show, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
@@ -73,7 +74,8 @@ const CardContent: Component<CardContentProps> = (props) => {
           size="xs"
           variant="outline"
         >
-          📝 {t("dashboard.timeEntry.update")}
+          <IoPencilSharp />
+          {t("dashboard.timeEntry.update")}
         </Button>
       </div>
     </div>
@@ -123,7 +125,8 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
       size="xs"
       variant="outline"
     >
-      ✅ {t("dashboard.timeEntry.save")}
+      <IoSaveSharp />
+      {t("dashboard.timeEntry.save")}
     </Button>
   );
 };
@@ -214,7 +217,8 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
                     size="xs"
                     variant="outline"
                   >
-                    🔄 {t("dashboard.reset")}
+                    <IoReloadSharp />
+                    {t("dashboard.reset")}
                   </Button>
                   <SaveButton args={entry().args} isPending={isPending()} />
                 </div>

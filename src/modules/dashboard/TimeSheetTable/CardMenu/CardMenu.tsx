@@ -1,5 +1,10 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { createMutation, useQueryClient } from "@tanstack/solid-query";
+import {
+  IoDuplicateSharp,
+  IoEllipsisHorizontalSharp,
+  IoTrashSharp,
+} from "solid-icons/io";
 import { type Component } from "solid-js";
 import {
   DropdownMenuArrow,
@@ -9,9 +14,9 @@ import {
   DropdownMenuItemLabel,
   DropdownMenuPortal,
   DropdownMenuRoot,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
-import { ChevronDownIcon } from "~/components/Icons/ChevronDownIcon";
 import { showToast } from "~/components/Toast";
 import {
   deleteTimeEntryServerMutation,
@@ -38,7 +43,8 @@ const DeleteItem: Component<DeleteItemProps> = (props) => {
   return (
     <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
       <DropdownMenuItemLabel>
-        ❌ {t("dashboard.timeEntry.delete")}
+        <IoTrashSharp />
+        {t("dashboard.timeEntry.delete")}
       </DropdownMenuItemLabel>
     </DropdownMenuItem>
   );
@@ -94,7 +100,8 @@ const CopyMonthItem: Component<CopyMonthItemProps> = (props) => {
   return (
     <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
       <DropdownMenuItemLabel>
-        ⏭️ {t("dashboard.timeEntry.copyMonthEnd")}
+        <IoDuplicateSharp />
+        {t("dashboard.timeEntry.copyMonthEnd")}
       </DropdownMenuItemLabel>
     </DropdownMenuItem>
   );
@@ -111,7 +118,8 @@ const CopyNextDayItem: Component<CopyNextDayItemProps> = (props) => {
   return (
     <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
       <DropdownMenuItemLabel>
-        1️⃣ {t("dashboard.timeEntry.copyNextDay")}
+        <IoDuplicateSharp />
+        {t("dashboard.timeEntry.copyNextDay")}
       </DropdownMenuItemLabel>
     </DropdownMenuItem>
   );
@@ -128,7 +136,8 @@ const CopyCurrentDayItem: Component<CopyCurrentDayItemProps> = (props) => {
   return (
     <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
       <DropdownMenuItemLabel>
-        1️⃣ {t("dashboard.timeEntry.copyCurrentDay")}
+        <IoDuplicateSharp />
+        {t("dashboard.timeEntry.copyCurrentDay")}
       </DropdownMenuItemLabel>
     </DropdownMenuItem>
   );
@@ -169,12 +178,11 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
         variant="outline"
       >
         <DropdownMenuIcon>
-          <ChevronDownIcon />
+          <IoEllipsisHorizontalSharp />
         </DropdownMenuIcon>
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
         <DropdownMenuContent>
-          <DeleteItem isDisabled={props.isDisabled} onClick={onDeleteClick} />
           <CopyCurrentDayItem
             isDisabled={props.isDisabled}
             onClick={onCopyCurrentDayClick}
@@ -187,6 +195,8 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
             isDisabled={props.isDisabled}
             onClick={onCopyMonthClick}
           />
+          <DropdownMenuSeparator />
+          <DeleteItem isDisabled={props.isDisabled} onClick={onDeleteClick} />
           <DropdownMenuArrow />
         </DropdownMenuContent>
       </DropdownMenuPortal>
@@ -223,12 +233,11 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
         variant="outline"
       >
         <DropdownMenuIcon>
-          <ChevronDownIcon />
+          <IoEllipsisHorizontalSharp />
         </DropdownMenuIcon>
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
         <DropdownMenuContent>
-          <DeleteUpdatedItem id={props.id} isDisabled={props.isDisabled} />
           <CopyCurrentDayItem
             isDisabled={props.isDisabled}
             onClick={onCopyCurrentDayClick}
@@ -241,6 +250,8 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
             isDisabled={props.isDisabled}
             onClick={onCopyNextDayClick}
           />
+          <DropdownMenuSeparator />
+          <DeleteUpdatedItem id={props.id} isDisabled={props.isDisabled} />
           <DropdownMenuArrow />
         </DropdownMenuContent>
       </DropdownMenuPortal>
