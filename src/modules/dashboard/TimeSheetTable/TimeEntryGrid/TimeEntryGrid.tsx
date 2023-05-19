@@ -1,9 +1,16 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { For, createMemo, type Component } from "solid-js";
+import {
+  For,
+  createEffect,
+  createMemo,
+  createSignal,
+  type Component,
+} from "solid-js";
 import { GridCell } from "~/components/Grid";
+import { twCx } from "~/components/utils/twCva";
 import type { Issue, TimeEntry } from "~/server/types";
-import { isDayOff } from "~/utils/date";
-import { formatRequestDate } from "~/utils/format";
+import { isToday } from "~/utils/date";
+import { formatDay, formatRequestDate, formatWeekday } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
 import {
   sheetEntryMapKey,
@@ -21,39 +28,56 @@ import {
   type IssueTimeEntryPair,
 } from "./TimeEntryGrid.utils";
 
+type HeaderCellProps = {
+  date: Date;
+  issues: Issue[];
+};
+
+const HeaderCell: Component<HeaderCellProps> = (props) => {
+  const [, { locale }] = useI18n();
+
+  const [ref, setRef] = createSignal<HTMLDivElement>();
+
+  const isDateToday = createMemo(() => {
+    return isToday(props.date);
+  });
+
+  createEffect(() => {
+    if (isDateToday()) {
+      ref()?.scrollIntoView({ block: "center" });
+    }
+  });
+
+  return (
+    <GridCell
+      ref={setRef}
+      class="z-20 flex items-center justify-between gap-2"
+      sticky="top"
+    >
+      <div class="flex flex-col">
+        <span class="text-3xl">
+          {formatDay({ date: props.date, locale: locale() })}
+        </span>
+        <span class={twCx({ underline: isDateToday() })}>
+          {formatWeekday({ date: props.date, locale: locale() })}
+        </span>
+      </div>
+      <CreateEntryMenu date={props.date} issues={props.issues} />
+    </GridCell>
+  );
+};
+
 type HeaderProps = {
   issues: Issue[];
 };
 
 const Header: Component<HeaderProps> = (props) => {
-  const [, { locale }] = useI18n();
-
   const { days } = useTimeSheetConfig();
-
-  const dayFormat = createMemo(() => {
-    return Intl.DateTimeFormat(locale(), { day: "numeric" }).format;
-  });
-
-  const weekdayFormat = createMemo(() => {
-    return Intl.DateTimeFormat(locale(), { weekday: "long" }).format;
-  });
 
   return (
     <>
       <For each={days()}>
-        {(date) => (
-          <GridCell
-            bg={isDayOff(date) ? "gray-50" : "base-100"}
-            class="z-20 flex items-center justify-between gap-2"
-            sticky="top"
-          >
-            <div class="flex flex-col">
-              <span class="text-3xl">{dayFormat()(date)}</span>
-              <span>{weekdayFormat()(date)}</span>
-            </div>
-            <CreateEntryMenu date={date} issues={props.issues} />
-          </GridCell>
-        )}
+        {(date) => <HeaderCell date={date} issues={props.issues} />}
       </For>
       <GridCell bg="base-100" borders="left" />
     </>
@@ -87,10 +111,7 @@ const Cell: Component<CellProps> = (props) => {
   });
 
   return (
-    <GridCell
-      bg={isDayOff(props.date) ? "gray-50" : "base-100"}
-      class="flex flex-col gap-2"
-    >
+    <GridCell class="flex flex-col gap-2">
       <For each={created()}>
         {(pair) => <CreatedEntryCard entry={pair.entry} issue={pair.issue} />}
       </For>
@@ -120,12 +141,7 @@ const Footer: Component<FooterProps> = (props) => {
     <>
       <For each={days()}>
         {(date) => (
-          <GridCell
-            bg={isDayOff(date) ? "gray-50" : "base-100"}
-            borders="top"
-            class="z-20"
-            sticky="bottom"
-          >
+          <GridCell borders="top" class="z-20" sticky="bottom">
             <span class="font-semibold">
               {timeEntryDayHoursGroups().get(formatRequestDate(date))}
             </span>
