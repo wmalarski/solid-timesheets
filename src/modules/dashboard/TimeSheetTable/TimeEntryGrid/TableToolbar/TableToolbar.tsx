@@ -81,7 +81,7 @@ const ResetButton: Component<ResetButtonProps> = (props) => {
       disabled={props.isDisabled}
       onClick={onClick}
       size="xs"
-      variant="outline"
+      variant="ghost"
     >
       <IoReloadSharp />
       <span class="hidden sm:block">{t("dashboard.reset")}</span>
@@ -165,7 +165,7 @@ export const TableToolbar: Component = () => {
           // onClick={onSaveClick}
           size="xs"
           variant="outline"
-          aria-label=""
+          aria-label={t("dashboard.report")}
         >
           <IoDownloadSharp />
           <span class="hidden sm:block">{t("dashboard.report")}</span>

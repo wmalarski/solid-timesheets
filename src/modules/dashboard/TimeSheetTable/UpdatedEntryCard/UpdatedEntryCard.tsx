@@ -175,7 +175,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
 
   return (
     <Card
-      color={entry()?.isEditing ? "accent" : "disabled"}
+      color={entry()?.isEditing ? "black" : "disabled"}
       size="compact"
       variant="bordered"
     >
@@ -215,7 +215,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
                     disabled={isPending()}
                     onClick={onResetClick}
                     size="xs"
-                    variant="outline"
+                    variant="ghost"
                   >
                     <IoReloadSharp />
                     {t("dashboard.reset")}

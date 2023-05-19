@@ -132,7 +132,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
   };
 
   return (
-    <Card color="accent" variant="bordered" size="compact">
+    <Card color="black" variant="bordered" size="compact">
       <CardBody>
         <CardHeader
           isPending={isPending()}
@@ -151,7 +151,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
             disabled={isPending()}
             onClick={onDelete}
             size="xs"
-            variant="outline"
+            variant="ghost"
           >
             <IoTrashSharp />
             {t("dashboard.timeEntry.delete")}

@@ -45,8 +45,8 @@ export const CreateEntryMenu: Component<Props> = (props) => {
       <DropdownMenuTrigger
         aria-label={t("dashboard.create")}
         shape="square"
-        size="xs"
-        variant="outline"
+        size="sm"
+        variant="ghost"
       >
         <DropdownMenuIcon rotation={90}>
           <IoAddSharp />

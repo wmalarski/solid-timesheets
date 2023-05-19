@@ -17,7 +17,7 @@ export const cardClass = twCva("card", {
   variants: {
     color: {
       accent: "border-l-8 border-l-accent",
-      black: "border-l-8 border-l-black",
+      black: "border-l-8 border-l-neutral",
       disabled: "border-l-8 border-l-base-200",
       error: "border-l-8 border-l-error",
       info: "border-l-8 border-l-info",
