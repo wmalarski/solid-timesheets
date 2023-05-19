@@ -10,11 +10,16 @@ import { twCva, twCx } from "../utils/twCva";
 
 export const cardClass = twCva("card", {
   defaultVariants: {
+    bg: null,
     color: null,
     size: null,
     variant: null,
   },
   variants: {
+    bg: {
+      "gray-100": "bg-gray-100",
+      "gray-50": "bg-gray-50",
+    },
     color: {
       accent: "border-l-8 border-l-accent",
       black: "border-l-8 border-l-neutral",
@@ -41,7 +46,7 @@ export type CardProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof cardClass>;
 
 export const Card: Component<CardProps> = (props) => {
-  const [split, rest] = splitProps(props, ["variant", "size", "color"]);
+  const [split, rest] = splitProps(props, ["variant", "size", "color", "bg"]);
 
   return <div {...rest} class={cardClass({ class: props.class, ...split })} />;
 };

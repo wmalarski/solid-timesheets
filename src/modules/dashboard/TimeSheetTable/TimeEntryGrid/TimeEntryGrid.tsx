@@ -2,6 +2,7 @@ import { useI18n } from "@solid-primitives/i18n";
 import { For, createMemo, type Component } from "solid-js";
 import { GridCell } from "~/components/Grid";
 import type { Issue, TimeEntry } from "~/server/types";
+import { isDayOff } from "~/utils/date";
 import { formatRequestDate } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
 import {
@@ -42,7 +43,7 @@ const Header: Component<HeaderProps> = (props) => {
       <For each={days()}>
         {(date) => (
           <GridCell
-            bg="base-100"
+            bg={isDayOff(date) ? "gray-50" : "base-100"}
             class="z-20 flex items-center justify-between gap-2"
             sticky="top"
           >
@@ -54,7 +55,7 @@ const Header: Component<HeaderProps> = (props) => {
           </GridCell>
         )}
       </For>
-      <GridCell bg="base-100" borders="left" sticky="topRight" class="z-30" />
+      <GridCell bg="base-100" borders="left" />
     </>
   );
 };
@@ -86,7 +87,10 @@ const Cell: Component<CellProps> = (props) => {
   });
 
   return (
-    <GridCell class="flex flex-col gap-2">
+    <GridCell
+      bg={isDayOff(props.date) ? "gray-50" : "base-100"}
+      class="flex flex-col gap-2"
+    >
       <For each={created()}>
         {(pair) => <CreatedEntryCard entry={pair.entry} issue={pair.issue} />}
       </For>
@@ -115,10 +119,15 @@ const Footer: Component<FooterProps> = (props) => {
   return (
     <>
       <For each={days()}>
-        {(day) => (
-          <GridCell bg="base-100" borders="top" class="z-20" sticky="bottom">
+        {(date) => (
+          <GridCell
+            bg={isDayOff(date) ? "gray-50" : "base-100"}
+            borders="top"
+            class="z-20"
+            sticky="bottom"
+          >
             <span class="font-semibold">
-              {timeEntryDayHoursGroups().get(formatRequestDate(day))}
+              {timeEntryDayHoursGroups().get(formatRequestDate(date))}
             </span>
           </GridCell>
         )}
@@ -173,12 +182,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
             />
           )}
         </For>
-        <GridCell
-          bg="base-100"
-          borders="left"
-          class="z-30"
-          sticky="bottomRight"
-        />
+        <GridCell bg="base-100" borders="left" />
         <Footer timeEntries={props.timeEntries} />
       </div>
     </div>

@@ -132,7 +132,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
   };
 
   return (
-    <Card color="black" variant="bordered" size="compact">
+    <Card bg="gray-50" color="black" variant="bordered" size="compact">
       <CardBody>
         <CardHeader
           isPending={isPending()}

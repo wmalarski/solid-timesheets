@@ -175,6 +175,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
 
   return (
     <Card
+      bg="gray-50"
       color={entry()?.isEditing ? "black" : "disabled"}
       size="compact"
       variant="bordered"
