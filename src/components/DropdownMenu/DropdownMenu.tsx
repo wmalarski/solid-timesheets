@@ -30,13 +30,29 @@ export const DropdownMenuTrigger: Component<DropdownMenuTriggerProps> = (
   );
 };
 
-export const DropdownMenuIcon: Component<
-  KobalteDropdownMenu.DropdownMenuIconProps
-> = (props) => {
+export const dropdownMenuIconClass = twCva("rotate-0 duration-200", {
+  defaultVariants: {
+    rotation: 0,
+  },
+  variants: {
+    rotation: {
+      0: "",
+      180: "ui-expanded:rotate-180",
+      90: "ui-expanded:rotate-90",
+    },
+  },
+});
+
+export type DropdownMenuIconProps = KobalteDropdownMenu.DropdownMenuIconProps &
+  VariantProps<typeof dropdownMenuIconClass>;
+
+export const DropdownMenuIcon: Component<DropdownMenuIconProps> = (props) => {
+  const [split, rest] = splitProps(props, ["rotation"]);
+
   return (
     <KobalteDropdownMenu.Icon
-      {...props}
-      class={twCx("rotate-0", "ui-expanded:rotate-180", props.class)}
+      {...rest}
+      class={dropdownMenuIconClass({ class: props.class, ...split })}
     />
   );
 };

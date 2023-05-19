@@ -178,7 +178,7 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
         size="xs"
         variant="outline"
       >
-        <DropdownMenuIcon>
+        <DropdownMenuIcon rotation={90}>
           <IoEllipsisHorizontalSharp />
         </DropdownMenuIcon>
       </DropdownMenuTrigger>
@@ -234,7 +234,7 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
         size="xs"
         variant="outline"
       >
-        <DropdownMenuIcon>
+        <DropdownMenuIcon rotation={90}>
           <IoEllipsisHorizontalSharp />
         </DropdownMenuIcon>
       </DropdownMenuTrigger>

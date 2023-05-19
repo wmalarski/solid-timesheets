@@ -61,11 +61,11 @@ const CardContent: Component<CardContentProps> = (props) => {
         <span class="select-none px-1 py-2">
           {t("dashboard.timeEntry.comments.label")}
         </span>
-        <span class="px-3 py-1 text-xs">{props.entry.comments}</span>
+        <span class="px-2 py-1 text-xs">{props.entry.comments}</span>
         <span class="select-none px-1 py-2">
           {t("dashboard.timeEntry.hours.label")}
         </span>
-        <span class="px-3 py-1 text-xs">{props.entry.hours}</span>
+        <span class="px-2 py-1 text-xs">{props.entry.hours}</span>
       </div>
       <div class="flex justify-end">
         <Button

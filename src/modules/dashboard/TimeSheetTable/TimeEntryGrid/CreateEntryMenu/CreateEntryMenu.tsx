@@ -1,5 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { IoChevronDownSharp } from "solid-icons/io";
+import { IoAddSharp } from "solid-icons/io";
 import { For, type Component } from "solid-js";
 import {
   DropdownMenuArrow,
@@ -42,10 +42,14 @@ export const CreateEntryMenu: Component<Props> = (props) => {
 
   return (
     <DropdownMenuRoot>
-      <DropdownMenuTrigger shape="circle" size="xs" variant="outline">
-        <span>{t("dashboard.create")}</span>
-        <DropdownMenuIcon>
-          <IoChevronDownSharp />
+      <DropdownMenuTrigger
+        aria-label={t("dashboard.create")}
+        shape="square"
+        size="xs"
+        variant="outline"
+      >
+        <DropdownMenuIcon rotation={90}>
+          <IoAddSharp />
         </DropdownMenuIcon>
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
