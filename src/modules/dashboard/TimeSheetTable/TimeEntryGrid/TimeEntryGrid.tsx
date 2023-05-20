@@ -1,4 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
+import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
 import {
   For,
   createEffect,
@@ -6,6 +7,7 @@ import {
   createSignal,
   type Component,
 } from "solid-js";
+import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
 import { twCx } from "~/components/utils/twCva";
 import type { Issue, TimeEntry } from "~/server/types";
@@ -122,6 +124,43 @@ const Cell: Component<CellProps> = (props) => {
   );
 };
 
+type ScrollButtonsProps = {
+  parent?: HTMLDivElement;
+};
+
+const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
+  const scrollShift = 300;
+
+  const onBackClick = () => {
+    props.parent?.scrollBy({ behavior: "smooth", left: -scrollShift });
+  };
+
+  const onForwardClick = () => {
+    props.parent?.scrollBy({ behavior: "smooth", left: scrollShift });
+  };
+
+  return (
+    <>
+      <Button
+        class="bg-base-100 absolute left-2 top-2/4"
+        onClick={onBackClick}
+        size="sm"
+        variant="outline"
+      >
+        <IoChevronBackSharp />
+      </Button>
+      <Button
+        class="bg-base-100 absolute right-2 top-2/4"
+        onClick={onForwardClick}
+        size="sm"
+        variant="outline"
+      >
+        <IoChevronForwardSharp />
+      </Button>
+    </>
+  );
+};
+
 type FooterProps = {
   timeEntries: TimeEntry[];
 };
@@ -166,6 +205,8 @@ type Props = {
 };
 
 export const TimeEntryGrid: Component<Props> = (props) => {
+  const [parent, setParent] = createSignal<HTMLDivElement>();
+
   const issuesMap = createMemo(() => groupIssues(props.issues));
 
   const timeEntryGroups = createMemo(() =>
@@ -178,10 +219,11 @@ export const TimeEntryGrid: Component<Props> = (props) => {
   const { days } = useTimeSheetConfig();
 
   return (
-    <div class="flex grow flex-col">
+    <div class="relative flex grow flex-col" ref={setParent}>
       <TableToolbar />
       <div
         class="w-max-[100vw] grid grow overflow-scroll"
+        ref={setParent}
         style={{
           "grid-template-columns": `repeat(${days().length}, 250px) auto`,
           "grid-template-rows": "auto 1fr auto",
@@ -201,6 +243,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
         <GridCell bg="base-100" borders="left" />
         <Footer timeEntries={props.timeEntries} />
       </div>
+      <ScrollButtons parent={parent()} />
     </div>
   );
 };
