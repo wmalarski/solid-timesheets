@@ -167,10 +167,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   };
 
   const onResetClick = () => {
-    setState("updateMap", props.entry.id, {
-      args: defaultArgs(),
-      isEditing: false,
-    });
+    setState("updateMap", props.entry.id, undefined);
   };
 
   return (
@@ -219,7 +216,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
                     variant="ghost"
                   >
                     <IoReloadSharp />
-                    {t("dashboard.reset")}
+                    {t("dashboard.timeEntry.reset")}
                   </Button>
                   <SaveButton args={entry().args} isPending={isPending()} />
                 </div>

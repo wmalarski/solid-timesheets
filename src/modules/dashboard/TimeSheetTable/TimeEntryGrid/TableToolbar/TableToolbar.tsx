@@ -64,6 +64,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
 };
 
 type ResetButtonProps = {
+  count: number;
   isDisabled: boolean;
 };
 
@@ -84,12 +85,15 @@ const ResetButton: Component<ResetButtonProps> = (props) => {
       variant="ghost"
     >
       <IoReloadSharp />
-      <span class="hidden sm:block">{t("dashboard.reset")}</span>
+      <span class="hidden sm:block">
+        {t("dashboard.reset", { count: String(props.count) })}
+      </span>
     </Button>
   );
 };
 
 type SaveButtonProps = {
+  count: number;
   isDisabled: boolean;
 };
 
@@ -140,7 +144,9 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
       variant="outline"
     >
       <IoSaveSharp />
-      <span class="hidden sm:block">{t("dashboard.saveAll")}</span>
+      <span class="hidden sm:block">
+        {t("dashboard.saveAll", { count: String(props.count) })}
+      </span>
     </Button>
   );
 };
@@ -148,18 +154,42 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 export const TableToolbar: Component = () => {
   const [t] = useI18n();
 
+  const { state } = useTimeSheetContext();
+
   const isMutating = useIsMutating();
+
+  const selectedCount = createMemo(() => {
+    const updateEntries = Object.values(state.updateMap);
+
+    const createEntries = Object.values(state.dateMap).flatMap((entries) =>
+      Object.values(entries)
+    );
+
+    const entries = [...updateEntries, ...createEntries];
+
+    return entries.map((entry) => !!entry).length;
+  });
 
   const isDisabled = createMemo(() => {
     return isMutating() > 0;
+  });
+
+  const shouldDisableActions = createMemo(() => {
+    return isMutating() > 0 || selectedCount() < 1;
   });
 
   return (
     <div class="flex items-center justify-between gap-2 border-b-[1px] border-gray-300 p-2">
       <MonthSelect isDisabled={isDisabled()} />
       <div class="flex gap-1">
-        <ResetButton isDisabled={isDisabled()} />
-        <SaveButton isDisabled={isDisabled()} />
+        <ResetButton
+          count={selectedCount()}
+          isDisabled={shouldDisableActions()}
+        />
+        <SaveButton
+          count={selectedCount()}
+          isDisabled={shouldDisableActions()}
+        />
         <Button
           disabled={isDisabled()}
           // onClick={onSaveClick}

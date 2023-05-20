@@ -5,8 +5,8 @@ const dict = {
     dashboard: {
       create: "New",
       report: "Report",
-      reset: "Reset",
-      saveAll: "Save",
+      reset: "Reset ({{count}})",
+      saveAll: "Save ({{count}})",
       timeEntry: {
         comments: {
           label: "Comments",
@@ -23,6 +23,7 @@ const dict = {
         more: "More",
         new: "New",
         pending: "Pending",
+        reset: "Reset",
         save: "Save",
         update: "Update",
       },
