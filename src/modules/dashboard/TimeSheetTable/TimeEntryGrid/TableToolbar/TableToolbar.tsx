@@ -14,9 +14,11 @@ import {
 import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { showToast } from "~/components/Toast";
+import { useDashboardConfig } from "~/modules/dashboard/DashboardConfig";
 import {
   getAllTimeEntriesKey,
   upsertTimeEntriesServerMutation,
+  workTimeHref,
 } from "~/server/timeEntries";
 import {
   resetSheetEntries,
@@ -151,9 +153,44 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
   );
 };
 
-export const TableToolbar: Component = () => {
+type DownloadButtonProps = {
+  isDisabled: boolean;
+};
+
+const DownloadButton: Component<DownloadButtonProps> = (props) => {
   const [t] = useI18n();
 
+  const { params } = useTimeSheetConfig();
+  const config = useDashboardConfig();
+
+  const onSaveClick = () => {
+    const date = params().date;
+    const configData = config();
+
+    const href = workTimeHref({
+      date,
+      rmBaseUrl: configData.rmBaseUrl,
+      userId: configData.userId,
+    });
+
+    window.location.href = href;
+  };
+
+  return (
+    <Button
+      disabled={props.isDisabled}
+      onClick={onSaveClick}
+      size="xs"
+      variant="outline"
+      aria-label={t("dashboard.report")}
+    >
+      <IoDownloadSharp />
+      <span class="hidden sm:block">{t("dashboard.report")}</span>
+    </Button>
+  );
+};
+
+export const TableToolbar: Component = () => {
   const { state } = useTimeSheetContext();
 
   const isMutating = useIsMutating();
@@ -190,16 +227,7 @@ export const TableToolbar: Component = () => {
           count={selectedCount()}
           isDisabled={shouldDisableActions()}
         />
-        <Button
-          disabled={isDisabled()}
-          // onClick={onSaveClick}
-          size="xs"
-          variant="outline"
-          aria-label={t("dashboard.report")}
-        >
-          <IoDownloadSharp />
-          <span class="hidden sm:block">{t("dashboard.report")}</span>
-        </Button>
+        <DownloadButton isDisabled={isDisabled()} />
       </div>
     </div>
   );

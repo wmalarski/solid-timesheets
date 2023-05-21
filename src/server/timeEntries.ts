@@ -1,6 +1,7 @@
 import server$, { useRequest } from "solid-start/server";
 import { z } from "zod";
 import { formatRequestDate } from "~/utils/format";
+import { buildSearchParams } from "~/utils/searchParams";
 import { fetcher, jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
@@ -230,3 +231,18 @@ export const deleteTimeEntriesServerMutation = server$(
     );
   }
 );
+
+type WorkTimeHrefArgs = {
+  date: Date;
+  rmBaseUrl: string;
+  userId: number;
+};
+
+export const workTimeHref = (args: WorkTimeHrefArgs) => {
+  const params = buildSearchParams({
+    month: args.date.getMonth() + 1,
+    user: args.userId,
+    year: args.date.getFullYear(),
+  });
+  return `${args.rmBaseUrl}/work_time/member_monthly_data?${params}`;
+};

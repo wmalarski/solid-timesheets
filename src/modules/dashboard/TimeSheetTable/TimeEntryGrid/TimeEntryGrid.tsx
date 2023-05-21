@@ -180,19 +180,14 @@ const Footer: Component<FooterProps> = (props) => {
     <>
       <For each={days()}>
         {(date) => (
-          <GridCell borders="top" class="z-20" sticky="bottom">
+          <GridCell class="z-20" sticky="bottom">
             <span class="font-semibold">
               {timeEntryDayHoursGroups().get(formatRequestDate(date))}
             </span>
           </GridCell>
         )}
       </For>
-      <GridCell
-        bg="base-100"
-        borders="topLeft"
-        class="z-30"
-        sticky="bottomRight"
-      >
+      <GridCell bg="base-100" borders="left" class="z-30" sticky="bottomRight">
         <span class="font-bold">{timeEntryHours()}</span>
       </GridCell>
     </>

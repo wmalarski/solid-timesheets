@@ -4,7 +4,7 @@ const dict = {
   en: {
     dashboard: {
       create: "New",
-      report: "Report",
+      report: "Download",
       reset: "Reset ({{count}})",
       saveAll: "Save ({{count}})",
       timeEntry: {

@@ -25,6 +25,7 @@ export const routeData = () => {
     return {
       fullName: session.fullName,
       rmBaseUrl: serverEnv.RM_BASE_URL,
+      userId: session.id,
     };
   });
 };
