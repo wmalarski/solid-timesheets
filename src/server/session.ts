@@ -2,7 +2,7 @@ import { createCookieSessionStorage } from "solid-start";
 import { z } from "zod";
 import { serverEnv } from "./env";
 import { jsonFetcher, type Fetch } from "./fetcher";
-import type { GetCurrentUserResult } from "./users";
+import type { User } from "./types";
 
 const storage = createCookieSessionStorage({
   cookie: {
@@ -16,10 +16,12 @@ const storage = createCookieSessionStorage({
   },
 });
 
-const tokenKey = "token";
+const fullNameKey = "fullName";
 const idKey = "id";
+const tokenKey = "token";
 
 const sessionSchema = z.object({
+  [fullNameKey]: z.string(),
   [idKey]: z.coerce.number(),
   [tokenKey]: z.string(),
 });
@@ -32,6 +34,7 @@ const getSessionFromCookie = async (
   const session = await storage.getSession(request.headers.get("Cookie"));
 
   const parsed = sessionSchema.safeParse({
+    [fullNameKey]: session.get(fullNameKey),
     [idKey]: session.get(idKey),
     [tokenKey]: session.get(tokenKey),
   });
@@ -77,7 +80,7 @@ export const setSessionCookie = async ({
 }: SetSessionCookieArgs) => {
   const session = await storage.getSession(request.headers.get("Cookie"));
 
-  const data = await jsonFetcher<GetCurrentUserResult>({
+  const data = await jsonFetcher<{ user: User }>({
     fetch,
     path: "/users/current.json",
     token,
@@ -85,6 +88,7 @@ export const setSessionCookie = async ({
 
   session.set(tokenKey, token);
   session.set(idKey, data.user.id);
+  session.set(fullNameKey, `${data.user.firstname} ${data.user.lastname}`);
 
   return storage.commitSession(session);
 };

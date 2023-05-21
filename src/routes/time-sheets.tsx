@@ -1,8 +1,10 @@
-import { Suspense, lazy } from "solid-js";
+import { Show, Suspense, lazy } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
+import { DashboardConfigContext } from "~/modules/dashboard/DashboardConfig";
 import { TimeSheetTable } from "~/modules/dashboard/TimeSheetTable";
 import { TopBar } from "~/modules/dashboard/TopBar";
+import { serverEnv } from "~/server/env";
 import { getSession } from "~/server/session";
 import { paths } from "~/utils/paths";
 
@@ -17,25 +19,34 @@ export const routeData = () => {
     const session = await getSession(request);
 
     if (!session) {
-      return redirect(paths.home);
+      throw redirect(paths.home);
     }
 
-    return session;
+    return {
+      fullName: session.fullName,
+      rmBaseUrl: serverEnv.RM_BASE_URL,
+    };
   });
 };
 
 export default function TimeSheets() {
-  useRouteData<typeof routeData>();
+  const data = useRouteData<typeof routeData>();
 
   return (
-    <main class="mx-auto flex h-screen flex-col text-gray-700">
-      <TopBar />
-      <Suspense>
-        <TimeSheetTable />
-      </Suspense>
-      <Suspense>
-        <ToastProvider />
-      </Suspense>
-    </main>
+    <Show when={data()}>
+      {(result) => (
+        <DashboardConfigContext.Provider value={result}>
+          <main class="mx-auto flex h-screen flex-col text-gray-700">
+            <TopBar />
+            <Suspense>
+              <TimeSheetTable />
+            </Suspense>
+            <Suspense>
+              <ToastProvider />
+            </Suspense>
+          </main>
+        </DashboardConfigContext.Provider>
+      )}
+    </Show>
   );
 }
