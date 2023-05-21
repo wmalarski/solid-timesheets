@@ -38,10 +38,12 @@ export const getTimeEntriesServerQuery = server$(
     const event = useRequest();
     const fetch = server$.fetch || event.fetch;
     const request = server$.request || event.request;
+    const env = server$.env || event.env;
 
-    const session = await getSessionOrThrow(request);
+    const session = await getSessionOrThrow({ env, request });
 
     return jsonFetcher<GetTimeEntriesResult>({
+      env,
       fetch,
       path: "/time_entries.json",
       query: {
@@ -71,9 +73,13 @@ export const createTimeEntryServerMutation = server$(
   async (args: CreateTimeEntryArgs) => {
     const parsed = createTimeEntryArgs.parse(args);
 
-    const session = await getSessionOrThrow(server$.request);
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      request: server$.request,
+    });
 
     return jsonFetcher<TimeEntry>({
+      env: server$.env,
       fetch: server$.fetch,
       init: {
         body: JSON.stringify({
@@ -105,9 +111,13 @@ export const updateTimeEntryServerMutation = server$(
   async (args: UpdateTimeEntryArgs) => {
     const parsed = updateTimeEntryArgs.parse(args);
 
-    const session = await getSessionOrThrow(server$.request);
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      request: server$.request,
+    });
 
     await fetcher({
+      env: server$.env,
       fetch: server$.fetch,
       init: {
         body: JSON.stringify({
@@ -139,11 +149,15 @@ export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
     const parsed = upsertTimeEntriesArgs.parse(args);
 
-    const session = await getSessionOrThrow(server$.request);
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      request: server$.request,
+    });
 
     await Promise.all([
       ...parsed.create.map((entry) =>
         jsonFetcher<TimeEntry>({
+          env: server$.env,
           fetch: server$.fetch,
           init: {
             body: JSON.stringify({
@@ -164,6 +178,7 @@ export const upsertTimeEntriesServerMutation = server$(
       ),
       ...parsed.update.map((entry) =>
         fetcher({
+          env: server$.env,
           fetch: server$.fetch,
           init: {
             body: JSON.stringify({
@@ -196,9 +211,13 @@ export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
     const parsed = deleteTimeEntryArgs.parse(args);
 
-    const session = await getSessionOrThrow(server$.request);
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      request: server$.request,
+    });
 
     await fetcher({
+      env: server$.env,
       fetch: server$.fetch,
       init: { method: "DELETE" },
       path: `/time_entries/${parsed.id}.json`,

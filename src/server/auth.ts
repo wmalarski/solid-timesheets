@@ -9,22 +9,28 @@ const signInArgsSchema = z.object({
 });
 
 export const createSignInServerAction = () => {
-  return createServerAction$(async (form: FormData, { request, fetch }) => {
-    const parsed = await zodFormParse({ form, schema: signInArgsSchema });
+  return createServerAction$(
+    async (form: FormData, { env, fetch, request }) => {
+      const parsed = await zodFormParse({ form, schema: signInArgsSchema });
 
-    const cookie = await setSessionCookie({
-      fetch,
-      request,
-      token: parsed.token,
-    });
+      const cookie = await setSessionCookie({
+        env,
+        fetch,
+        request,
+        token: parsed.token,
+      });
 
-    return redirect(paths.timeSheets, { headers: { "Set-Cookie": cookie } });
-  });
+      return redirect(paths.timeSheets, { headers: { "Set-Cookie": cookie } });
+    }
+  );
 };
 
 export const createSignOutServerAction = () => {
-  return createServerAction$(async (_form: FormData, { request }) => {
-    const cookie = await destroySessionCookie(request);
+  return createServerAction$(async (_form: FormData, { env, request }) => {
+    const cookie = await destroySessionCookie({
+      env,
+      request,
+    });
 
     return redirect(paths.home, { headers: { "Set-Cookie": cookie } });
   });

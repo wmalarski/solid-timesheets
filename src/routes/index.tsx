@@ -8,8 +8,8 @@ import { getSession } from "~/server/session";
 import { paths } from "~/utils/paths";
 
 export const routeData = () => {
-  return createServerData$(async (_source, { request }) => {
-    const session = await getSession(request);
+  return createServerData$(async (_source, { env, request }) => {
+    const session = await getSession({ env, request });
 
     if (session) {
       return redirect(paths.timeSheets);

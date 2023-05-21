@@ -1,20 +1,21 @@
 import { createCookieSessionStorage } from "solid-start";
 import { z } from "zod";
-import { serverEnv } from "./env";
 import { jsonFetcher, type Fetch } from "./fetcher";
 import type { User } from "./types";
 
-const storage = createCookieSessionStorage({
-  cookie: {
-    httpOnly: true,
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-    name: "session",
-    path: "/",
-    sameSite: "lax",
-    secrets: [serverEnv.SESSION_SECRET],
-    secure: true,
-  },
-});
+const createStorage = (env: Env) => {
+  return createCookieSessionStorage({
+    cookie: {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      name: "session",
+      path: "/",
+      sameSite: "lax",
+      secrets: [env.SESSION_SECRET],
+      secure: true,
+    },
+  });
+};
 
 const fullNameKey = "fullName";
 const idKey = "id";
@@ -28,9 +29,17 @@ const sessionSchema = z.object({
 
 export type Session = z.infer<typeof sessionSchema>;
 
-const getSessionFromCookie = async (
-  request: Request
-): Promise<Session | null> => {
+type GetSessionArgs = {
+  env: Env;
+  request: Request;
+};
+
+const getSessionFromCookie = async ({
+  env,
+  request,
+}: GetSessionArgs): Promise<Session | null> => {
+  const storage = createStorage(env);
+
   const session = await storage.getSession(request.headers.get("Cookie"));
 
   const parsed = sessionSchema.safeParse({
@@ -46,19 +55,25 @@ const getSessionFromCookie = async (
   return null;
 };
 
-export const getSession = (request: Request): Promise<Session | null> => {
+export const getSession = ({
+  env,
+  request,
+}: GetSessionArgs): Promise<Session | null> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const unsafeRequest = request as any;
 
   if (!unsafeRequest?.sessionPromise) {
-    unsafeRequest.sessionPromise = getSessionFromCookie(request);
+    unsafeRequest.sessionPromise = getSessionFromCookie({ env, request });
   }
 
   return unsafeRequest?.sessionPromise;
 };
 
-export const getSessionOrThrow = async (request: Request): Promise<Session> => {
-  const session = await getSession(request);
+export const getSessionOrThrow = async ({
+  env,
+  request,
+}: GetSessionArgs): Promise<Session> => {
+  const session = await getSession({ env, request });
 
   if (!session) {
     throw { code: 401, message: "Unauthorized" };
@@ -68,19 +83,24 @@ export const getSessionOrThrow = async (request: Request): Promise<Session> => {
 };
 
 type SetSessionCookieArgs = {
+  env: Env;
   fetch: Fetch;
   request: Request;
   token: string;
 };
 
 export const setSessionCookie = async ({
+  env,
   fetch,
   request,
   token,
 }: SetSessionCookieArgs) => {
+  const storage = createStorage(env);
+
   const session = await storage.getSession(request.headers.get("Cookie"));
 
   const data = await jsonFetcher<{ user: User }>({
+    env,
     fetch,
     path: "/users/current.json",
     token,
@@ -93,7 +113,17 @@ export const setSessionCookie = async ({
   return storage.commitSession(session);
 };
 
-export const destroySessionCookie = async (request: Request) => {
+type DestroySessionCookieArgs = {
+  env: Env;
+  request: Request;
+};
+
+export const destroySessionCookie = async ({
+  request,
+  env,
+}: DestroySessionCookieArgs) => {
+  const storage = createStorage(env);
+
   const session = await storage.getSession(request.headers.get("Cookie"));
 
   return storage.destroySession(session);

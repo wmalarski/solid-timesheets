@@ -4,7 +4,6 @@ import { createServerData$, redirect } from "solid-start/server";
 import { DashboardConfigContext } from "~/modules/dashboard/DashboardConfig";
 import { TimeSheetTable } from "~/modules/dashboard/TimeSheetTable";
 import { TopBar } from "~/modules/dashboard/TopBar";
-import { serverEnv } from "~/server/env";
 import { getSession } from "~/server/session";
 import { paths } from "~/utils/paths";
 
@@ -22,7 +21,7 @@ const PendingProcess = lazy(() =>
 
 export const routeData = () => {
   return createServerData$(async (_source, { request, env }) => {
-    const session = await getSession(request);
+    const session = await getSession({ env, request });
 
     if (!session) {
       throw redirect(paths.home);
@@ -30,7 +29,7 @@ export const routeData = () => {
 
     return {
       fullName: session.fullName,
-      rmBaseUrl: serverEnv.RM_BASE_URL,
+      rmBaseUrl: env.RM_BASE_URL,
       userId: session.id,
     };
   });

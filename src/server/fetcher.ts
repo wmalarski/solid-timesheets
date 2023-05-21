@@ -1,6 +1,5 @@
 import type { ServerFunctionEvent } from "solid-start";
 import { buildSearchParams } from "~/utils/searchParams";
-import { serverEnv } from "./env";
 
 export type Fetch = ServerFunctionEvent["fetch"];
 
@@ -10,6 +9,7 @@ export type FetcherError = {
 };
 
 export type FetcherArgs = {
+  env: Env;
   fetch: Fetch;
   init?: RequestInit;
   path: string;
@@ -19,13 +19,14 @@ export type FetcherArgs = {
 
 export const fetcher = async ({
   fetch,
+  env,
   init,
   path,
   query,
   token,
 }: FetcherArgs) => {
   const search = buildSearchParams(query);
-  const url = `${serverEnv.RM_BASE_URL}${path}?${search}`;
+  const url = `${env.RM_BASE_URL}${path}?${search}`;
 
   const headers = token
     ? { ...init?.headers, "X-Redmine-API-Key": token }

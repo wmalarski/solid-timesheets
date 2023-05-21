@@ -36,10 +36,12 @@ export const getIssuesServerQuery = server$(
     const event = useRequest();
     const fetch = server$.fetch || event.fetch;
     const request = server$.request || event.request;
+    const env = server$.env || event.env;
 
-    const session = await getSessionOrThrow(request);
+    const session = await getSessionOrThrow({ env, request });
 
     return jsonFetcher<GetIssuesResult>({
+      env,
       fetch,
       path: "/issues.json",
       query: {
