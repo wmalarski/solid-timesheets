@@ -2,33 +2,34 @@ import type { VariantProps } from "class-variance-authority";
 import { splitProps, type Component, type JSX } from "solid-js";
 import { twCva } from "~/components/utils/twCva";
 
-export const gridCellClass = twCva(
-  "border-b-[1px] border-r-[1px] border-gray-300 p-2",
-  {
-    defaultVariants: {
-      bg: null,
-      borders: null,
-      sticky: null,
+export const gridCellClass = twCva("border-gray-300 p-2", {
+  defaultVariants: {
+    bg: null,
+    borders: null,
+    sticky: null,
+  },
+  variants: {
+    bg: {
+      "base-100": "bg-base-100",
+      "base-200": "bg-base-200",
+      "gray-50": "bg-base-100",
     },
-    variants: {
-      bg: {
-        "base-100": "bg-base-100",
-        "gray-50": "bg-base-100",
-      },
-      borders: {
-        left: "border-l-[1px]",
-        top: "border-t-[1px]",
-        topLeft: "border-l-[1px] border-t-[1px]",
-      },
-      sticky: {
-        bottom: "sticky bottom-0",
-        bottomRight: "sticky bottom-0 right-0 ",
-        top: "sticky top-0",
-        topRight: "sticky right-0 top-0",
-      },
+    borders: {
+      bottom: "border-b-[1px]",
+      bottomRight: "border-b-[1px] border-r-[1px]",
+      left: "border-l-[1px]",
+      right: "border-r-[1px]",
+      top: "border-t-[1px]",
+      topLeft: "border-l-[1px] border-t-[1px]",
     },
-  }
-);
+    sticky: {
+      bottom: "sticky bottom-0",
+      bottomRight: "sticky bottom-0 right-0 ",
+      top: "sticky top-0",
+      topRight: "sticky right-0 top-0",
+    },
+  },
+});
 
 export type GridCellProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof gridCellClass>;

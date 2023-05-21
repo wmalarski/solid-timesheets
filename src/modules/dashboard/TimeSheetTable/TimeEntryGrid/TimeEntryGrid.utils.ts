@@ -60,7 +60,7 @@ export const sumTimeEntriesHoursByDay = (timeEntries: TimeEntry[]) => {
 };
 
 export const sumDayTimeEntriesHours = (timeEntries: TimeEntry[]) => {
-  return timeEntries.reduce((prev, curr) => prev + curr.hours, 0);
+  return timeEntries.reduce((prev, curr) => prev + curr.hours, 0) || 0;
 };
 
 export const sumDayTimeEntriesMap = (

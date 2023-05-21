@@ -9,7 +9,6 @@ import {
 } from "solid-js";
 import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
-import { twCx } from "~/components/utils/twCva";
 import type { Issue, TimeEntry } from "~/server/types";
 import { isToday } from "~/utils/date";
 import { formatDay, formatRequestDate, formatWeekday } from "~/utils/format";
@@ -52,11 +51,11 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
 
   return (
     <GridCell
+      bg={isDateToday() ? "base-200" : "base-100"}
       ref={setRef}
-      class={twCx("z-20 flex items-center justify-between gap-2", {
-        "bg-base-200": isDateToday(),
-      })}
+      class="z-20 flex items-center justify-between gap-2"
       sticky="top"
+      borders="bottomRight"
     >
       <div class="flex flex-col">
         <span class="text-3xl">
@@ -81,7 +80,7 @@ const Header: Component<HeaderProps> = (props) => {
       <For each={days()}>
         {(date) => <HeaderCell date={date} issues={props.issues} />}
       </For>
-      <GridCell bg="base-100" borders="left" />
+      <GridCell bg="base-100" borders="bottom" sticky="top" />
     </>
   );
 };
@@ -113,7 +112,7 @@ const Cell: Component<CellProps> = (props) => {
   });
 
   return (
-    <GridCell class="flex flex-col gap-2">
+    <GridCell borders="right" class="flex flex-col gap-2">
       <For each={created()}>
         {(pair) => <CreatedEntryCard entry={pair.entry} issue={pair.issue} />}
       </For>
@@ -180,14 +179,24 @@ const Footer: Component<FooterProps> = (props) => {
     <>
       <For each={days()}>
         {(date) => (
-          <GridCell class="z-20" sticky="bottom">
+          <GridCell
+            bg="base-100"
+            borders="topLeft"
+            class="z-20"
+            sticky="bottom"
+          >
             <span class="font-semibold">
-              {timeEntryDayHoursGroups().get(formatRequestDate(date))}
+              {timeEntryDayHoursGroups().get(formatRequestDate(date)) || 0}
             </span>
           </GridCell>
         )}
       </For>
-      <GridCell bg="base-100" borders="left" class="z-30" sticky="bottomRight">
+      <GridCell
+        bg="base-100"
+        borders="topLeft"
+        class="z-30"
+        sticky="bottomRight"
+      >
         <span class="font-bold">{timeEntryHours()}</span>
       </GridCell>
     </>
@@ -235,7 +244,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
             />
           )}
         </For>
-        <GridCell bg="base-100" borders="left" />
+        <GridCell bg="base-100" />
         <Footer timeEntries={props.timeEntries} />
       </div>
       <ScrollButtons parent={parent()} />
