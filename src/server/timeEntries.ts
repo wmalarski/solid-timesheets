@@ -163,7 +163,7 @@ export const upsertTimeEntriesServerMutation = server$(
         })
       ),
       ...parsed.update.map((entry) =>
-        jsonFetcher<TimeEntry>({
+        fetcher({
           fetch: server$.fetch,
           init: {
             body: JSON.stringify({
@@ -204,31 +204,6 @@ export const deleteTimeEntryServerMutation = server$(
       path: `/time_entries/${parsed.id}.json`,
       token: session.token,
     });
-  }
-);
-
-const deleteTimeEntriesArgs = z.object({
-  ids: z.array(z.number()),
-});
-
-export type DeleteTimeEntriesArgs = z.infer<typeof deleteTimeEntriesArgs>;
-
-export const deleteTimeEntriesServerMutation = server$(
-  async (args: DeleteTimeEntriesArgs) => {
-    const parsed = deleteTimeEntriesArgs.parse(args);
-
-    const session = await getSessionOrThrow(server$.request);
-
-    await Promise.all(
-      parsed.ids.map((id) => {
-        return fetcher({
-          fetch: server$.fetch,
-          init: { method: "DELETE" },
-          path: `/time_entries/${id}.json`,
-          token: session.token,
-        });
-      })
-    );
   }
 );
 
