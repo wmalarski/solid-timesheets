@@ -21,45 +21,21 @@ const defaultDate = getFirstDayOfMonth(new Date());
 
 const paramsSchema = z.object({
   date: z.coerce.date().default(defaultDate),
-  hidden: z
-    .string()
-    .regex(/^(\d{1,},?)*$/)
-    .default("")
-    .transform((arg) =>
-      arg
-        .split(",")
-        .filter((entry) => entry.length > 0)
-        .map((entry) => +entry)
-    ),
 });
 
 type TimeSheetSearchParams = Required<z.infer<typeof paramsSchema>>;
 
 const defaultParams: TimeSheetSearchParams = {
   date: defaultDate,
-  hidden: [],
 };
 
 export const useTimeSheetSearchParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const params = createMemo(() => {
-    const parsed = paramsSchema.safeParse({
-      date: searchParams.date,
-      hidden: searchParams.hidden,
-    });
+    const parsed = paramsSchema.safeParse({ date: searchParams.date });
     return parsed.success ? parsed.data : defaultParams;
   });
-
-  const toggleProject = (projectId: number) => {
-    const current = params();
-    const hasProjectId = current.hidden.includes(projectId);
-    setSearchParams({
-      hidden: hasProjectId
-        ? current.hidden.filter((id) => id !== projectId).join(",")
-        : [...current.hidden, projectId].join(","),
-    });
-  };
 
   const setMonth = (date: Date) => {
     setSearchParams({ date: formatRequestDate(date) });
@@ -77,7 +53,6 @@ export const useTimeSheetSearchParams = () => {
     params,
     setNextMonth,
     setPreviousMonth,
-    toggleProject,
   };
 };
 
@@ -90,7 +65,6 @@ export const TimeSheetConfig = createContext<TimeSheetConfigValue>({
   params: () => defaultParams,
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
-  toggleProject: () => void 0,
 });
 
 export const useTimeSheetConfig = () => {
