@@ -14,6 +14,12 @@ const ToastProvider = lazy(() =>
   }))
 );
 
+const PendingProcess = lazy(() =>
+  import("~/modules/dashboard/PendingProcess").then((module) => ({
+    default: module.PendingProcess,
+  }))
+);
+
 export const routeData = () => {
   return createServerData$(async (_source, { request }) => {
     const session = await getSession(request);
@@ -43,6 +49,7 @@ export default function TimeSheets() {
               <TimeSheetTable />
             </Suspense>
             <Suspense>
+              <PendingProcess />
               <ToastProvider />
             </Suspense>
           </main>

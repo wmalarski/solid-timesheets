@@ -13,8 +13,8 @@ const dict = {
           placeholder: "Write",
         },
         copyCurrentDay: "Copy",
-        copyMonthEnd: "Copy Month End",
-        copyNextDay: "Copy Next Day",
+        copyMonthEnd: "Copy until the end of the month",
+        copyNextDay: "Copy to the next day",
         delete: "Delete",
         hours: {
           label: "Hours",
