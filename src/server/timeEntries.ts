@@ -68,8 +68,8 @@ export const createTimeEntryArgs = z.object({
 export type CreateTimeEntryArgs = z.infer<typeof createTimeEntryArgs>;
 
 export const createTimeEntryServerMutation = server$(
-  async (data: CreateTimeEntryArgs) => {
-    const parsed = createTimeEntryArgs.parse(data);
+  async (args: CreateTimeEntryArgs) => {
+    const parsed = createTimeEntryArgs.parse(args);
 
     const session = await getSessionOrThrow(server$.request);
 
@@ -102,8 +102,8 @@ export const updateTimeEntryArgs = z.intersection(
 export type UpdateTimeEntryArgs = z.infer<typeof updateTimeEntryArgs>;
 
 export const updateTimeEntryServerMutation = server$(
-  async (data: UpdateTimeEntryArgs) => {
-    const parsed = updateTimeEntryArgs.parse(data);
+  async (args: UpdateTimeEntryArgs) => {
+    const parsed = updateTimeEntryArgs.parse(args);
 
     const session = await getSessionOrThrow(server$.request);
 
@@ -136,8 +136,8 @@ export const upsertTimeEntriesArgs = z.object({
 export type UpsertTimeEntriesArgs = z.infer<typeof upsertTimeEntriesArgs>;
 
 export const upsertTimeEntriesServerMutation = server$(
-  async (data: UpsertTimeEntriesArgs) => {
-    const parsed = upsertTimeEntriesArgs.parse(data);
+  async (args: UpsertTimeEntriesArgs) => {
+    const parsed = upsertTimeEntriesArgs.parse(args);
 
     const session = await getSessionOrThrow(server$.request);
 
@@ -193,8 +193,8 @@ const deleteTimeEntryArgs = z.object({
 export type DeleteTimeEntryArgs = z.infer<typeof deleteTimeEntryArgs>;
 
 export const deleteTimeEntryServerMutation = server$(
-  async (data: DeleteTimeEntryArgs) => {
-    const parsed = deleteTimeEntryArgs.parse(data);
+  async (args: DeleteTimeEntryArgs) => {
+    const parsed = deleteTimeEntryArgs.parse(args);
 
     const session = await getSessionOrThrow(server$.request);
 
@@ -214,8 +214,8 @@ const deleteTimeEntriesArgs = z.object({
 export type DeleteTimeEntriesArgs = z.infer<typeof deleteTimeEntriesArgs>;
 
 export const deleteTimeEntriesServerMutation = server$(
-  async (data: DeleteTimeEntriesArgs) => {
-    const parsed = deleteTimeEntriesArgs.parse(data);
+  async (args: DeleteTimeEntriesArgs) => {
+    const parsed = deleteTimeEntriesArgs.parse(args);
 
     const session = await getSessionOrThrow(server$.request);
 

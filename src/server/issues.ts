@@ -53,3 +53,12 @@ export const getIssuesServerQuery = server$(
     });
   }
 );
+
+type IssueHrefArgs = {
+  issueId: number;
+  rmBaseUrl: string;
+};
+
+export const issueHref = (args: IssueHrefArgs) => {
+  return `${args.rmBaseUrl}/issues/${args.issueId}`;
+};
