@@ -21,7 +21,7 @@ const PendingProcess = lazy(() =>
 );
 
 export const routeData = () => {
-  return createServerData$(async (_source, { request }) => {
+  return createServerData$(async (_source, { request, env }) => {
     const session = await getSession(request);
 
     if (!session) {
