@@ -35,7 +35,7 @@ const Title: Component = () => {
   const [t] = useI18n();
 
   return (
-    <h1 class="max-6-xs my-16 flex items-center text-center text-6xl font-thin uppercase">
+    <h1 class="max-6-xs my-16 flex items-center text-center text-4xl font-thin uppercase sm:text-6xl">
       <IoTimerSharp />
       {t("home.title")}
     </h1>

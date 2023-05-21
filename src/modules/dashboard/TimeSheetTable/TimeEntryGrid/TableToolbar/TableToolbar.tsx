@@ -47,7 +47,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
       <Button
         disabled={props.isDisabled}
         onClick={setPreviousMonth}
-        size="xs"
+        size="sm"
         variant="ghost"
       >
         <IoChevronBackSharp />
@@ -55,7 +55,7 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
       <Button
         disabled={props.isDisabled}
         onClick={setNextMonth}
-        size="xs"
+        size="sm"
         variant="ghost"
       >
         <IoChevronForwardSharp />
@@ -83,7 +83,7 @@ const ResetButton: Component<ResetButtonProps> = (props) => {
     <Button
       disabled={props.isDisabled}
       onClick={onClick}
-      size="xs"
+      size="sm"
       variant="ghost"
     >
       <IoReloadSharp />
@@ -142,7 +142,7 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
     <Button
       disabled={props.isDisabled}
       onClick={onSaveClick}
-      size="xs"
+      size="sm"
       variant="outline"
     >
       <IoSaveSharp />
@@ -180,7 +180,7 @@ const DownloadButton: Component<DownloadButtonProps> = (props) => {
     <Button
       disabled={props.isDisabled}
       onClick={onSaveClick}
-      size="xs"
+      size="sm"
       variant="outline"
       aria-label={t("dashboard.report")}
     >

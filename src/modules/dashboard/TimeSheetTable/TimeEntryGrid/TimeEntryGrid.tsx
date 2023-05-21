@@ -141,7 +141,7 @@ const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
   return (
     <>
       <Button
-        class="absolute left-2 top-2/4 bg-base-100"
+        class="absolute left-2 top-2/4 hidden bg-base-100 sm:block"
         onClick={onBackClick}
         size="sm"
         variant="outline"
@@ -149,7 +149,7 @@ const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
         <IoChevronBackSharp />
       </Button>
       <Button
-        class="absolute right-2 top-2/4 bg-base-100"
+        class="absolute right-2 top-2/4 hidden bg-base-100 sm:block"
         onClick={onForwardClick}
         size="sm"
         variant="outline"
