@@ -32,11 +32,7 @@ const TimeSheetContextProvider: Component<TimeSheetContextProviderProps> = (
   );
 };
 
-type TimeEntriesFetcherProps = {
-  issues: Issue[];
-};
-
-const TimeEntriesFetcher: Component<TimeEntriesFetcherProps> = (props) => {
+const IssuesFetcher: Component = () => {
   const searchParams = useTimeSheetSearchParams();
 
   const timeEntriesArgs = () => {
@@ -50,19 +46,6 @@ const TimeEntriesFetcher: Component<TimeEntriesFetcherProps> = (props) => {
     queryKey: getTimeEntriesKey(timeEntriesArgs()),
   }));
 
-  return (
-    <Suspense
-      fallback={<TimeEntryGrid issues={props.issues} timeEntries={[]} />}
-    >
-      <TimeSheetContextProvider
-        issues={props.issues}
-        timeEntries={timeEntriesQuery.data?.time_entries || []}
-      />
-    </Suspense>
-  );
-};
-
-const IssuesFetcher: Component = () => {
   const issuesQuery = createQuery(() => ({
     queryFn: (context) => getIssuesServerQuery(context.queryKey),
     queryKey: getIssuesKey({
@@ -74,7 +57,10 @@ const IssuesFetcher: Component = () => {
 
   return (
     <Suspense fallback={<TimeEntryGrid issues={[]} timeEntries={[]} />}>
-      <TimeEntriesFetcher issues={issuesQuery.data?.issues || []} />
+      <TimeSheetContextProvider
+        issues={issuesQuery.data?.issues || []}
+        timeEntries={timeEntriesQuery.data?.time_entries || []}
+      />
     </Suspense>
   );
 };

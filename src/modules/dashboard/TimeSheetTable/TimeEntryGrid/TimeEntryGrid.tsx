@@ -53,16 +53,16 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
   return (
     <GridCell
       ref={setRef}
-      class="z-20 flex items-center justify-between gap-2"
+      class={twCx("z-20 flex items-center justify-between gap-2", {
+        "bg-base-200": isDateToday(),
+      })}
       sticky="top"
     >
       <div class="flex flex-col">
         <span class="text-3xl">
           {formatDay({ date: props.date, locale: locale() })}
         </span>
-        <span class={twCx({ underline: isDateToday() })}>
-          {formatWeekday({ date: props.date, locale: locale() })}
-        </span>
+        <span>{formatWeekday({ date: props.date, locale: locale() })}</span>
       </div>
       <CreateEntryMenu date={props.date} issues={props.issues} />
     </GridCell>
@@ -142,7 +142,7 @@ const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
   return (
     <>
       <Button
-        class="bg-base-100 absolute left-2 top-2/4"
+        class="absolute left-2 top-2/4 bg-base-100"
         onClick={onBackClick}
         size="sm"
         variant="outline"
@@ -150,7 +150,7 @@ const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
         <IoChevronBackSharp />
       </Button>
       <Button
-        class="bg-base-100 absolute right-2 top-2/4"
+        class="absolute right-2 top-2/4 bg-base-100"
         onClick={onForwardClick}
         size="sm"
         variant="outline"
