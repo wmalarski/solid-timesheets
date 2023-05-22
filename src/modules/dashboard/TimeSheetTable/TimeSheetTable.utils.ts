@@ -1,13 +1,13 @@
 import { createContext, createEffect, createMemo, useContext } from "solid-js";
 import { createStore, produce, type SetStoreFunction } from "solid-js/store";
 import { useSearchParams } from "solid-start";
-import { z } from "zod";
 import type {
   CreateTimeEntryArgs,
   UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import {
+  getDateOrNow,
   getDaysInMonth,
   getDaysLeftInMonth,
   getDaysLeftInWeek,
@@ -20,22 +20,12 @@ import {
 } from "~/utils/date";
 import { formatRequestDate } from "~/utils/format";
 
-const paramsSchema = z.object({
-  date: z.coerce.date().optional(),
-});
-
 export const useTimeSheetSearchParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const params = createMemo(() => {
-    const parsed = paramsSchema.safeParse({ date: searchParams.date });
-    return parsed.success
-      ? parsed.data
-      : { date: getFirstDayOfMonth(new Date()) };
-  });
-
   const selectedDate = createMemo(() => {
-    return params().date || getFirstDayOfMonth(new Date());
+    const date = getDateOrNow(searchParams.date);
+    return getFirstDayOfMonth(date);
   });
 
   const setMonth = (date: Date) => {

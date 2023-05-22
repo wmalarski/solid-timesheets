@@ -1,3 +1,9 @@
+export const getDateOrNow = (arg: string) => {
+  const date = new Date(arg);
+  const isInvalid = isNaN(date.getTime());
+  return isInvalid ? new Date() : date;
+};
+
 export const getPreviousMonth = (date: Date) => {
   const copy = new Date(date);
   copy.setUTCMonth(copy.getUTCMonth() - 1);

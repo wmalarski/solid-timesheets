@@ -14,7 +14,7 @@ const getIssuesArgs = z.object({
     .optional(),
 });
 
-export type GetIssuesResult = {
+type GetIssuesResult = {
   issues: Issue[];
   total_count: number;
   offset: number;
@@ -23,10 +23,6 @@ export type GetIssuesResult = {
 
 export const getIssuesKey = (args: z.infer<typeof getIssuesArgs>) => {
   return ["getIssues", args] as const;
-};
-
-export const getAllIssuesKey = () => {
-  return ["getIssues"] as const;
 };
 
 export const getIssuesServerQuery = server$(

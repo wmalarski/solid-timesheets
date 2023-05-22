@@ -6,7 +6,7 @@ import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
 
-export const getTimeEntriesArgs = z.object({
+const getTimeEntriesArgs = z.object({
   from: z.coerce.date().optional(),
   limit: z.coerce.number().optional(),
   offset: z.coerce.number().optional(),
@@ -14,9 +14,9 @@ export const getTimeEntriesArgs = z.object({
   to: z.coerce.date().optional(),
 });
 
-export type GetTimeEntriesArgs = z.infer<typeof getTimeEntriesArgs>;
+type GetTimeEntriesArgs = z.infer<typeof getTimeEntriesArgs>;
 
-export type GetTimeEntriesResult = {
+type GetTimeEntriesResult = {
   time_entries: TimeEntry[];
   total_count: number;
   offset: number;
@@ -59,7 +59,7 @@ export const getTimeEntriesServerQuery = server$(
   }
 );
 
-export const createTimeEntryArgs = z.object({
+const createTimeEntryArgs = z.object({
   activityId: z.coerce.number().optional(),
   comments: z.string().max(255).optional().default(""),
   hours: z.coerce.number(),
@@ -100,7 +100,7 @@ export const createTimeEntryServerMutation = server$(
   }
 );
 
-export const updateTimeEntryArgs = z.intersection(
+const updateTimeEntryArgs = z.intersection(
   createTimeEntryArgs.partial(),
   z.object({ id: z.number() })
 );
@@ -138,12 +138,12 @@ export const updateTimeEntryServerMutation = server$(
   }
 );
 
-export const upsertTimeEntriesArgs = z.object({
+const upsertTimeEntriesArgs = z.object({
   create: z.array(createTimeEntryArgs),
   update: z.array(updateTimeEntryArgs),
 });
 
-export type UpsertTimeEntriesArgs = z.infer<typeof upsertTimeEntriesArgs>;
+type UpsertTimeEntriesArgs = z.infer<typeof upsertTimeEntriesArgs>;
 
 export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
@@ -205,7 +205,7 @@ const deleteTimeEntryArgs = z.object({
   id: z.number(),
 });
 
-export type DeleteTimeEntryArgs = z.infer<typeof deleteTimeEntryArgs>;
+type DeleteTimeEntryArgs = z.infer<typeof deleteTimeEntryArgs>;
 
 export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
