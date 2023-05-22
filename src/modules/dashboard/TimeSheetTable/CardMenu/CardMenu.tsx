@@ -27,10 +27,12 @@ import {
   copyCreatedToEndOfMonth,
   copyCreatedToEndOfWeek,
   copyCreatedToNextDay,
+  copyCreatedToNextWorkingDay,
   copyUpdatedToCurrentDay,
   copyUpdatedToEndOfMonth,
   copyUpdatedToEndOfWeek,
   copyUpdatedToNextDay,
+  copyUpdatedToNextWorkingDay,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
 
@@ -145,6 +147,26 @@ const CopyNextDayItem: Component<CopyNextDayItemProps> = (props) => {
   );
 };
 
+type CopyNextWorkingDayItemProps = {
+  isDisabled: boolean;
+  onClick: () => void;
+};
+
+const CopyNextWorkingDayItem: Component<CopyNextWorkingDayItemProps> = (
+  props
+) => {
+  const [t] = useI18n();
+
+  return (
+    <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
+      <DropdownMenuItemLabel>
+        <IoDuplicateSharp />
+        {t("dashboard.timeEntry.copyNextWorkingDay")}
+      </DropdownMenuItemLabel>
+    </DropdownMenuItem>
+  );
+};
+
 type CopyCurrentDayItemProps = {
   isDisabled: boolean;
   onClick: () => void;
@@ -194,6 +216,10 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
     copyCreatedToEndOfMonth({ id: props.id, key: props.key, setState });
   };
 
+  const onCopyNextWorkingDayClick = () => {
+    copyCreatedToNextWorkingDay({ id: props.id, key: props.key, setState });
+  };
+
   return (
     <DropdownMenuRoot>
       <DropdownMenuTrigger
@@ -215,6 +241,10 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
           <CopyNextDayItem
             isDisabled={props.isDisabled}
             onClick={onCopyNextDayClick}
+          />
+          <CopyNextWorkingDayItem
+            isDisabled={props.isDisabled}
+            onClick={onCopyNextWorkingDayClick}
           />
           <CopyWeekItem
             isDisabled={props.isDisabled}
@@ -258,6 +288,10 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
     copyUpdatedToNextDay({ id: props.id, setState });
   };
 
+  const onCopyNextWorkingDayClick = () => {
+    copyUpdatedToNextWorkingDay({ id: props.id, setState });
+  };
+
   return (
     <DropdownMenuRoot>
       <DropdownMenuTrigger
@@ -279,6 +313,10 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
           <CopyNextDayItem
             isDisabled={props.isDisabled}
             onClick={onCopyNextDayClick}
+          />
+          <CopyNextWorkingDayItem
+            isDisabled={props.isDisabled}
+            onClick={onCopyNextWorkingDayClick}
           />
           <CopyWeekItem
             isDisabled={props.isDisabled}

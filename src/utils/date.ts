@@ -62,6 +62,12 @@ export const getDaysLeftInWeek = (start: Date) => {
   return daysLeftInMonth.slice(0, firstWeekendDay);
 };
 
+export const getFirstWorkingDay = (start: Date) => {
+  const daysLeftInMonth = getDaysLeftInMonth(start);
+  const firstWorkingDay = daysLeftInMonth.find((day) => !isDayOff(day));
+  return firstWorkingDay;
+};
+
 export const isToday = (date: Date) => {
   const today = new Date();
 

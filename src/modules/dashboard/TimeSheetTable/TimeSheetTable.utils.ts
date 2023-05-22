@@ -11,6 +11,7 @@ import {
   getDaysLeftInMonth,
   getDaysLeftInWeek,
   getFirstDayOfMonth,
+  getFirstWorkingDay,
   getNextDay,
   getNextMonth,
   getPreviousMonth,
@@ -324,6 +325,60 @@ export const copyUpdatedToNextDay = ({
         return;
       }
       const date = getNextDay(args.spentOn);
+      const newEntry = copySheetEntry({ ...args, spentOn: date });
+      addSheetEntryToState({ ...newEntry, store });
+    })
+  );
+};
+
+type CopyCreatedToNextWorkingDayArgs = {
+  id: number;
+  key: string;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyCreatedToNextWorkingDay = ({
+  id,
+  key,
+  setState,
+}: CopyCreatedToNextWorkingDayArgs) => {
+  setState(
+    produce((store) => {
+      const entry = store.dateMap[key]?.[id];
+
+      if (!entry) {
+        return;
+      }
+      const date = getFirstWorkingDay(entry.args.spentOn);
+      if (!date) {
+        return;
+      }
+      const newEntry = copySheetEntry({ ...entry.args, spentOn: date });
+      addSheetEntryToState({ ...newEntry, store });
+    })
+  );
+};
+
+type CopyUpdatedToNextWorkingDayArgs = {
+  id: number;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyUpdatedToNextWorkingDay = ({
+  id,
+  setState,
+}: CopyUpdatedToNextWorkingDayArgs) => {
+  setState(
+    produce((store) => {
+      const args = store.timeEntryMap.get(id);
+
+      if (!args) {
+        return;
+      }
+      const date = getFirstWorkingDay(args.spentOn);
+      if (!date) {
+        return;
+      }
       const newEntry = copySheetEntry({ ...args, spentOn: date });
       addSheetEntryToState({ ...newEntry, store });
     })

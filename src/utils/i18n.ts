@@ -15,6 +15,7 @@ const dict = {
         copyCurrentDay: "Copy to the same day",
         copyMonthEnd: "Copy until the end of the month",
         copyNextDay: "Copy to the next day",
+        copyNextWorkingDay: "Copy to the next working day",
         copyWeekEnd: "Copy until the end of the week",
         delete: "Delete",
         hours: {
