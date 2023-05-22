@@ -2,7 +2,7 @@ import server$, { useRequest } from "solid-start/server";
 import { z } from "zod";
 import { formatRequestDate } from "~/utils/format";
 import { buildSearchParams } from "~/utils/searchParams";
-import { fetcher, jsonFetcher } from "./fetcher";
+import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
 
@@ -116,7 +116,7 @@ export const updateTimeEntryServerMutation = server$(
       request: server$.request,
     });
 
-    await fetcher({
+    await jsonRequestFetcher({
       env: server$.env,
       fetch: server$.fetch,
       init: {
@@ -156,7 +156,7 @@ export const upsertTimeEntriesServerMutation = server$(
 
     await Promise.all([
       ...parsed.create.map((entry) =>
-        jsonFetcher<TimeEntry>({
+        jsonRequestFetcher({
           env: server$.env,
           fetch: server$.fetch,
           init: {
@@ -177,7 +177,7 @@ export const upsertTimeEntriesServerMutation = server$(
         })
       ),
       ...parsed.update.map((entry) =>
-        fetcher({
+        jsonRequestFetcher({
           env: server$.env,
           fetch: server$.fetch,
           init: {

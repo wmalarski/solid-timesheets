@@ -41,7 +41,7 @@ export const fetcher = async ({
   return response;
 };
 
-export const jsonFetcher = async <T>(args: FetcherArgs): Promise<T> => {
+export const jsonRequestFetcher = async (args: FetcherArgs) => {
   const response = await fetcher({
     ...args,
     init: {
@@ -52,6 +52,12 @@ export const jsonFetcher = async <T>(args: FetcherArgs): Promise<T> => {
       },
     },
   });
+
+  return response;
+};
+
+export const jsonFetcher = async <T>(args: FetcherArgs): Promise<T> => {
+  const response = await jsonRequestFetcher(args);
 
   return response.json();
 };
