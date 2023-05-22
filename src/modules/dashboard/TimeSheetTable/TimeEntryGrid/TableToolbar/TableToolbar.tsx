@@ -132,7 +132,7 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
       .flatMap((entry) => (entry ? [entry.args] : []));
 
     const update = Object.values(state.updateMap).flatMap((entry) =>
-      entry?.isEditing ? [entry.args] : []
+      entry ? [entry.args] : []
     );
 
     mutation.mutate({ create, update });

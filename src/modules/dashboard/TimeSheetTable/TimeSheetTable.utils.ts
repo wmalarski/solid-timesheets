@@ -88,7 +88,6 @@ export type CreatingEntryData = {
 
 export type UpdatingEntryData = {
   args: UpdateTimeEntryArgs;
-  isEditing: boolean;
 };
 
 export type EntriesStore = {

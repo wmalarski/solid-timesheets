@@ -105,7 +105,7 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
-      setState("updateMap", props.args.id, "isEditing", false);
+      setState("updateMap", props.args.id, undefined);
       showToast({
         description: t("dashboard.toasts.updated"),
         title: t("dashboard.toasts.success"),
@@ -160,10 +160,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   });
 
   const onUpdateClick = () => {
-    setState("updateMap", props.entry.id, {
-      args: defaultArgs(),
-      isEditing: true,
-    });
+    setState("updateMap", props.entry.id, { args: defaultArgs() });
   };
 
   const onResetClick = () => {
@@ -173,7 +170,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   return (
     <Card
       bg="gray-50"
-      color={entry()?.isEditing ? "black" : "disabled"}
+      color={entry() ? "black" : "disabled"}
       size="compact"
       variant="bordered"
     >
@@ -196,32 +193,21 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
           }
         >
           {(entry) => (
-            <Show
-              when={entry().isEditing}
-              fallback={
-                <CardContent
-                  entry={props.entry}
-                  isPending={isPending()}
-                  onUpdateClick={onUpdateClick}
-                />
-              }
-            >
-              <div class="flex flex-col gap-2">
-                <UpdateForm args={entry().args} isPending={isPending()} />
-                <div class="flex justify-end gap-2">
-                  <Button
-                    disabled={isPending()}
-                    onClick={onResetClick}
-                    size="xs"
-                    variant="ghost"
-                  >
-                    <IoReloadSharp />
-                    {t("dashboard.timeEntry.reset")}
-                  </Button>
-                  <SaveButton args={entry().args} isPending={isPending()} />
-                </div>
+            <div class="flex flex-col gap-2">
+              <UpdateForm args={entry().args} isPending={isPending()} />
+              <div class="flex justify-end gap-2">
+                <Button
+                  disabled={isPending()}
+                  onClick={onResetClick}
+                  size="xs"
+                  variant="ghost"
+                >
+                  <IoReloadSharp />
+                  {t("dashboard.timeEntry.reset")}
+                </Button>
+                <SaveButton args={entry().args} isPending={isPending()} />
               </div>
-            </Show>
+            </div>
           )}
         </Show>
       </CardBody>
