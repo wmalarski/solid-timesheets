@@ -309,7 +309,7 @@ export const copyCreatedToCurrentDay = ({
         return;
       }
 
-      const newEntry = copySheetEntry(entry.args);
+      const newEntry = copySheetEntry({ ...entry.args });
       addSheetEntryToState({ ...newEntry, store });
     })
   );

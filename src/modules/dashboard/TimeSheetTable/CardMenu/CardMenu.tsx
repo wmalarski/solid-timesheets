@@ -244,13 +244,13 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
             isDisabled={props.isDisabled}
             onClick={onCopyCurrentDayClick}
           />
-          <CopyMonthItem
-            isDisabled={props.isDisabled}
-            onClick={onCopyMonthClick}
-          />
           <CopyNextDayItem
             isDisabled={props.isDisabled}
             onClick={onCopyNextDayClick}
+          />
+          <CopyMonthItem
+            isDisabled={props.isDisabled}
+            onClick={onCopyMonthClick}
           />
           <DropdownMenuSeparator />
           <DeleteUpdatedItem id={props.id} isDisabled={props.isDisabled} />
