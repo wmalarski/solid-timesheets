@@ -8,6 +8,7 @@ import type {
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import {
+  getDaysInMonth,
   getDaysLeftInMonth,
   getDaysLeftInWeek,
   getFirstDayOfMonth,
@@ -19,24 +20,22 @@ import {
 } from "~/utils/date";
 import { formatRequestDate } from "~/utils/format";
 
-const defaultDate = getFirstDayOfMonth(new Date());
-
 const paramsSchema = z.object({
-  date: z.coerce.date().default(defaultDate),
+  date: z.coerce.date().optional(),
 });
-
-type TimeSheetSearchParams = Required<z.infer<typeof paramsSchema>>;
-
-const defaultParams: TimeSheetSearchParams = {
-  date: defaultDate,
-};
 
 export const useTimeSheetSearchParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const params = createMemo(() => {
     const parsed = paramsSchema.safeParse({ date: searchParams.date });
-    return parsed.success ? parsed.data : defaultParams;
+    return parsed.success
+      ? parsed.data
+      : { date: getFirstDayOfMonth(new Date()) };
+  });
+
+  const selectedDate = createMemo(() => {
+    return params().date || getFirstDayOfMonth(new Date());
   });
 
   const setMonth = (date: Date) => {
@@ -44,27 +43,28 @@ export const useTimeSheetSearchParams = () => {
   };
 
   const setPreviousMonth = () => {
-    setMonth(getPreviousMonth(params().date || defaultDate));
+    setMonth(getPreviousMonth(selectedDate()));
   };
 
   const setNextMonth = () => {
-    setMonth(getNextMonth(params().date || defaultDate));
+    setMonth(getNextMonth(selectedDate()));
   };
 
+  const days = createMemo(() => getDaysInMonth(selectedDate()));
+
   return {
-    params,
+    days,
+    selectedDate,
     setNextMonth,
     setPreviousMonth,
   };
 };
 
-type TimeSheetConfigValue = ReturnType<typeof useTimeSheetSearchParams> & {
-  days: () => Date[];
-};
+type TimeSheetConfigValue = ReturnType<typeof useTimeSheetSearchParams>;
 
 export const TimeSheetConfig = createContext<TimeSheetConfigValue>({
   days: () => [],
-  params: () => defaultParams,
+  selectedDate: () => getFirstDayOfMonth(new Date()),
   setNextMonth: () => void 0,
   setPreviousMonth: () => void 0,
 });

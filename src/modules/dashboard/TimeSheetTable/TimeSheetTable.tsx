@@ -1,12 +1,12 @@
 import { createQuery } from "@tanstack/solid-query";
-import { Suspense, createMemo, type Component } from "solid-js";
+import { Suspense, type Component } from "solid-js";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
 } from "~/server/timeEntries";
 import type { Issue, TimeEntry } from "~/server/types";
-import { getDaysInMonth, getNextMonth } from "~/utils/date";
+import { getNextMonth } from "~/utils/date";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import {
   TimeSheetConfig,
@@ -33,10 +33,10 @@ const TimeSheetContextProvider: Component<TimeSheetContextProviderProps> = (
 };
 
 const IssuesFetcher: Component = () => {
-  const searchParams = useTimeSheetSearchParams();
+  const { selectedDate } = useTimeSheetSearchParams();
 
   const timeEntriesArgs = () => {
-    const from = searchParams.params().date;
+    const from = selectedDate();
     const to = getNextMonth(from);
     return { from, limit: 100, to };
   };
@@ -68,10 +68,8 @@ const IssuesFetcher: Component = () => {
 export const TimeSheetTable: Component = () => {
   const searchParams = useTimeSheetSearchParams();
 
-  const days = createMemo(() => getDaysInMonth(searchParams.params().date));
-
   return (
-    <TimeSheetConfig.Provider value={{ days, ...searchParams }}>
+    <TimeSheetConfig.Provider value={searchParams}>
       <IssuesFetcher />
     </TimeSheetConfig.Provider>
   );

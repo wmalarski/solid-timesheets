@@ -33,13 +33,13 @@ type MonthSelectProps = {
 const MonthSelect: Component<MonthSelectProps> = (props) => {
   const [, { locale }] = useI18n();
 
-  const { params, setNextMonth, setPreviousMonth } = useTimeSheetConfig();
+  const { selectedDate, setNextMonth, setPreviousMonth } = useTimeSheetConfig();
 
   const date = createMemo(() => {
     return Intl.DateTimeFormat(locale(), {
       month: "long",
       year: "numeric",
-    }).format(params().date);
+    }).format(selectedDate());
   });
 
   return (
@@ -160,11 +160,11 @@ type DownloadButtonProps = {
 const DownloadButton: Component<DownloadButtonProps> = (props) => {
   const [t] = useI18n();
 
-  const { params } = useTimeSheetConfig();
+  const { selectedDate } = useTimeSheetConfig();
   const config = useDashboardConfig();
 
   const onSaveClick = () => {
-    const date = params().date;
+    const date = selectedDate();
     const configData = config();
 
     const href = workTimeHref({
