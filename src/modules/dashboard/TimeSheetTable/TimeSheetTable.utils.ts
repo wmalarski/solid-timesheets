@@ -9,6 +9,7 @@ import type {
 import type { TimeEntry } from "~/server/types";
 import {
   getDaysLeftInMonth,
+  getDaysLeftInWeek,
   getFirstDayOfMonth,
   getNextDay,
   getNextMonth,
@@ -159,6 +160,12 @@ export const createSheetEntriesToMonthEnd = (args: CreateTimeEntryArgs) => {
     .map((date) => copySheetEntry({ ...args, spentOn: date }));
 };
 
+export const createSheetEntriesToWeekEnd = (args: CreateTimeEntryArgs) => {
+  return getDaysLeftInWeek(args.spentOn)
+    .filter((date) => !isDayOff(date))
+    .map((date) => copySheetEntry({ ...args, spentOn: date }));
+};
+
 type AddSheetEntryToStateArgs = ReturnType<typeof copySheetEntry> & {
   store: EntriesStore;
 };
@@ -218,6 +225,56 @@ export const copyUpdatedToEndOfMonth = ({
       }
 
       createSheetEntriesToMonthEnd(args).forEach((entry) =>
+        addSheetEntryToState({ ...entry, store })
+      );
+    })
+  );
+};
+
+type CopyCreatedToEndOfWeekArgs = {
+  id: number;
+  key: string;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyCreatedToEndOfWeek = ({
+  id,
+  key,
+  setState,
+}: CopyCreatedToEndOfWeekArgs) => {
+  setState(
+    produce((store) => {
+      const entry = store.dateMap[key]?.[id];
+
+      if (!entry) {
+        return;
+      }
+
+      createSheetEntriesToWeekEnd(entry.args).forEach((entry) =>
+        addSheetEntryToState({ ...entry, store })
+      );
+    })
+  );
+};
+
+type CopyUpdatedToEndOfWeekArgs = {
+  id: number;
+  setState: SetStoreFunction<EntriesStore>;
+};
+
+export const copyUpdatedToEndOfWeek = ({
+  id,
+  setState,
+}: CopyUpdatedToEndOfWeekArgs) => {
+  setState(
+    produce((store) => {
+      const args = store.timeEntryMap.get(id);
+
+      if (!args) {
+        return;
+      }
+
+      createSheetEntriesToWeekEnd(args).forEach((entry) =>
         addSheetEntryToState({ ...entry, store })
       );
     })

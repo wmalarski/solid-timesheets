@@ -25,9 +25,11 @@ import {
 import {
   copyCreatedToCurrentDay,
   copyCreatedToEndOfMonth,
+  copyCreatedToEndOfWeek,
   copyCreatedToNextDay,
   copyUpdatedToCurrentDay,
   copyUpdatedToEndOfMonth,
+  copyUpdatedToEndOfWeek,
   copyUpdatedToNextDay,
   useTimeSheetContext,
 } from "../TimeSheetTable.utils";
@@ -87,6 +89,24 @@ const DeleteUpdatedItem: Component<DeleteUpdatedItemProps> = (props) => {
   };
 
   return <DeleteItem isDisabled={props.isDisabled} onClick={onClick} />;
+};
+
+type CopyWeekItemProps = {
+  isDisabled: boolean;
+  onClick: () => void;
+};
+
+const CopyWeekItem: Component<CopyWeekItemProps> = (props) => {
+  const [t] = useI18n();
+
+  return (
+    <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
+      <DropdownMenuItemLabel>
+        <IoDuplicateSharp />
+        {t("dashboard.timeEntry.copyWeekEnd")}
+      </DropdownMenuItemLabel>
+    </DropdownMenuItem>
+  );
 };
 
 type CopyMonthItemProps = {
@@ -162,12 +182,16 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
     copyCreatedToCurrentDay({ id: props.id, key: props.key, setState });
   };
 
-  const onCopyMonthClick = () => {
-    copyCreatedToEndOfMonth({ id: props.id, key: props.key, setState });
-  };
-
   const onCopyNextDayClick = () => {
     copyCreatedToNextDay({ id: props.id, key: props.key, setState });
+  };
+
+  const onCopyWeekClick = () => {
+    copyCreatedToEndOfWeek({ id: props.id, key: props.key, setState });
+  };
+
+  const onCopyMonthClick = () => {
+    copyCreatedToEndOfMonth({ id: props.id, key: props.key, setState });
   };
 
   return (
@@ -191,6 +215,10 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
           <CopyNextDayItem
             isDisabled={props.isDisabled}
             onClick={onCopyNextDayClick}
+          />
+          <CopyWeekItem
+            isDisabled={props.isDisabled}
+            onClick={onCopyWeekClick}
           />
           <CopyMonthItem
             isDisabled={props.isDisabled}
@@ -216,6 +244,10 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
 
   const onCopyCurrentDayClick = () => {
     copyUpdatedToCurrentDay({ id: props.id, setState });
+  };
+
+  const onCopyWeekClick = () => {
+    copyUpdatedToEndOfWeek({ id: props.id, setState });
   };
 
   const onCopyMonthClick = () => {
@@ -247,6 +279,10 @@ export const UpdatedCardMenu: Component<Props> = (props) => {
           <CopyNextDayItem
             isDisabled={props.isDisabled}
             onClick={onCopyNextDayClick}
+          />
+          <CopyWeekItem
+            isDisabled={props.isDisabled}
+            onClick={onCopyWeekClick}
           />
           <CopyMonthItem
             isDisabled={props.isDisabled}

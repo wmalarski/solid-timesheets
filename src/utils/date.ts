@@ -56,6 +56,12 @@ export const isDayOff = (date: Date) => {
   return daysOffUTC.includes(day);
 };
 
+export const getDaysLeftInWeek = (start: Date) => {
+  const daysLeftInMonth = getDaysLeftInMonth(start);
+  const firstWeekendDay = daysLeftInMonth.findIndex(isDayOff);
+  return daysLeftInMonth.slice(0, firstWeekendDay);
+};
+
 export const isToday = (date: Date) => {
   const today = new Date();
 
