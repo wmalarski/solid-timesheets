@@ -4,14 +4,16 @@ import { paths } from "~/utils/paths";
 import { destroySessionCookie, setSessionCookie } from "./session";
 import { zodFormParse } from "./utils";
 
-const signInArgsSchema = z.object({
-  token: z.string(),
-});
+const signInArgsSchema = () => {
+  return z.object({
+    token: z.string(),
+  });
+};
 
 export const createSignInServerAction = () => {
   return createServerAction$(
     async (form: FormData, { env, fetch, request }) => {
-      const parsed = await zodFormParse({ form, schema: signInArgsSchema });
+      const parsed = await zodFormParse({ form, schema: signInArgsSchema() });
 
       const cookie = await setSessionCookie({
         env,

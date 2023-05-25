@@ -6,15 +6,17 @@ import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
 
-const getTimeEntriesArgs = z.object({
-  from: z.coerce.date().optional(),
-  limit: z.coerce.number().optional(),
-  offset: z.coerce.number().optional(),
-  projectId: z.coerce.number().optional(),
-  to: z.coerce.date().optional(),
-});
+const getTimeEntriesArgsSchema = () => {
+  return z.object({
+    from: z.coerce.date().optional(),
+    limit: z.coerce.number().optional(),
+    offset: z.coerce.number().optional(),
+    projectId: z.coerce.number().optional(),
+    to: z.coerce.date().optional(),
+  });
+};
 
-type GetTimeEntriesArgs = z.infer<typeof getTimeEntriesArgs>;
+type GetTimeEntriesArgs = z.infer<ReturnType<typeof getTimeEntriesArgsSchema>>;
 
 type GetTimeEntriesResult = {
   time_entries: TimeEntry[];
@@ -33,7 +35,7 @@ export const getAllTimeEntriesKey = () => {
 
 export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
-    const parsed = getTimeEntriesArgs.parse(args);
+    const parsed = getTimeEntriesArgsSchema().parse(args);
 
     const event = useRequest();
     const fetch = server$.fetch || event.fetch;
@@ -59,19 +61,23 @@ export const getTimeEntriesServerQuery = server$(
   }
 );
 
-const createTimeEntryArgs = z.object({
-  activityId: z.coerce.number().optional(),
-  comments: z.string().max(255).optional().default(""),
-  hours: z.coerce.number(),
-  issueId: z.coerce.number(),
-  spentOn: z.coerce.date(),
-});
+const createTimeEntryArgsSchema = () => {
+  return z.object({
+    activityId: z.coerce.number().optional(),
+    comments: z.string().max(255).optional().default(""),
+    hours: z.coerce.number(),
+    issueId: z.coerce.number(),
+    spentOn: z.coerce.date(),
+  });
+};
 
-export type CreateTimeEntryArgs = z.infer<typeof createTimeEntryArgs>;
+export type CreateTimeEntryArgs = z.infer<
+  ReturnType<typeof createTimeEntryArgsSchema>
+>;
 
 export const createTimeEntryServerMutation = server$(
   async (args: CreateTimeEntryArgs) => {
-    const parsed = createTimeEntryArgs.parse(args);
+    const parsed = createTimeEntryArgsSchema().parse(args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -100,16 +106,20 @@ export const createTimeEntryServerMutation = server$(
   }
 );
 
-const updateTimeEntryArgs = z.intersection(
-  createTimeEntryArgs.partial(),
-  z.object({ id: z.number() })
-);
+const updateTimeEntryArgsSchema = () => {
+  return z.intersection(
+    createTimeEntryArgsSchema().partial(),
+    z.object({ id: z.number() })
+  );
+};
 
-export type UpdateTimeEntryArgs = z.infer<typeof updateTimeEntryArgs>;
+export type UpdateTimeEntryArgs = z.infer<
+  ReturnType<typeof updateTimeEntryArgsSchema>
+>;
 
 export const updateTimeEntryServerMutation = server$(
   async (args: UpdateTimeEntryArgs) => {
-    const parsed = updateTimeEntryArgs.parse(args);
+    const parsed = updateTimeEntryArgsSchema().parse(args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -138,16 +148,20 @@ export const updateTimeEntryServerMutation = server$(
   }
 );
 
-const upsertTimeEntriesArgs = z.object({
-  create: z.array(createTimeEntryArgs),
-  update: z.array(updateTimeEntryArgs),
-});
+const upsertTimeEntriesArgsSchema = () => {
+  return z.object({
+    create: z.array(createTimeEntryArgsSchema()),
+    update: z.array(updateTimeEntryArgsSchema()),
+  });
+};
 
-type UpsertTimeEntriesArgs = z.infer<typeof upsertTimeEntriesArgs>;
+type UpsertTimeEntriesArgs = z.infer<
+  ReturnType<typeof upsertTimeEntriesArgsSchema>
+>;
 
 export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
-    const parsed = upsertTimeEntriesArgs.parse(args);
+    const parsed = upsertTimeEntriesArgsSchema().parse(args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -201,15 +215,19 @@ export const upsertTimeEntriesServerMutation = server$(
   }
 );
 
-const deleteTimeEntryArgs = z.object({
-  id: z.number(),
-});
+const deleteTimeEntryArgsSchema = () => {
+  return z.object({
+    id: z.number(),
+  });
+};
 
-type DeleteTimeEntryArgs = z.infer<typeof deleteTimeEntryArgs>;
+type DeleteTimeEntryArgs = z.infer<
+  ReturnType<typeof deleteTimeEntryArgsSchema>
+>;
 
 export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
-    const parsed = deleteTimeEntryArgs.parse(args);
+    const parsed = deleteTimeEntryArgsSchema().parse(args);
 
     const session = await getSessionOrThrow({
       env: server$.env,

@@ -21,13 +21,15 @@ const fullNameKey = "fullName";
 const idKey = "id";
 const tokenKey = "token";
 
-const sessionSchema = z.object({
-  [fullNameKey]: z.string(),
-  [idKey]: z.coerce.number(),
-  [tokenKey]: z.string(),
-});
+const sessionSchema = () => {
+  return z.object({
+    [fullNameKey]: z.string(),
+    [idKey]: z.coerce.number(),
+    [tokenKey]: z.string(),
+  });
+};
 
-export type Session = z.infer<typeof sessionSchema>;
+export type Session = z.infer<ReturnType<typeof sessionSchema>>;
 
 type GetSessionArgs = {
   env: Env;
@@ -42,7 +44,7 @@ const getSessionFromCookie = async ({
 
   const session = await storage.getSession(request.headers.get("Cookie"));
 
-  const parsed = sessionSchema.safeParse({
+  const parsed = sessionSchema().safeParse({
     [fullNameKey]: session.get(fullNameKey),
     [idKey]: session.get(idKey),
     [tokenKey]: session.get(tokenKey),
