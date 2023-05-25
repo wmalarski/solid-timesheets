@@ -3,7 +3,7 @@ import { getCookies, setCookie } from "~/utils/cookies";
 
 export const themeCookieName = "theme-preference";
 
-export type AppTheme = "cyberpunk-light" | "cyberpunk-dark" | undefined;
+export type AppTheme = "cyberpunk-light" | "cyberpunk-dark";
 
 const types = ["cyberpunk-light", "cyberpunk-dark"];
 
@@ -11,6 +11,7 @@ const sanitizeValue = (initial: unknown) => {
   if (typeof initial === "string" && types.includes(initial)) {
     return initial as AppTheme;
   }
+  return "cyberpunk-light";
 };
 
 export const createThemeValue = () => {
@@ -30,7 +31,7 @@ type ThemeContextValue = ReturnType<typeof createThemeValue>;
 
 export const ThemeContext = createContext<ThemeContextValue>({
   setTheme: () => void 0,
-  theme: () => void 0,
+  theme: () => "cyberpunk-light" as const,
 });
 
 export const useThemeContext = () => {
