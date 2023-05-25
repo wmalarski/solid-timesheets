@@ -11,6 +11,7 @@ import {
   Routes,
   Scripts,
 } from "solid-start";
+import { ThemeContext, createThemeValue } from "./contexts/ThemeContext";
 import { Head } from "./modules/common/Head";
 import "./root.css";
 import { i18n } from "./utils/i18n";
@@ -18,25 +19,29 @@ import { i18n } from "./utils/i18n";
 export default function Root() {
   const [queryClient] = createSignal(new QueryClient());
 
+  const themeValue = createThemeValue();
+
   return (
-    <I18nContext.Provider value={i18n}>
-      <I18nProvider locale="en">
-        <Html lang="en" data-theme="cyberpunk-light">
-          <Head />
-          <Body>
-            <Suspense>
-              <ErrorBoundary>
-                <QueryClientProvider client={queryClient()}>
-                  <Routes>
-                    <FileRoutes />
-                  </Routes>
-                </QueryClientProvider>
-              </ErrorBoundary>
-            </Suspense>
-            <Scripts />
-          </Body>
-        </Html>
-      </I18nProvider>
-    </I18nContext.Provider>
+    <ThemeContext.Provider value={themeValue}>
+      <I18nContext.Provider value={i18n}>
+        <I18nProvider locale="en">
+          <Html lang="en" data-theme={themeValue.theme()}>
+            <Head />
+            <Body>
+              <Suspense>
+                <ErrorBoundary>
+                  <QueryClientProvider client={queryClient()}>
+                    <Routes>
+                      <FileRoutes />
+                    </Routes>
+                  </QueryClientProvider>
+                </ErrorBoundary>
+              </Suspense>
+              <Scripts />
+            </Body>
+          </Html>
+        </I18nProvider>
+      </I18nContext.Provider>
+    </ThemeContext.Provider>
   );
 }

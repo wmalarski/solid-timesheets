@@ -56,6 +56,10 @@ const dict = {
     signOut: {
       button: "Sign Out",
     },
+    theme: {
+      setDark: "Set dark theme",
+      setLight: "Set light theme",
+    },
   },
 };
 

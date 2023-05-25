@@ -1,10 +1,60 @@
 import { useI18n } from "@solid-primitives/i18n";
-import { IoTimerSharp } from "solid-icons/io";
-import { type Component } from "solid-js";
-import { LinkButton } from "~/components/Button";
+import {
+  IoLogOutSharp,
+  IoMoonOutline,
+  IoSunnySharp,
+  IoTimerSharp,
+} from "solid-icons/io";
+import { createMemo, type Component } from "solid-js";
+import { Button, LinkButton } from "~/components/Button";
+import { useThemeContext } from "~/contexts/ThemeContext";
+import { createSignOutServerAction } from "~/server/auth";
 import { paths } from "~/utils/paths";
 import { useDashboardConfig } from "../DashboardConfig";
-import { SignOut } from "./SignOut";
+
+const ThemeSwitch: Component = () => {
+  const [t] = useI18n();
+
+  const { setTheme, theme } = useThemeContext();
+
+  const isLight = createMemo(() => {
+    return theme() === "cyberpunk-light";
+  });
+
+  const onClick = () => {
+    setTheme(isLight() ? "cyberpunk-dark" : "cyberpunk-light");
+  };
+
+  return (
+    // eslint-disable-next-line tailwindcss/classnames-order
+    <label class="swap swap-rotate">
+      <input type="checkbox" onChange={onClick} checked={isLight()} />
+      <IoSunnySharp class="swap-on h-6 w-6" aria-label={t("theme.setLight")} />
+      <IoMoonOutline class="swap-off h-6 w-6" aria-label={t("theme.setDark")} />
+    </label>
+  );
+};
+
+const SignOut: Component = () => {
+  const [t] = useI18n();
+
+  const [signOut, { Form }] = createSignOutServerAction();
+
+  return (
+    <Form>
+      <Button
+        disabled={signOut.pending}
+        isLoading={signOut.pending}
+        size="sm"
+        type="submit"
+        variant="outline"
+      >
+        <IoLogOutSharp />
+        {t("signOut.button")}
+      </Button>
+    </Form>
+  );
+};
 
 export const TopBar: Component = () => {
   const [t] = useI18n();
@@ -27,6 +77,7 @@ export const TopBar: Component = () => {
         <span class="hidden text-xs sm:block md:text-sm">
           {config().fullName}
         </span>
+        <ThemeSwitch />
         <SignOut />
       </div>
     </header>
