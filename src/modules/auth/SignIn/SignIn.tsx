@@ -10,6 +10,7 @@ import {
   TextFieldLabelText,
   TextFieldRoot,
 } from "~/components/TextField";
+import { ThemeSwitch } from "~/components/ThemeSwitch";
 import { createSignInServerAction } from "~/server/auth";
 
 export const SignIn: Component = () => {
@@ -20,7 +21,10 @@ export const SignIn: Component = () => {
   return (
     <Card variant="bordered" class="w-full max-w-md">
       <CardBody>
-        <h2 class={cardTitleClass()}>{t("signIn.title")}</h2>
+        <header class="flex items-center justify-between gap-2">
+          <h2 class={cardTitleClass()}>{t("signIn.title")}</h2>
+          <ThemeSwitch />
+        </header>
         <Form class="flex flex-col gap-4">
           <Show when={signOut.error}>
             {(error) => (

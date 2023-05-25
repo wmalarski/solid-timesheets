@@ -1,39 +1,11 @@
 import { useI18n } from "@solid-primitives/i18n";
-import {
-  IoLogOutSharp,
-  IoMoonOutline,
-  IoSunnySharp,
-  IoTimerSharp,
-} from "solid-icons/io";
-import { createMemo, type Component } from "solid-js";
+import { IoLogOutSharp, IoTimerSharp } from "solid-icons/io";
+import { type Component } from "solid-js";
 import { Button, LinkButton } from "~/components/Button";
-import { useThemeContext } from "~/contexts/ThemeContext";
+import { ThemeSwitch } from "~/components/ThemeSwitch";
 import { createSignOutServerAction } from "~/server/auth";
 import { paths } from "~/utils/paths";
 import { useDashboardConfig } from "../DashboardConfig";
-
-const ThemeSwitch: Component = () => {
-  const [t] = useI18n();
-
-  const { setTheme, theme } = useThemeContext();
-
-  const isLight = createMemo(() => {
-    return theme() === "cyberpunk-light";
-  });
-
-  const onClick = () => {
-    setTheme(isLight() ? "cyberpunk-dark" : "cyberpunk-light");
-  };
-
-  return (
-    // eslint-disable-next-line tailwindcss/classnames-order
-    <label class="swap swap-rotate">
-      <input type="checkbox" onChange={onClick} checked={isLight()} />
-      <IoSunnySharp class="swap-on h-6 w-6" aria-label={t("theme.setLight")} />
-      <IoMoonOutline class="swap-off h-6 w-6" aria-label={t("theme.setDark")} />
-    </label>
-  );
-};
 
 const SignOut: Component = () => {
   const [t] = useI18n();

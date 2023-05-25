@@ -25,7 +25,7 @@ module.exports = {
           "color-scheme": "dark",
           neutral: "#e7e5e4",
           "neutral-content": "#191D24",
-          "neutral-focus": "#111318",
+          "neutral-focus": "#f8f8f8",
         },
       },
     ],
