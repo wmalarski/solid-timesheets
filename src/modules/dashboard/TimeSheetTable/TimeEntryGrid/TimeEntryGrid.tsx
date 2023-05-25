@@ -45,7 +45,7 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
 
   createEffect(() => {
     if (isDateToday()) {
-      ref()?.scrollIntoView({ block: "center" });
+      ref()?.scrollIntoView({ inline: "start" });
     }
   });
 
