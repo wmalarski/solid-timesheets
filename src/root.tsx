@@ -21,7 +21,7 @@ export default function Root() {
   return (
     <I18nContext.Provider value={i18n}>
       <I18nProvider locale="en">
-        <Html lang="en" data-theme="cyberpunk">
+        <Html lang="en" data-theme="cyberpunk-light">
           <Head />
           <Body>
             <Suspense>

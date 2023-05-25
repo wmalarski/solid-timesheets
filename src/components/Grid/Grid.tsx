@@ -2,7 +2,7 @@ import type { VariantProps } from "class-variance-authority";
 import { splitProps, type Component, type JSX } from "solid-js";
 import { twCva } from "~/components/utils/twCva";
 
-export const gridCellClass = twCva("border-gray-300 p-2", {
+export const gridCellClass = twCva("border-base-300 p-2", {
   defaultVariants: {
     bg: null,
     borders: null,
@@ -12,7 +12,6 @@ export const gridCellClass = twCva("border-gray-300 p-2", {
     bg: {
       "base-100": "bg-base-100",
       "base-200": "bg-base-200",
-      "gray-50": "bg-base-100",
     },
     borders: {
       bottom: "border-b-[1px]",

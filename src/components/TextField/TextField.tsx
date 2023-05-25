@@ -41,7 +41,9 @@ export type TextFieldErrorMessageProps = JSX.IntrinsicElements["span"];
 export const TextFieldErrorMessage: Component<TextFieldErrorMessageProps> = (
   props
 ) => {
-  return <span {...props} class={twCx("text-sm text-red-400", props.class)} />;
+  return (
+    <span {...props} class={twCx("text-sm text-error-content", props.class)} />
+  );
 };
 
 export const textFieldInputClass = twCva("input", {

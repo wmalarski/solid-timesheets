@@ -216,7 +216,7 @@ export const TableToolbar: Component = () => {
   });
 
   return (
-    <div class="flex items-center justify-between gap-2 border-b-[1px] border-gray-300 p-2">
+    <div class="flex items-center justify-between gap-2 border-b-[1px] border-base-300 p-2">
       <MonthSelect isDisabled={isDisabled()} />
       <div class="flex gap-1">
         <ResetButton

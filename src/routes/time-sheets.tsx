@@ -42,7 +42,7 @@ export default function TimeSheets() {
     <Show when={data()}>
       {(result) => (
         <DashboardConfigContext.Provider value={result}>
-          <main class="mx-auto flex h-screen flex-col text-gray-700">
+          <main class="mx-auto flex h-screen flex-col">
             <TopBar />
             <Suspense>
               <TimeSheetTable />

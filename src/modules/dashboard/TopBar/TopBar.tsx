@@ -12,7 +12,7 @@ export const TopBar: Component = () => {
   const config = useDashboardConfig();
 
   return (
-    <header class="flex justify-between border-b-[1px] border-gray-300 p-2">
+    <header class="flex justify-between border-b-[1px] border-base-300 p-2">
       <nav>
         <LinkButton
           class="text-xl sm:text-2xl md:text-4xl"

@@ -46,7 +46,7 @@ export default function Home() {
   useRouteData<typeof routeData>();
 
   return (
-    <main class="mx-auto flex flex-col items-center p-4 text-gray-700">
+    <main class="mx-auto flex flex-col items-center p-4">
       <Title />
       <SignIn />
       <Footer />
