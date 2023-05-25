@@ -1,13 +1,25 @@
 import { createContext, createSignal, useContext } from "solid-js";
+import { getCookies, setCookie } from "~/utils/cookies";
+
+export const themeCookieName = "theme-preference";
 
 export type AppTheme = "cyberpunk-light" | "cyberpunk-dark" | undefined;
 
+const types = ["cyberpunk-light", "cyberpunk-dark"];
+
+const sanitizeValue = (initial: unknown) => {
+  if (typeof initial === "string" && types.includes(initial)) {
+    return initial as AppTheme;
+  }
+};
+
 export const createThemeValue = () => {
-  // TODO read user preference
-  const [theme, setTheme] = createSignal<AppTheme>("cyberpunk-light");
+  const initialTheme = sanitizeValue(getCookies()[themeCookieName]);
+
+  const [theme, setTheme] = createSignal<AppTheme>(initialTheme);
 
   const updateTheme = (theme: AppTheme) => {
-    // TODO save to cookie
+    setCookie({ name: themeCookieName, value: theme });
     setTheme(theme);
   };
 

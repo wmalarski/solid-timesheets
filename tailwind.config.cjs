@@ -30,6 +30,7 @@ module.exports = {
       },
     ],
   },
+  darkMode: "class",
   plugins: [require("@kobalte/tailwindcss"), require("daisyui")],
   theme: {
     extend: {
