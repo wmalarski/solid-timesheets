@@ -30,7 +30,7 @@ import {
   copyToNextDay,
   copyToNextWorkingDay,
   useTimeSheetContext,
-} from "../TimeSheetTable.utils";
+} from "../EntriesStore";
 
 type DeleteItemProps = {
   isDisabled: boolean;

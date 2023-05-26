@@ -13,10 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
 import type { Issue } from "~/server/types";
-import {
-  createSheetEntryArgs,
-  useTimeSheetContext,
-} from "../../TimeSheetTable.utils";
+import { createSheetEntryArgs, useTimeSheetContext } from "../../EntriesStore";
 
 type Props = {
   issues: Issue[];

@@ -20,11 +20,9 @@ import {
   upsertTimeEntriesServerMutation,
   workTimeHref,
 } from "~/server/timeEntries";
-import {
-  resetSheetEntries,
-  useTimeSheetConfig,
-  useTimeSheetContext,
-} from "../../TimeSheetTable.utils";
+import { getNextMonth, getPreviousMonth } from "~/utils/date";
+import { resetSheetEntries, useTimeSheetContext } from "../../EntriesStore";
+import { useTimeSheetSearchParams } from "../../TimeSheetTable.utils";
 
 type MonthSelectProps = {
   isDisabled: boolean;
@@ -33,7 +31,15 @@ type MonthSelectProps = {
 const MonthSelect: Component<MonthSelectProps> = (props) => {
   const [, { locale }] = useI18n();
 
-  const { selectedDate, setNextMonth, setPreviousMonth } = useTimeSheetConfig();
+  const { selectedDate, setMonth } = useTimeSheetSearchParams();
+
+  const setPreviousMonth = () => {
+    setMonth(getPreviousMonth(selectedDate()));
+  };
+
+  const setNextMonth = () => {
+    setMonth(getNextMonth(selectedDate()));
+  };
 
   const date = createMemo(() => {
     return Intl.DateTimeFormat(locale(), {
@@ -160,7 +166,7 @@ type DownloadButtonProps = {
 const DownloadButton: Component<DownloadButtonProps> = (props) => {
   const [t] = useI18n();
 
-  const { selectedDate } = useTimeSheetConfig();
+  const { selectedDate } = useTimeSheetSearchParams();
   const config = useDashboardConfig();
 
   const onSaveClick = () => {

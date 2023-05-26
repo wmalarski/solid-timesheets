@@ -10,14 +10,11 @@ import {
 import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
 import type { Issue, TimeEntry } from "~/server/types";
-import { isToday } from "~/utils/date";
+import { getDaysInMonth, isToday } from "~/utils/date";
 import { formatDay, formatRequestDate, formatWeekday } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
-import {
-  sheetEntryMapKey,
-  useTimeSheetConfig,
-  useTimeSheetContext,
-} from "../TimeSheetTable.utils";
+import { sheetEntryMapKey, useTimeSheetContext } from "../EntriesStore";
+import { useTimeSheetSearchParams } from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
 import { CreateEntryMenu } from "./CreateEntryMenu";
 import { TableToolbar } from "./TableToolbar";
@@ -69,15 +66,14 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
 };
 
 type HeaderProps = {
+  days: Date[];
   issues: Issue[];
 };
 
 const Header: Component<HeaderProps> = (props) => {
-  const { days } = useTimeSheetConfig();
-
   return (
     <>
-      <For each={days()}>
+      <For each={props.days}>
         {(date) => <HeaderCell date={date} issues={props.issues} />}
       </For>
       <GridCell bg="base-100" borders="bottom" sticky="top" />
@@ -161,12 +157,11 @@ const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
 };
 
 type FooterProps = {
+  days: Date[];
   timeEntries: TimeEntry[];
 };
 
 const Footer: Component<FooterProps> = (props) => {
-  const { days } = useTimeSheetConfig();
-
   const timeEntryDayHoursGroups = createMemo(() => {
     return sumTimeEntriesHoursByDay(props.timeEntries);
   });
@@ -177,7 +172,7 @@ const Footer: Component<FooterProps> = (props) => {
 
   return (
     <>
-      <For each={days()}>
+      <For each={props.days}>
         {(date) => (
           <GridCell
             bg="base-100"
@@ -220,7 +215,8 @@ export const TimeEntryGrid: Component<Props> = (props) => {
     })
   );
 
-  const { days } = useTimeSheetConfig();
+  const { selectedDate } = useTimeSheetSearchParams();
+  const days = createMemo(() => getDaysInMonth(selectedDate()));
 
   return (
     <div class="relative flex grow flex-col" ref={setParent}>
@@ -234,7 +230,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
           "max-height": "calc(100vh - 114px)",
         }}
       >
-        <Header issues={props.issues} />
+        <Header days={days()} issues={props.issues} />
         <For each={days()}>
           {(day) => (
             <Cell
@@ -245,7 +241,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
           )}
         </For>
         <GridCell bg="base-100" />
-        <Footer timeEntries={props.timeEntries} />
+        <Footer days={days()} timeEntries={props.timeEntries} />
       </div>
       <ScrollButtons parent={parent()} />
     </div>

@@ -7,13 +7,9 @@ import {
 } from "~/server/timeEntries";
 import type { Issue, TimeEntry } from "~/server/types";
 import { getNextMonth } from "~/utils/date";
+import { TimeSheetContext, useCreatedTimeSeries } from "./EntriesStore";
 import { TimeEntryGrid } from "./TimeEntryGrid";
-import {
-  TimeSheetConfig,
-  TimeSheetContext,
-  useCreatedTimeSeries,
-  useTimeSheetSearchParams,
-} from "./TimeSheetTable.utils";
+import { useTimeSheetSearchParams } from "./TimeSheetTable.utils";
 
 type TimeSheetContextProviderProps = {
   issues: Issue[];
@@ -32,7 +28,7 @@ const TimeSheetContextProvider: Component<TimeSheetContextProviderProps> = (
   );
 };
 
-const IssuesFetcher: Component = () => {
+export const TimeSheetTable: Component = () => {
   const { selectedDate } = useTimeSheetSearchParams();
 
   const timeEntriesArgs = () => {
@@ -62,15 +58,5 @@ const IssuesFetcher: Component = () => {
         timeEntries={timeEntriesQuery.data?.time_entries || []}
       />
     </Suspense>
-  );
-};
-
-export const TimeSheetTable: Component = () => {
-  const searchParams = useTimeSheetSearchParams();
-
-  return (
-    <TimeSheetConfig.Provider value={searchParams}>
-      <IssuesFetcher />
-    </TimeSheetConfig.Provider>
   );
 };

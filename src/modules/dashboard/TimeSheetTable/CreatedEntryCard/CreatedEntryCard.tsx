@@ -16,12 +16,12 @@ import {
 import type { Issue } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { CreatedCardMenu } from "../CardMenu";
-import { TimeEntryFields } from "../TimeEntryFields";
 import {
   sheetEntryMapKey,
   useTimeSheetContext,
   type CreatingEntryData,
-} from "../TimeSheetTable.utils";
+} from "../EntriesStore";
+import { TimeEntryFields } from "../TimeEntryFields";
 
 type CreateFormProps = {
   entry: CreatingEntryData;

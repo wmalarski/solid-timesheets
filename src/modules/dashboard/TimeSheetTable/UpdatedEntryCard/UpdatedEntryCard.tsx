@@ -17,8 +17,8 @@ import {
 import type { Issue, TimeEntry } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { UpdatedCardMenu } from "../CardMenu";
+import { useTimeSheetContext } from "../EntriesStore";
 import { TimeEntryFields } from "../TimeEntryFields";
-import { useTimeSheetContext } from "../TimeSheetTable.utils";
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
