@@ -59,13 +59,13 @@ const CardContent: Component<CardContentProps> = (props) => {
     <div class="flex flex-col gap-2">
       <div class="flex flex-col">
         <span class="select-none px-1 py-2">
-          {t("dashboard.timeEntry.comments.label")}
-        </span>
-        <span class="px-2 py-1 text-xs">{props.entry.comments}</span>
-        <span class="select-none px-1 py-2">
           {t("dashboard.timeEntry.hours.label")}
         </span>
         <span class="px-2 py-1 text-xs">{props.entry.hours}</span>
+        <span class="select-none px-1 py-2">
+          {t("dashboard.timeEntry.comments.label")}
+        </span>
+        <span class="px-2 py-1 text-xs">{props.entry.comments}</span>
       </div>
       <div class="flex justify-end">
         <Button

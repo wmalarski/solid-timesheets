@@ -43,24 +43,6 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
       </Show>
 
       <TextFieldRoot>
-        <TextFieldLabel for="comments">
-          <TextFieldLabelText>
-            {t("dashboard.timeEntry.comments.label")}
-          </TextFieldLabelText>
-        </TextFieldLabel>
-        <TextFieldInput
-          disabled={props.isLoading}
-          name="comments"
-          onInput={onCommentsInput}
-          placeholder={t("dashboard.timeEntry.comments.placeholder")}
-          size="xs"
-          type="text"
-          value={props.data.comments}
-          variant="bordered"
-        />
-      </TextFieldRoot>
-
-      <TextFieldRoot>
         <TextFieldLabel for="hours">
           <TextFieldLabelText>
             {t("dashboard.timeEntry.hours.label")}
@@ -76,6 +58,24 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           step={0.25}
           type="number"
           value={props.data.hours}
+          variant="bordered"
+        />
+      </TextFieldRoot>
+
+      <TextFieldRoot>
+        <TextFieldLabel for="comments">
+          <TextFieldLabelText>
+            {t("dashboard.timeEntry.comments.label")}
+          </TextFieldLabelText>
+        </TextFieldLabel>
+        <TextFieldInput
+          disabled={props.isLoading}
+          name="comments"
+          onInput={onCommentsInput}
+          placeholder={t("dashboard.timeEntry.comments.placeholder")}
+          size="xs"
+          type="text"
+          value={props.data.comments}
           variant="bordered"
         />
       </TextFieldRoot>
