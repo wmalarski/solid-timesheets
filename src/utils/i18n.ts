@@ -39,6 +39,12 @@ const dict = {
         updated: "Updated time entry",
         wrong: "Something wrong happened",
       },
+      tracking: {
+        pause: "Pause",
+        reset: "Reset",
+        start: "Start",
+        stop: "Stop",
+      },
     },
     footer: {
       madeBy: "Made by wmalarski",

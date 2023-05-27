@@ -19,6 +19,7 @@ import { CardHeader } from "../CardHeader";
 import { UpdatedCardMenu } from "../CardMenu";
 import { useTimeSheetContext } from "../EntriesStore";
 import { TimeEntryFields } from "../TimeEntryFields";
+import { TrackingRow } from "./TrackingRow";
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
@@ -181,6 +182,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
             <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
           }
         />
+        <TrackingRow timeEntryId={props.entry.id} />
         <Show
           when={entry()}
           fallback={

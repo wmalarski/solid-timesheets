@@ -10,21 +10,23 @@ import { getNextMonth } from "~/utils/date";
 import { TimeSheetContext, useCreatedTimeSeries } from "./EntriesStore";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import { useTimeSheetSearchParams } from "./TimeSheetTable.utils";
+import { TrackingStoreContext, useTrackingStore } from "./TrackingStore";
 
-type TimeSheetContextProviderProps = {
+type ProviderProps = {
   issues: Issue[];
   timeEntries: TimeEntry[];
 };
 
-const TimeSheetContextProvider: Component<TimeSheetContextProviderProps> = (
-  props
-) => {
+const Provider: Component<ProviderProps> = (props) => {
+  const trackingStore = useTrackingStore();
   const value = useCreatedTimeSeries({ timeEntries: () => props.timeEntries });
 
   return (
-    <TimeSheetContext.Provider value={value}>
-      <TimeEntryGrid issues={props.issues} timeEntries={props.timeEntries} />
-    </TimeSheetContext.Provider>
+    <TrackingStoreContext.Provider value={trackingStore}>
+      <TimeSheetContext.Provider value={value}>
+        <TimeEntryGrid issues={props.issues} timeEntries={props.timeEntries} />
+      </TimeSheetContext.Provider>
+    </TrackingStoreContext.Provider>
   );
 };
 
@@ -53,7 +55,7 @@ export const TimeSheetTable: Component = () => {
 
   return (
     <Suspense fallback={<TimeEntryGrid issues={[]} timeEntries={[]} />}>
-      <TimeSheetContextProvider
+      <Provider
         issues={issuesQuery.data?.issues || []}
         timeEntries={timeEntriesQuery.data?.time_entries || []}
       />
