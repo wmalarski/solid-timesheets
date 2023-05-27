@@ -36,6 +36,7 @@ export type EntriesStore = {
   timeEntryMap: ReadonlyMap<number, CreateTimeEntryArgs>;
   updateMap: Record<number, UpdatingEntryData | undefined>;
 };
+
 type UseCreatedTimeSeriesArgs = {
   timeEntries: () => TimeEntry[];
 };
@@ -69,6 +70,7 @@ export const useCreatedTimeSeries = ({
 
   return { setState, state };
 };
+
 type TimeSheetContextValue = ReturnType<typeof useCreatedTimeSeries>;
 
 export const TimeSheetContext = createContext<TimeSheetContextValue>({
@@ -83,9 +85,11 @@ export const TimeSheetContext = createContext<TimeSheetContextValue>({
 export const useTimeSheetContext = () => {
   return useContext(TimeSheetContext);
 };
+
 const randomEntryId = () => {
   return -Math.floor(Math.random() * 1e15);
 };
+
 const copySheetEntry = (args: CreateTimeEntryArgs) => {
   const key = sheetEntryMapKey({ date: args.spentOn });
   return { args, id: randomEntryId(), key };
@@ -102,9 +106,11 @@ export const createSheetEntriesToWeekEnd = (args: CreateTimeEntryArgs) => {
     .filter((date) => !isDayOff(date))
     .map((date) => copySheetEntry({ ...args, spentOn: date }));
 };
+
 type AddSheetEntryToStateArgs = ReturnType<typeof copySheetEntry> & {
   store: EntriesStore;
 };
+
 const addSheetEntryToState = ({
   args,
   id,
@@ -115,6 +121,7 @@ const addSheetEntryToState = ({
   keyEntries[id] = { args, id };
   store.dateMap[key] = keyEntries;
 };
+
 type CopyToEndOfMonthArgs = {
   args?: CreateTimeEntryArgs;
   setState: SetStoreFunction<EntriesStore>;
@@ -132,6 +139,7 @@ export const copyToEndOfMonth = ({ args, setState }: CopyToEndOfMonthArgs) => {
     })
   );
 };
+
 type CopyToEndOfWeekArgs = {
   args?: CreateTimeEntryArgs;
   setState: SetStoreFunction<EntriesStore>;
@@ -149,6 +157,7 @@ export const copyToEndOfWeek = ({ args, setState }: CopyToEndOfWeekArgs) => {
     })
   );
 };
+
 type CopyToNextDayArgs = {
   args?: CreateTimeEntryArgs;
   setState: SetStoreFunction<EntriesStore>;
@@ -166,6 +175,7 @@ export const copyToNextDay = ({ args, setState }: CopyToNextDayArgs) => {
     })
   );
 };
+
 type CopyToNextWorkingDayArgs = {
   args?: CreateTimeEntryArgs;
   setState: SetStoreFunction<EntriesStore>;
@@ -189,6 +199,7 @@ export const copyToNextWorkingDay = ({
     })
   );
 };
+
 type CopyToCurrentDayArgs = {
   args?: CreateTimeEntryArgs;
   setState: SetStoreFunction<EntriesStore>;
@@ -205,6 +216,7 @@ export const copyToCurrentDay = ({ args, setState }: CopyToCurrentDayArgs) => {
     })
   );
 };
+
 type CreateSheetEntryArgs = {
   args: CreateTimeEntryArgs;
   setState: SetStoreFunction<EntriesStore>;
@@ -221,6 +233,7 @@ export const createSheetEntryArgs = ({
     })
   );
 };
+
 type ResetSheetEntriesArgs = {
   setState: SetStoreFunction<EntriesStore>;
 };
