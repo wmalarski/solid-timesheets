@@ -83,3 +83,12 @@ export const isToday = (date: Date) => {
     today.getDate() === date.getDate()
   );
 };
+
+export const secondsToNow = (start: Date | string) => {
+  const nowTime = new Date().getTime();
+  const startTime = new Date(start).getTime() || 0;
+
+  const diffSeconds = (nowTime - startTime) / 1000;
+
+  return diffSeconds;
+};

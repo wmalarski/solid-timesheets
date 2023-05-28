@@ -1,5 +1,6 @@
 import { createLocalStorage } from "@solid-primitives/storage";
 import { createContext, createMemo, useContext } from "solid-js";
+import { secondsToNow } from "~/utils/date";
 
 const itemsKey = "items";
 const runningIdKey = "runningId";
@@ -53,16 +54,54 @@ export const useTrackingStore = () => {
     setItems(next);
   };
 
-  return { items, runningId, setItem, setRunningId };
+  const stopCount = (id: number) => {
+    const current = items()[id];
+    if (!current) {
+      return;
+    }
+    const startValue = current.startValue + secondsToNow(current.startDate);
+    const newItem = { startDate: new Date().toJSON(), startValue };
+    setItem({ item: newItem, trackingId: id });
+  };
+
+  const pause = (id: number) => {
+    stopCount(id);
+    if (runningId() === id) {
+      setRunningId(null);
+    }
+  };
+
+  const reset = (id: number) => {
+    setItem({ item: undefined, trackingId: id });
+    if (runningId() === id) {
+      setRunningId(null);
+    }
+  };
+
+  const start = (id: number) => {
+    const currentlyRunningId = runningId();
+    if (currentlyRunningId) {
+      stopCount(currentlyRunningId);
+    }
+    const startValue = items()[id]?.startValue || 0;
+    const newItem = { startDate: new Date().toJSON(), startValue };
+    setItem({ item: newItem, trackingId: id });
+    setRunningId(id);
+  };
+
+  return { items, pause, reset, runningId, setItem, setRunningId, start };
 };
 
 type TrackingStoreContextValue = ReturnType<typeof useTrackingStore>;
 
 export const TrackingStoreContext = createContext<TrackingStoreContextValue>({
   items: () => ({}),
+  pause: () => void 0,
+  reset: () => void 0,
   runningId: () => null,
   setItem: () => void 0,
   setRunningId: () => void 0,
+  start: () => void 0,
 });
 
 export const useTrackingStoreContext = () => {
