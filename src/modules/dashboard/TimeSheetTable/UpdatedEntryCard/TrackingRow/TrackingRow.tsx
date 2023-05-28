@@ -13,7 +13,9 @@ import {
   type Component,
 } from "solid-js";
 import { Button } from "~/components/Button";
+import { ClientOnly } from "~/components/ClientOnly";
 import { secondsToNow } from "~/utils/date";
+import { formatTime } from "~/utils/format";
 import {
   useTrackingStoreContext,
   type TrackingItem,
@@ -24,6 +26,8 @@ type TrackingTimeProps = {
 };
 
 const TrackingTime: Component<TrackingTimeProps> = (props) => {
+  const [, { locale }] = useI18n();
+
   const [counter, setCounter] = createSignal(0);
 
   const interval = setInterval(() => {
@@ -35,13 +39,12 @@ const TrackingTime: Component<TrackingTimeProps> = (props) => {
   });
 
   return (
-    <pre>
-      {JSON.stringify(
-        { counter: counter() + props.item.startValue, item: props.item },
-        null,
-        2
-      )}
-    </pre>
+    <span class="grow">
+      {formatTime({
+        locale: locale(),
+        time: counter() + props.item.startValue,
+      })}
+    </span>
   );
 };
 
@@ -50,14 +53,23 @@ type StaticTimeProps = {
 };
 
 const StaticTime: Component<StaticTimeProps> = (props) => {
-  return <pre>{JSON.stringify({ info: props.item }, null, 2)}</pre>;
+  const [, { locale }] = useI18n();
+
+  return (
+    <span class="grow">
+      {formatTime({
+        locale: locale(),
+        time: props.item.startValue,
+      })}
+    </span>
+  );
 };
 
-type TrackingRowProps = {
+type ClientProps = {
   timeEntryId: number;
 };
 
-export const TrackingRow: Component<TrackingRowProps> = (props) => {
+export const Client: Component<ClientProps> = (props) => {
   const [t] = useI18n();
 
   const { runningId, pause, reset, items, start } = useTrackingStoreContext();
@@ -87,7 +99,7 @@ export const TrackingRow: Component<TrackingRowProps> = (props) => {
   };
 
   return (
-    <div>
+    <div class="flex items-center">
       <Show when={item()}>
         {(item) => (
           <>
@@ -102,7 +114,7 @@ export const TrackingRow: Component<TrackingRowProps> = (props) => {
               onClick={onResetClick}
               shape="square"
               size="sm"
-              variant="outline"
+              variant="ghost"
             >
               <IoReloadSharp />
             </Button>
@@ -145,5 +157,17 @@ export const TrackingRow: Component<TrackingRowProps> = (props) => {
         </Button>
       </Show>
     </div>
+  );
+};
+
+type TrackingRowProps = {
+  timeEntryId: number;
+};
+
+export const TrackingRow: Component<TrackingRowProps> = (props) => {
+  return (
+    <ClientOnly>
+      <Client timeEntryId={props.timeEntryId} />
+    </ClientOnly>
   );
 };

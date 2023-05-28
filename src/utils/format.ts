@@ -21,3 +21,19 @@ type FormatWeekdayArgs = {
 export const formatWeekday = ({ date, locale }: FormatWeekdayArgs) => {
   return Intl.DateTimeFormat(locale, { weekday: "long" }).format(date);
 };
+
+type FormatTimeArgs = {
+  time: number;
+  locale: string;
+};
+
+export const formatTime = ({ time, locale }: FormatTimeArgs) => {
+  const hours = Math.floor((time / (1000 * 60 * 60)) % 24);
+
+  const secondsMinutes = Intl.DateTimeFormat(locale, {
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date(time * 1000));
+
+  return `${hours}:${secondsMinutes}`;
+};
