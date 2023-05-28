@@ -5,19 +5,18 @@ const itemsKey = "items";
 const runningIdKey = "runningId";
 
 export type TrackingItem = {
-  startDate: Date;
+  startDate: string;
   startValue: number;
 };
 
 type TrackingStore = Record<number, TrackingItem | undefined>;
 
 type SetItemArgs = {
-  item: TrackingItem;
+  item?: TrackingItem;
   trackingId: number;
-  isRunning: boolean;
 };
 
-const parseStorageItems = (input: unknown) => {
+const parseStorageItems = (input: unknown): TrackingStore => {
   if (!input || typeof input !== "string") {
     return {};
   }
@@ -36,7 +35,7 @@ export const useTrackingStore = () => {
   });
 
   const runningId = createMemo(() => {
-    return Number(state.runningIdKey) || null;
+    return Number(state[runningIdKey]) || null;
   });
 
   const setItems = (items: TrackingStore) => {
@@ -47,14 +46,11 @@ export const useTrackingStore = () => {
     setState(runningIdKey, JSON.stringify(runningId));
   };
 
-  const setItem = ({ isRunning, item, trackingId }: SetItemArgs) => {
+  const setItem = ({ item, trackingId }: SetItemArgs) => {
     const next = { ...items() };
+
     next[trackingId] = item;
     setItems(next);
-
-    if (isRunning) {
-      setRunningId(trackingId);
-    }
   };
 
   return { items, runningId, setItem, setRunningId };
