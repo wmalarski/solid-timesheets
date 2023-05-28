@@ -4,14 +4,17 @@ import { createContext, createMemo, useContext } from "solid-js";
 const itemsKey = "items";
 const runningIdKey = "runningId";
 
-type TrackingItem = {
+export type TrackingItem = {
   startDate: Date;
   startValue: number;
 };
 
-type TrackingStore = {
-  items: Record<number, TrackingItem | undefined>;
-  runningTimeEntryId: number | null;
+type TrackingStore = Record<number, TrackingItem | undefined>;
+
+type SetItemArgs = {
+  item: TrackingItem;
+  trackingId: number;
+  isRunning: boolean;
 };
 
 const parseStorageItems = (input: unknown) => {
@@ -19,7 +22,7 @@ const parseStorageItems = (input: unknown) => {
     return {};
   }
   try {
-    return JSON.parse(input) as TrackingStore["items"];
+    return JSON.parse(input) as TrackingStore;
   } catch {
     return {};
   }
@@ -36,7 +39,7 @@ export const useTrackingStore = () => {
     return Number(state.runningIdKey) || null;
   });
 
-  const setItems = (items: TrackingStore["items"]) => {
+  const setItems = (items: TrackingStore) => {
     setState(itemsKey, JSON.stringify(items));
   };
 
@@ -44,7 +47,17 @@ export const useTrackingStore = () => {
     setState(runningIdKey, JSON.stringify(runningId));
   };
 
-  return { items, runningId, setItems, setRunningId };
+  const setItem = ({ isRunning, item, trackingId }: SetItemArgs) => {
+    const next = { ...items() };
+    next[trackingId] = item;
+    setItems(next);
+
+    if (isRunning) {
+      setRunningId(trackingId);
+    }
+  };
+
+  return { items, runningId, setItem, setRunningId };
 };
 
 type TrackingStoreContextValue = ReturnType<typeof useTrackingStore>;
@@ -52,7 +65,7 @@ type TrackingStoreContextValue = ReturnType<typeof useTrackingStore>;
 export const TrackingStoreContext = createContext<TrackingStoreContextValue>({
   items: () => ({}),
   runningId: () => null,
-  setItems: () => void 0,
+  setItem: () => void 0,
   setRunningId: () => void 0,
 });
 

@@ -5,9 +5,53 @@ import {
   IoReloadSharp,
   IoStopSharp,
 } from "solid-icons/io";
-import { Show, createMemo, type Component } from "solid-js";
+import {
+  Show,
+  createMemo,
+  createSignal,
+  onCleanup,
+  type Component,
+} from "solid-js";
 import { Button } from "~/components/Button";
-import { useTrackingStoreContext } from "../../TrackingStore";
+import {
+  useTrackingStoreContext,
+  type TrackingItem,
+} from "../../TrackingStore";
+
+type TrackingTimeProps = {
+  item: TrackingItem;
+};
+
+const TrackingTime: Component<TrackingTimeProps> = (props) => {
+  const [counter, setCounter] = createSignal(0);
+
+  const interval = setInterval(() => {
+    const nowTime = new Date().getTime();
+    const startTime = props.item.startDate.getTime();
+
+    const diffSeconds = (startTime - nowTime) / 1000;
+
+    setCounter(props.item.startValue + diffSeconds);
+  }, 1000);
+
+  onCleanup(() => {
+    clearInterval(interval);
+  });
+
+  return (
+    <pre>
+      {JSON.stringify({ counter: counter(), item: props.item }, null, 2)}
+    </pre>
+  );
+};
+
+type StaticTimeProps = {
+  item: TrackingItem;
+};
+
+const StaticTime: Component<StaticTimeProps> = (props) => {
+  return <pre>{JSON.stringify({ info: props.item }, null, 2)}</pre>;
+};
 
 type TrackingRowProps = {
   timeEntryId: number;
@@ -22,7 +66,7 @@ export const TrackingRow: Component<TrackingRowProps> = (props) => {
     return props.timeEntryId === runningId();
   });
 
-  const info = createMemo(() => {
+  const item = createMemo(() => {
     return items()[props.timeEntryId];
   });
 
@@ -44,22 +88,25 @@ export const TrackingRow: Component<TrackingRowProps> = (props) => {
 
   return (
     <div>
-      <pre>
-        {JSON.stringify(
-          { info: info(), isRunning: isCurrentRunning() },
-          null,
-          2
+      <Show when={item()}>
+        {(item) => (
+          <>
+            <Show
+              when={isCurrentRunning()}
+              fallback={<StaticTime item={item()} />}
+            >
+              <TrackingTime item={item()} />
+            </Show>
+            <Button
+              aria-label={t("dashboard.tracking.reset")}
+              onClick={onResetClick}
+              shape="square"
+              variant="outline"
+            >
+              <IoReloadSharp />
+            </Button>
+          </>
         )}
-      </pre>
-      <Show when={info()}>
-        <Button
-          aria-label={t("dashboard.tracking.reset")}
-          onClick={onResetClick}
-          shape="square"
-          variant="outline"
-        >
-          <IoReloadSharp />
-        </Button>
       </Show>
       <Show
         when={isCurrentRunning()}
@@ -83,7 +130,7 @@ export const TrackingRow: Component<TrackingRowProps> = (props) => {
           <IoPauseSharp />
         </Button>
       </Show>
-      <Show when={info()}>
+      <Show when={item()}>
         <Button
           aria-label={t("dashboard.tracking.stop")}
           onClick={onSaveClick}
