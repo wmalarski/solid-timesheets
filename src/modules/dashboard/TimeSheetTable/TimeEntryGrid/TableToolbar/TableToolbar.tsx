@@ -21,6 +21,7 @@ import {
   workTimeHref,
 } from "~/server/timeEntries";
 import { getNextMonth, getPreviousMonth } from "~/utils/date";
+import { formatMonth } from "~/utils/format";
 import { resetSheetEntries, useTimeSheetContext } from "../../EntriesStore";
 import { useTimeSheetSearchParams } from "../../TimeSheetTable.utils";
 
@@ -29,8 +30,6 @@ type MonthSelectProps = {
 };
 
 const MonthSelect: Component<MonthSelectProps> = (props) => {
-  const [, { locale }] = useI18n();
-
   const { selectedDate, setMonth } = useTimeSheetSearchParams();
 
   const setPreviousMonth = () => {
@@ -40,13 +39,6 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
   const setNextMonth = () => {
     setMonth(getNextMonth(selectedDate()));
   };
-
-  const date = createMemo(() => {
-    return Intl.DateTimeFormat(locale(), {
-      month: "long",
-      year: "numeric",
-    }).format(selectedDate());
-  });
 
   return (
     <div class="flex items-center gap-1">
@@ -66,7 +58,9 @@ const MonthSelect: Component<MonthSelectProps> = (props) => {
       >
         <IoChevronForwardSharp />
       </Button>
-      <span class="text-base sm:text-lg md:text-2xl">{date()}</span>
+      <span class="text-base sm:text-lg md:text-2xl">
+        {formatMonth(selectedDate())}
+      </span>
     </div>
   );
 };

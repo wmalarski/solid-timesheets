@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
 import {
   For,
@@ -32,8 +31,6 @@ type HeaderCellProps = {
 };
 
 const HeaderCell: Component<HeaderCellProps> = (props) => {
-  const [, { locale }] = useI18n();
-
   const [ref, setRef] = createSignal<HTMLDivElement>();
 
   const isDateToday = createMemo(() => {
@@ -55,10 +52,8 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
       borders="bottomRight"
     >
       <div class="flex flex-col">
-        <span class="text-3xl">
-          {formatDay({ date: props.date, locale: locale() })}
-        </span>
-        <span>{formatWeekday({ date: props.date, locale: locale() })}</span>
+        <span class="text-3xl">{formatDay(props.date)}</span>
+        <span>{formatWeekday(props.date)}</span>
       </div>
       <CreateEntryMenu date={props.date} issues={props.issues} />
     </GridCell>

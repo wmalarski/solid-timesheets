@@ -26,8 +26,6 @@ type TrackingTimeProps = {
 };
 
 const TrackingTime: Component<TrackingTimeProps> = (props) => {
-  const [, { locale }] = useI18n();
-
   const [counter, setCounter] = createSignal(0);
 
   const interval = setInterval(() => {
@@ -39,12 +37,7 @@ const TrackingTime: Component<TrackingTimeProps> = (props) => {
   });
 
   return (
-    <span class="grow">
-      {formatTime({
-        locale: locale(),
-        time: counter() + props.item.startValue,
-      })}
-    </span>
+    <span class="grow">{formatTime(counter() + props.item.startValue)}</span>
   );
 };
 
@@ -53,16 +46,7 @@ type StaticTimeProps = {
 };
 
 const StaticTime: Component<StaticTimeProps> = (props) => {
-  const [, { locale }] = useI18n();
-
-  return (
-    <span class="grow">
-      {formatTime({
-        locale: locale(),
-        time: props.item.startValue,
-      })}
-    </span>
-  );
+  return <span class="grow">{formatTime(props.item.startValue)}</span>;
 };
 
 type ClientProps = {
