@@ -40,6 +40,7 @@ const dict = {
         wrong: "Something wrong happened",
       },
       tracking: {
+        button: "Tracking",
         pause: "Pause",
         reset: "Reset",
         start: "Start",

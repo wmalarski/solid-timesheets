@@ -20,11 +20,12 @@ import {
   upsertTimeEntriesServerMutation,
   workTimeHref,
 } from "~/server/timeEntries";
+import type { Issue } from "~/server/types";
 import { getNextMonth, getPreviousMonth } from "~/utils/date";
 import { formatMonth } from "~/utils/format";
 import { resetSheetEntries, useTimeSheetContext } from "../../EntriesStore";
 import { useTimeSheetSearchParams } from "../../TimeSheetTable.utils";
-import { TrackingToolbar } from "../../TrackingToolbar";
+import { TrackingPopover } from "../TrackingPopover";
 
 type MonthSelectProps = {
   isDisabled: boolean;
@@ -191,7 +192,11 @@ const DownloadButton: Component<DownloadButtonProps> = (props) => {
   );
 };
 
-export const TableToolbar: Component = () => {
+type TableToolbarProps = {
+  issuesMap: Map<number, Issue>;
+};
+
+export const TableToolbar: Component<TableToolbarProps> = (props) => {
   const { state } = useTimeSheetContext();
 
   const isMutating = useIsMutating();
@@ -220,7 +225,6 @@ export const TableToolbar: Component = () => {
     <div class="flex items-center justify-between gap-2 border-b-[1px] border-base-300 p-2">
       <MonthSelect isDisabled={isDisabled()} />
       <div class="flex gap-1">
-        <TrackingToolbar />
         <ResetButton
           count={selectedCount()}
           isDisabled={shouldDisableActions()}
@@ -230,6 +234,7 @@ export const TableToolbar: Component = () => {
           isDisabled={shouldDisableActions()}
         />
         <DownloadButton isDisabled={isDisabled()} />
+        <TrackingPopover issuesMap={props.issuesMap} />
       </div>
     </div>
   );

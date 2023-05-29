@@ -215,7 +215,7 @@ export const TimeEntryGrid: Component<Props> = (props) => {
 
   return (
     <div class="relative flex grow flex-col" ref={setParent}>
-      <TableToolbar />
+      <TableToolbar issuesMap={issuesMap()} />
       <div
         class="w-max-[100vw] grid grow overflow-scroll"
         ref={setParent}

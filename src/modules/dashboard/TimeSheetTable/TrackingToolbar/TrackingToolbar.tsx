@@ -29,7 +29,7 @@ type TrackingTimeProps = {
   item: TrackingItem;
 };
 
-const TrackingTime: Component<TrackingTimeProps> = (props) => {
+export const TrackingTime: Component<TrackingTimeProps> = (props) => {
   const [counter, setCounter] = createSignal(0);
 
   const interval = setInterval(() => {
@@ -118,7 +118,7 @@ type TrackingCardProps = {
   timeEntryId: number;
 };
 
-const TrackingCard: Component<TrackingCardProps> = (props) => {
+export const TrackingCard: Component<TrackingCardProps> = (props) => {
   const [t] = useI18n();
 
   const { runningId, pause, reset, items, start } = useTrackingStoreContext();
@@ -144,7 +144,7 @@ const TrackingCard: Component<TrackingCardProps> = (props) => {
   };
 
   return (
-    <div class="flex items-center">
+    <div class="flex items-center gap-1">
       <Show when={item()}>
         {(item) => (
           <>

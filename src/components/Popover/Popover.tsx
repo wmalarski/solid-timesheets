@@ -63,7 +63,7 @@ export const PopoverHeader: Component<PopoverHeaderProps> = (props) => {
     <div
       {...props}
       class={twCx(
-        "flex items-baseline mb-1 justify-between gap-1",
+        "flex items-baseline mb-1 justify-between gap-4",
         props.class
       )}
     />
@@ -87,7 +87,7 @@ export const PopoverTitle: Component<KobaltePopover.PopoverTitleProps> = (
   return (
     <KobaltePopover.Title
       {...props}
-      class={twCx("font-medium text-base", props.class)}
+      class={twCx("text-base uppercase font-semibold", props.class)}
     />
   );
 };
