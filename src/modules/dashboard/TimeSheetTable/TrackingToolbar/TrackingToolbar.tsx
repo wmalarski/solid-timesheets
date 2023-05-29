@@ -16,10 +16,7 @@ import { Button } from "~/components/Button";
 import { ClientOnly } from "~/components/ClientOnly";
 import { secondsToNow } from "~/utils/date";
 import { formatTime } from "~/utils/format";
-import {
-  useTrackingStoreContext,
-  type TrackingItem,
-} from "../../TrackingStore";
+import { useTrackingStoreContext, type TrackingItem } from "../TrackingStore";
 
 type TrackingTimeProps = {
   item: TrackingItem;
@@ -49,11 +46,11 @@ const StaticTime: Component<StaticTimeProps> = (props) => {
   return <span class="grow">{formatTime(props.item.startValue)}</span>;
 };
 
-type ClientProps = {
+type TrackingCardProps = {
   timeEntryId: number;
 };
 
-export const Client: Component<ClientProps> = (props) => {
+const TrackingCard: Component<TrackingCardProps> = (props) => {
   const [t] = useI18n();
 
   const { runningId, pause, reset, items, start } = useTrackingStoreContext();
@@ -151,7 +148,25 @@ type TrackingRowProps = {
 export const TrackingRow: Component<TrackingRowProps> = (props) => {
   return (
     <ClientOnly>
-      <Client timeEntryId={props.timeEntryId} />
+      <TrackingCard timeEntryId={props.timeEntryId} />
+    </ClientOnly>
+  );
+};
+
+const TrackingToolbarClient: Component = () => {
+  const { runningId } = useTrackingStoreContext();
+
+  return (
+    <Show when={runningId()}>
+      {(runningId) => <TrackingCard timeEntryId={runningId()} />}
+    </Show>
+  );
+};
+
+export const TrackingToolbar: Component = () => {
+  return (
+    <ClientOnly>
+      <TrackingToolbarClient />
     </ClientOnly>
   );
 };

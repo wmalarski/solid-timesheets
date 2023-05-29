@@ -19,7 +19,7 @@ import { CardHeader } from "../CardHeader";
 import { UpdatedCardMenu } from "../CardMenu";
 import { useTimeSheetContext } from "../EntriesStore";
 import { TimeEntryFields } from "../TimeEntryFields";
-import { TrackingRow } from "./TrackingRow";
+import { TrackingRow } from "../TrackingToolbar";
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;

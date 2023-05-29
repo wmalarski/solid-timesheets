@@ -24,6 +24,7 @@ import { getNextMonth, getPreviousMonth } from "~/utils/date";
 import { formatMonth } from "~/utils/format";
 import { resetSheetEntries, useTimeSheetContext } from "../../EntriesStore";
 import { useTimeSheetSearchParams } from "../../TimeSheetTable.utils";
+import { TrackingToolbar } from "../../TrackingToolbar";
 
 type MonthSelectProps = {
   isDisabled: boolean;
@@ -219,6 +220,7 @@ export const TableToolbar: Component = () => {
     <div class="flex items-center justify-between gap-2 border-b-[1px] border-base-300 p-2">
       <MonthSelect isDisabled={isDisabled()} />
       <div class="flex gap-1">
+        <TrackingToolbar />
         <ResetButton
           count={selectedCount()}
           isDisabled={shouldDisableActions()}
