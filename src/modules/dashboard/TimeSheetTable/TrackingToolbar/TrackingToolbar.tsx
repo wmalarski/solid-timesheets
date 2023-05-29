@@ -1,4 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
+import { createMutation, useQueryClient } from "@tanstack/solid-query";
 import {
   IoPauseSharp,
   IoPlaySharp,
@@ -14,8 +15,14 @@ import {
 } from "solid-js";
 import { Button } from "~/components/Button";
 import { ClientOnly } from "~/components/ClientOnly";
+import { showToast } from "~/components/Toast";
+import {
+  getAllTimeEntriesKey,
+  updateTimeEntryServerMutation,
+} from "~/server/timeEntries";
 import { secondsToNow } from "~/utils/date";
 import { formatTime } from "~/utils/format";
+import { useTimeSheetContext } from "../EntriesStore";
 import { useTrackingStoreContext, type TrackingItem } from "../TrackingStore";
 
 type TrackingTimeProps = {
@@ -46,6 +53,67 @@ const StaticTime: Component<StaticTimeProps> = (props) => {
   return <span class="grow">{formatTime(props.item.startValue)}</span>;
 };
 
+type SaveButtonProps = {
+  item: TrackingItem;
+  timeEntryId: number;
+};
+
+const SaveButton: Component<SaveButtonProps> = (props) => {
+  const [t] = useI18n();
+
+  const { state } = useTimeSheetContext();
+  const { reset } = useTrackingStoreContext();
+
+  const queryClient = useQueryClient();
+
+  const mutation = createMutation(() => ({
+    mutationFn: updateTimeEntryServerMutation,
+    onError: () => {
+      showToast({
+        description: t("dashboard.toasts.wrong"),
+        title: t("dashboard.toasts.error"),
+        variant: "error",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
+      reset(props.timeEntryId);
+      showToast({
+        description: t("dashboard.toasts.updated"),
+        title: t("dashboard.toasts.success"),
+        variant: "success",
+      });
+    },
+  }));
+
+  const onSaveClick = () => {
+    const entry = state.timeEntryMap.get(props.timeEntryId);
+    if (!entry) {
+      return;
+    }
+
+    const seconds = props.item.startValue + secondsToNow(props.item.startDate);
+    const hours = seconds / (60 * 60);
+
+    mutation.mutate({
+      hours: hours + entry.hours,
+      id: props.timeEntryId,
+    });
+  };
+
+  return (
+    <Button
+      aria-label={t("dashboard.tracking.stop")}
+      onClick={onSaveClick}
+      shape="square"
+      size="sm"
+      variant="outline"
+    >
+      <IoStopSharp />
+    </Button>
+  );
+};
+
 type TrackingCardProps = {
   timeEntryId: number;
 };
@@ -73,10 +141,6 @@ const TrackingCard: Component<TrackingCardProps> = (props) => {
 
   const onStartClick = () => {
     start(props.timeEntryId);
-  };
-
-  const onSaveClick = () => {
-    reset(props.timeEntryId);
   };
 
   return (
@@ -127,15 +191,7 @@ const TrackingCard: Component<TrackingCardProps> = (props) => {
         </Button>
       </Show>
       <Show when={item()}>
-        <Button
-          aria-label={t("dashboard.tracking.stop")}
-          onClick={onSaveClick}
-          shape="square"
-          size="sm"
-          variant="outline"
-        >
-          <IoStopSharp />
-        </Button>
+        {(item) => <SaveButton item={item()} timeEntryId={props.timeEntryId} />}
       </Show>
     </div>
   );
