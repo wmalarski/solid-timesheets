@@ -30,18 +30,25 @@ type TrackingTimeProps = {
 };
 
 export const TrackingTime: Component<TrackingTimeProps> = (props) => {
-  const [counter, setCounter] = createSignal(0);
+  const pair = createMemo(() => {
+    const [counter, setCounter] = createSignal(
+      secondsToNow(props.item.startDate)
+    );
+    return { counter, setCounter };
+  });
 
   const interval = setInterval(() => {
-    setCounter(secondsToNow(props.item.startDate));
-  }, 1000);
+    pair().setCounter(secondsToNow(props.item.startDate));
+  }, 500);
 
   onCleanup(() => {
     clearInterval(interval);
   });
 
   return (
-    <span class="grow">{formatTime(counter() + props.item.startValue)}</span>
+    <span class="grow">
+      {formatTime(pair().counter() + props.item.startValue)}
+    </span>
   );
 };
 
