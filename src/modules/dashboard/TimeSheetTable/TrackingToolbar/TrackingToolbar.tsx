@@ -27,13 +27,13 @@ import { useTimeSheetContext } from "../EntriesStore";
 import { useTrackingStoreContext, type TrackingItem } from "../TrackingStore";
 
 type CreateTimeCounterArgs = {
-  item: () => TrackingItem;
+  item: () => TrackingItem | undefined;
   isRunning: () => boolean;
 };
 
 export const createTimeCounter = (args: CreateTimeCounterArgs) => {
   const [counter, setCounter] = createWritableMemo(
-    () => args.item().startValue
+    () => args.item()?.startValue || 0
   );
 
   createEffect(() => {
@@ -42,7 +42,9 @@ export const createTimeCounter = (args: CreateTimeCounterArgs) => {
     }
     const interval = setInterval(() => {
       const current = args.item();
-      setCounter(current.startValue + secondsToNow(current.startDate));
+      if (current) {
+        setCounter(current.startValue + secondsToNow(current.startDate));
+      }
     }, 1000);
 
     onCleanup(() => {
@@ -55,7 +57,7 @@ export const createTimeCounter = (args: CreateTimeCounterArgs) => {
 
 type TrackingTimeProps = {
   isRunning: boolean;
-  item: TrackingItem;
+  item?: TrackingItem;
 };
 
 export const TrackingTime: Component<TrackingTimeProps> = (props) => {
@@ -64,11 +66,11 @@ export const TrackingTime: Component<TrackingTimeProps> = (props) => {
     item: () => props.item,
   });
 
-  return <span class="grow">{formatTime(counter())}</span>;
+  return <span class="grow text-xs">{formatTime(counter())}</span>;
 };
 
 type SaveButtonProps = {
-  item: TrackingItem;
+  item?: TrackingItem;
   timeEntryId: number;
 };
 
@@ -102,11 +104,12 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
   const onSaveClick = () => {
     const entry = state.timeEntryMap.get(props.timeEntryId);
-    if (!entry) {
+    const item = props.item;
+    if (!entry || !item) {
       return;
     }
 
-    const seconds = props.item.startValue + secondsToNow(props.item.startDate);
+    const seconds = item.startValue + secondsToNow(item.startDate);
     const hours = seconds / (60 * 60);
 
     mutation.mutate({
@@ -118,12 +121,13 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
   return (
     <Button
       aria-label={t("dashboard.tracking.stop")}
+      disabled={!props.item}
       onClick={onSaveClick}
       shape="square"
       size="sm"
-      variant="outline"
+      variant="ghost"
     >
-      <IoStopSharp />
+      <IoStopSharp class="h-4 w-4" />
     </Button>
   );
 };
@@ -158,22 +162,19 @@ export const TrackingCard: Component<TrackingCardProps> = (props) => {
   };
 
   return (
-    <div class="flex items-center gap-1">
+    <div class="flex items-center">
+      <TrackingTime item={item()} isRunning={isCurrentRunning()} />
       <Show when={item()}>
-        {(item) => (
-          <>
-            <TrackingTime item={item()} isRunning={isCurrentRunning()} />
-            <Button
-              aria-label={t("dashboard.tracking.reset")}
-              onClick={onResetClick}
-              shape="square"
-              size="sm"
-              variant="ghost"
-            >
-              <IoReloadSharp />
-            </Button>
-          </>
-        )}
+        <Button
+          aria-label={t("dashboard.tracking.reset")}
+          disabled={!item()}
+          onClick={onResetClick}
+          shape="square"
+          size="sm"
+          variant="ghost"
+        >
+          <IoReloadSharp class="h-4 w-4" />
+        </Button>
       </Show>
       <Show
         when={isCurrentRunning()}
@@ -183,9 +184,9 @@ export const TrackingCard: Component<TrackingCardProps> = (props) => {
             onClick={onStartClick}
             shape="square"
             size="sm"
-            variant="outline"
+            variant="ghost"
           >
-            <IoPlaySharp />
+            <IoPlaySharp class="h-4 w-4" />
           </Button>
         }
       >
@@ -194,13 +195,13 @@ export const TrackingCard: Component<TrackingCardProps> = (props) => {
           onClick={onPauseClick}
           shape="square"
           size="sm"
-          variant="outline"
+          variant="ghost"
         >
-          <IoPauseSharp />
+          <IoPauseSharp class="h-4 w-4" />
         </Button>
       </Show>
       <Show when={item()}>
-        {(item) => <SaveButton item={item()} timeEntryId={props.timeEntryId} />}
+        <SaveButton item={item()} timeEntryId={props.timeEntryId} />
       </Show>
     </div>
   );
