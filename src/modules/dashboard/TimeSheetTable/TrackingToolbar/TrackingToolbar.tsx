@@ -66,7 +66,13 @@ export const TrackingTime: Component<TrackingTimeProps> = (props) => {
     item: () => props.item,
   });
 
-  return <span class="grow text-xs">{formatTime(counter())}</span>;
+  return (
+    <span class="grow text-xs">
+      <Show when={props.item} fallback={formatTime(0)}>
+        {formatTime(counter())}
+      </Show>
+    </span>
+  );
 };
 
 type SaveButtonProps = {
