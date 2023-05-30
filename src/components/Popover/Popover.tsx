@@ -98,7 +98,7 @@ export const PopoverDescription: Component<
   return (
     <KobaltePopover.Description
       {...props}
-      class={twCx("text-sm", props.class)}
+      class={twCx("text-sm py-1", props.class)}
     />
   );
 };

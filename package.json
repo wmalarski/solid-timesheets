@@ -31,6 +31,7 @@
     "vite": "4.3.5"
   },
   "dependencies": {
+    "@formkit/auto-animate": "1.0.0-beta.6",
     "@kobalte/core": "^0.9.6",
     "@kobalte/tailwindcss": "^0.6.5",
     "@solid-primitives/i18n": "^1.4.0",

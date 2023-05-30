@@ -1,6 +1,9 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@formkit/auto-animate':
+    specifier: 1.0.0-beta.6
+    version: 1.0.0-beta.6
   '@kobalte/core':
     specifier: ^0.9.6
     version: 0.9.6(solid-js@1.7.5)
@@ -1494,6 +1497,10 @@ packages:
     resolution: {integrity: sha512-k/MEBstff4sttohyEpXxCmC3MqbUn9VvHGlZ8fauLzkbwXmVrEeyzS+4uhrvAk9DWU9/7otYWxyDox4nT/KVLQ==}
     dependencies:
       tslib: 2.5.0
+    dev: false
+
+  /@formkit/auto-animate@1.0.0-beta.6:
+    resolution: {integrity: sha512-PVDhLAlr+B4Xb7e+1wozBUWmXa6BFU8xUPR/W/E+TsQhPS1qkAdAsJ25keEnFrcePSnXHrOsh3tiFbEToOzV9w==}
     dev: false
 
   /@hapi/hoek@9.3.0:

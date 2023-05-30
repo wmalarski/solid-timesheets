@@ -1,6 +1,8 @@
+import { createAutoAnimate } from "@formkit/auto-animate/solid";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
 import {
   For,
+  Show,
   createEffect,
   createMemo,
   createSignal,
@@ -85,27 +87,22 @@ type CellProps = {
 const Cell: Component<CellProps> = (props) => {
   const { state } = useTimeSheetContext();
 
+  const [setParent] = createAutoAnimate();
+
   const created = createMemo(() => {
     const key = sheetEntryMapKey({ date: props.date });
     const entries = Object.values(state.dateMap[key] || {});
-    return entries.flatMap((entry) => {
-      if (!entry) {
-        return [];
-      }
-
-      const issue = props.issuesMap.get(entry.args.issueId);
-      if (!issue) {
-        return [];
-      }
-
-      return [{ entry, issue }];
-    });
+    return entries.flatMap((entry) => (entry ? [entry] : [])).reverse();
   });
 
   return (
-    <GridCell borders="right" class="flex flex-col gap-2">
+    <GridCell ref={setParent} borders="right" class="flex flex-col gap-2">
       <For each={created()}>
-        {(pair) => <CreatedEntryCard entry={pair.entry} issue={pair.issue} />}
+        {(entry) => (
+          <Show when={entry && props.issuesMap.get(entry.args.issueId)}>
+            {(issue) => <CreatedEntryCard entry={entry} issue={issue()} />}
+          </Show>
+        )}
       </For>
       <For each={props.pairs}>
         {(pair) => <UpdatedEntryCard entry={pair.entry} issue={pair.issue} />}
