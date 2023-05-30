@@ -1,4 +1,5 @@
 import { useI18n } from "@solid-primitives/i18n";
+import { createWritableMemo } from "@solid-primitives/memo";
 import { createMutation, useQueryClient } from "@tanstack/solid-query";
 import {
   IoPauseSharp,
@@ -8,8 +9,8 @@ import {
 } from "solid-icons/io";
 import {
   Show,
+  createEffect,
   createMemo,
-  createSignal,
   onCleanup,
   type Component,
 } from "solid-js";
@@ -25,39 +26,45 @@ import { formatTime } from "~/utils/format";
 import { useTimeSheetContext } from "../EntriesStore";
 import { useTrackingStoreContext, type TrackingItem } from "../TrackingStore";
 
+type CreateTimeCounterArgs = {
+  item: () => TrackingItem;
+  isRunning: () => boolean;
+};
+
+export const createTimeCounter = (args: CreateTimeCounterArgs) => {
+  const [counter, setCounter] = createWritableMemo(
+    () => args.item().startValue
+  );
+
+  createEffect(() => {
+    if (!args.isRunning()) {
+      return;
+    }
+    const interval = setInterval(() => {
+      const current = args.item();
+      setCounter(current.startValue + secondsToNow(current.startDate));
+    }, 1000);
+
+    onCleanup(() => {
+      clearInterval(interval);
+    });
+  });
+
+  return counter;
+};
+
 type TrackingTimeProps = {
+  isRunning: boolean;
   item: TrackingItem;
 };
 
 export const TrackingTime: Component<TrackingTimeProps> = (props) => {
-  const pair = createMemo(() => {
-    const [counter, setCounter] = createSignal(
-      secondsToNow(props.item.startDate)
-    );
-    return { counter, setCounter };
+  const counter = createTimeCounter({
+    isRunning: () => props.isRunning,
+    item: () => props.item,
   });
 
-  const interval = setInterval(() => {
-    pair().setCounter(secondsToNow(props.item.startDate));
-  }, 500);
-
-  onCleanup(() => {
-    clearInterval(interval);
-  });
-
-  return (
-    <span class="grow">
-      {formatTime(pair().counter() + props.item.startValue)}
-    </span>
-  );
-};
-
-type StaticTimeProps = {
-  item: TrackingItem;
-};
-
-const StaticTime: Component<StaticTimeProps> = (props) => {
-  return <span class="grow">{formatTime(props.item.startValue)}</span>;
+  return <span class="grow">{formatTime(counter())}</span>;
 };
 
 type SaveButtonProps = {
@@ -155,12 +162,7 @@ export const TrackingCard: Component<TrackingCardProps> = (props) => {
       <Show when={item()}>
         {(item) => (
           <>
-            <Show
-              when={isCurrentRunning()}
-              fallback={<StaticTime item={item()} />}
-            >
-              <TrackingTime item={item()} />
-            </Show>
+            <TrackingTime item={item()} isRunning={isCurrentRunning()} />
             <Button
               aria-label={t("dashboard.tracking.reset")}
               onClick={onResetClick}

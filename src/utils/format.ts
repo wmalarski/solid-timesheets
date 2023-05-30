@@ -27,15 +27,15 @@ export const formatWeekday = (date: Date) => {
   return Intl.DateTimeFormat(locale(), { weekday: "long" }).format(date);
 };
 
-export const formatTime = (time: number) => {
+export const formatTime = (seconds: number) => {
   const [, { locale }] = useI18n();
 
-  const hours = Math.floor((time / (1000 * 60 * 60)) % 24);
+  const hours = Math.floor((seconds / (1000 * 60 * 60)) % 24);
 
   const secondsMinutes = Intl.DateTimeFormat(locale(), {
     minute: "2-digit",
     second: "2-digit",
-  }).format(new Date(time * 1000));
+  }).format(new Date(seconds * 1000));
 
   return `${hours}:${secondsMinutes}`;
 };

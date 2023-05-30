@@ -10,6 +10,9 @@ dependencies:
   '@solid-primitives/i18n':
     specifier: ^1.4.0
     version: 1.4.0(solid-js@1.7.5)
+  '@solid-primitives/memo':
+    specifier: ^1.3.1
+    version: 1.3.1(solid-js@1.7.5)
   '@solid-primitives/storage':
     specifier: ^1.3.11
     version: 1.3.11(solid-js@1.7.5)
@@ -1976,6 +1979,16 @@ packages:
       solid-js: 1.7.5
     dev: false
 
+  /@solid-primitives/memo@1.3.1(solid-js@1.7.5):
+    resolution: {integrity: sha512-5Hnu6oJDjcQObJQpVJFH+2JNG5Bl6J1OgWpRr9X8eVsHk0KIcKbZTujP/Eyx7e5fH+0mR17O2LsAMYw0xK/YWw==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      '@solid-primitives/scheduled': 1.3.2(solid-js@1.7.5)
+      '@solid-primitives/utils': 6.2.0(solid-js@1.7.5)
+      solid-js: 1.7.5
+    dev: false
+
   /@solid-primitives/props@3.1.5(solid-js@1.7.5):
     resolution: {integrity: sha512-rnFjo3PgH2I4wJEGaMY+iKETfPntq9GMLbdX6bhllMocwF/CHILii4Hfgg41nhcGjJysuCSlA4WTq33ZD/9CFw==}
     peerDependencies:
@@ -2000,6 +2013,14 @@ packages:
       solid-js: ^1.6.12
     dependencies:
       '@solid-primitives/utils': 6.1.1(solid-js@1.7.5)
+      solid-js: 1.7.5
+    dev: false
+
+  /@solid-primitives/scheduled@1.3.2(solid-js@1.7.5):
+    resolution: {integrity: sha512-2rDCyYNjI9zBqpdmJG8sN8h90gbe2hSqRdj1OMmKp3qEbKVCrXXswLmrbBuNBi/uow6f8AHR9uheb7LWQ3ojcw==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
       solid-js: 1.7.5
     dev: false
 

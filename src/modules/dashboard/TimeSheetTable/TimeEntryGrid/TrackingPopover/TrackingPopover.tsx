@@ -16,7 +16,7 @@ import {
 import type { Issue } from "~/server/types";
 import { useTimeSheetContext } from "../../EntriesStore";
 import { useTrackingStoreContext } from "../../TrackingStore";
-import { TrackingCard, TrackingTime } from "../../TrackingToolbar";
+import { TrackingCard } from "../../TrackingToolbar";
 
 type ClientTrackingPopoverProps = {
   issuesMap: Map<number, Issue>;
@@ -28,7 +28,7 @@ const ClientTrackingPopover: Component<ClientTrackingPopoverProps> = (
   const [t] = useI18n();
 
   const { state } = useTimeSheetContext();
-  const { runningId, items } = useTrackingStoreContext();
+  const { runningId } = useTrackingStoreContext();
 
   const [isOpen, setIsOpen] = createSignal(false);
 
@@ -46,14 +46,6 @@ const ClientTrackingPopover: Component<ClientTrackingPopoverProps> = (
     return props.issuesMap?.get(entry.issueId) || null;
   });
 
-  const item = createMemo(() => {
-    const current = runningId();
-    if (!current) {
-      return null;
-    }
-    return items()[current];
-  });
-
   return (
     <PopoverRoot
       open={isOpen() && Boolean(runningId())}
@@ -62,7 +54,6 @@ const ClientTrackingPopover: Component<ClientTrackingPopoverProps> = (
       <PopoverTrigger size="sm" disabled={!runningId()}>
         <IoHourglassSharp />
         <span class="hidden sm:block">{t("dashboard.tracking.button")}</span>
-        <Show when={item()}>{(item) => <TrackingTime item={item()} />}</Show>
       </PopoverTrigger>
       <PopoverPortal>
         <PopoverContent>
