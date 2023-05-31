@@ -1,4 +1,5 @@
 import type { Issue, TimeEntry } from "~/server/types";
+import type { CreatingEntryData, UpdatingEntryData } from "../EntriesStore";
 
 const getOrSetDefault = <K, V>(
   map: Map<K, V>,
@@ -48,25 +49,45 @@ export const groupTimeEntries = ({
   return dayMap;
 };
 
-export const sumTimeEntriesHoursByDay = (timeEntries: TimeEntry[]) => {
-  const map = new Map<string, number>();
+type SumTimeEntriesHoursByDayArgs = {
+  dateMap: Record<string, Record<number, CreatingEntryData | undefined>>;
+  timeEntries: TimeEntry[];
+  updateMap: Record<number, UpdatingEntryData | undefined>;
+};
+
+export const sumTimeEntriesHoursByDay = ({
+  dateMap,
+  timeEntries,
+  updateMap,
+}: SumTimeEntriesHoursByDayArgs) => {
+  const map = new Map<string, number[]>();
+  const fallbackArray = () => new Array<number>();
 
   timeEntries.forEach((entry) => {
-    const value = map.get(entry.spent_on) || 0;
-    map.set(entry.spent_on, entry.hours + value);
+    const value = getOrSetDefault(map, entry.spent_on, fallbackArray);
+
+    const updated = updateMap[entry.id];
+    const hours = updated?.args.hours ?? entry.hours;
+
+    value.push(hours);
+  });
+
+  Object.entries(dateMap).forEach(([date, entries]) => {
+    const value = getOrSetDefault(map, date, fallbackArray);
+
+    Object.values(entries).forEach((entry) => {
+      if (entry) {
+        value.push(entry.args.hours);
+      }
+    });
   });
 
   return map;
 };
 
-export const sumDayTimeEntriesHours = (timeEntries: TimeEntry[]) => {
-  return timeEntries.reduce((prev, curr) => prev + curr.hours, 0) || 0;
-};
-
-export const sumDayTimeEntriesMap = (
-  dayEntryMap?: Map<string, TimeEntry[]>
-) => {
-  return sumDayTimeEntriesHours(
-    Array.from(dayEntryMap?.values() || []).flatMap((group) => group)
+export const sumDayTimeEntriesHours = (map: Map<string, number[]>) => {
+  return (
+    new Array(...map.values()).flat().reduce((prev, curr) => prev + curr, 0) ||
+    0
   );
 };

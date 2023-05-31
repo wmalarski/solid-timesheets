@@ -148,34 +148,62 @@ const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
   );
 };
 
+type FooterCellProps = {
+  hours?: number[];
+};
+
+const FooterCell: Component<FooterCellProps> = (props) => {
+  const sum = () => {
+    return props.hours?.reduce((prev, curr) => prev + curr, 0) || 0;
+  };
+
+  const details = () => {
+    if (!props.hours || props.hours.length < 1) {
+      return null;
+    }
+    return `(${props.hours.join("+")})`;
+  };
+
+  return (
+    <GridCell
+      bg="base-100"
+      borders="topLeft"
+      class="z-20 flex items-center gap-1"
+      sticky="bottom"
+    >
+      <span class="font-semibold">{sum()}</span>
+      <span class="truncate text-xs">{details()}</span>
+    </GridCell>
+  );
+};
+
 type FooterProps = {
   days: Date[];
   timeEntries: TimeEntry[];
 };
 
 const Footer: Component<FooterProps> = (props) => {
+  const { state } = useTimeSheetContext();
+
   const timeEntryDayHoursGroups = createMemo(() => {
-    return sumTimeEntriesHoursByDay(props.timeEntries);
+    return sumTimeEntriesHoursByDay({
+      dateMap: state.dateMap,
+      timeEntries: props.timeEntries,
+      updateMap: state.updateMap,
+    });
   });
 
   const timeEntryHours = createMemo(() => {
-    return sumDayTimeEntriesHours(props.timeEntries);
+    return sumDayTimeEntriesHours(timeEntryDayHoursGroups());
   });
 
   return (
     <>
       <For each={props.days}>
         {(date) => (
-          <GridCell
-            bg="base-100"
-            borders="topLeft"
-            class="z-20"
-            sticky="bottom"
-          >
-            <span class="font-semibold">
-              {timeEntryDayHoursGroups().get(formatRequestDate(date)) || 0}
-            </span>
-          </GridCell>
+          <FooterCell
+            hours={timeEntryDayHoursGroups().get(formatRequestDate(date))}
+          />
         )}
       </For>
       <GridCell
