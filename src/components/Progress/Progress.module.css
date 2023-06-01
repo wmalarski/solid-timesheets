@@ -3,6 +3,6 @@
 }
 
 .progress {
-  background: linear-gradient(#000 0 0) 0/0% no-repeat transparent;
+  background: linear-gradient(hsl(var(--n)) 0 0) 0/0% no-repeat transparent;
   animation: p1 2s infinite linear;
 }

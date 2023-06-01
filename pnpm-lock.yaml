@@ -35,7 +35,7 @@ dependencies:
     specifier: ^2.51.6
     version: 2.51.6(autoprefixer@10.4.14)(postcss@8.4.23)
   solid-icons:
-    specifier: ^1.0.4
+    specifier: 1.0.4
     version: 1.0.4(solid-js@1.7.5)
   solid-js:
     specifier: ^1.7.5
