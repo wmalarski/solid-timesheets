@@ -92,3 +92,11 @@ export const secondsToNow = (start: Date | string) => {
 
   return diffSeconds;
 };
+
+export const secondsToParts = (arg: number) => {
+  const date = new Date(0);
+  date.setSeconds(arg);
+  const timeString = date.toISOString().substring(11, 19);
+  const [hours, minutes, seconds] = timeString.split(":");
+  return { hours: +hours, minutes: +minutes, seconds: +seconds };
+};

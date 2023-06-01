@@ -16,6 +16,7 @@ import {
 } from "solid-js";
 import { Button } from "~/components/Button";
 import { ClientOnly } from "~/components/ClientOnly";
+import { Countdown } from "~/components/Countdown";
 import { showToast } from "~/components/Toast";
 import {
   getAllTimeEntriesKey,
@@ -69,7 +70,7 @@ export const TrackingTime: Component<TrackingTimeProps> = (props) => {
   return (
     <span class="grow text-xs">
       <Show when={props.item} fallback={formatTime(0)}>
-        {formatTime(counter())}
+        <Countdown seconds={counter()} />
       </Show>
     </span>
   );

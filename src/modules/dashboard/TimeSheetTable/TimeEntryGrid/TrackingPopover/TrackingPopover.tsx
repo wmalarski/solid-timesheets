@@ -2,6 +2,7 @@ import { useI18n } from "@solid-primitives/i18n";
 import { IoCloseSharp, IoHourglassSharp } from "solid-icons/io";
 import { Show, createMemo, createSignal, type Component } from "solid-js";
 import { ClientOnly } from "~/components/ClientOnly";
+import { Countdown } from "~/components/Countdown";
 import {
   PopoverArrow,
   PopoverCloseButton,
@@ -14,7 +15,6 @@ import {
   PopoverTrigger,
 } from "~/components/Popover";
 import type { Issue } from "~/server/types";
-import { formatTime } from "~/utils/format";
 import { useTimeSheetContext } from "../../EntriesStore";
 import { useTrackingStoreContext } from "../../TrackingStore";
 import { TrackingCard, createTimeCounter } from "../../TrackingToolbar";
@@ -67,7 +67,7 @@ const ClientTrackingPopover: Component<ClientTrackingPopoverProps> = (
         <IoHourglassSharp />
         <span class="hidden sm:block">
           <Show when={isRunning()} fallback={t("dashboard.tracking.button")}>
-            {formatTime(counter())}
+            <Countdown seconds={counter()} />
           </Show>
         </span>
       </PopoverTrigger>
