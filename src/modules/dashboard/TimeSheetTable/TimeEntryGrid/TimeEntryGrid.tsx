@@ -49,7 +49,7 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
     <GridCell
       bg={isDateToday() ? "base-200" : "base-100"}
       ref={setRef}
-      class="z-20 flex items-center justify-between gap-2"
+      class="z-20 flex snap-mandatory snap-start items-center justify-between gap-2"
       sticky="top"
       borders="bottomRight"
     >
@@ -115,9 +115,9 @@ type ScrollButtonsProps = {
   parent?: HTMLDivElement;
 };
 
-const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
-  const scrollShift = 300;
+const scrollShift = 250;
 
+const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
   const onBackClick = () => {
     props.parent?.scrollBy({ behavior: "smooth", left: -scrollShift });
   };
@@ -242,10 +242,12 @@ export const TimeEntryGrid: Component<Props> = (props) => {
     <div class="relative flex grow flex-col" ref={setParent}>
       <TableToolbar issuesMap={issuesMap()} />
       <div
-        class="w-max-[100vw] grid grow overflow-scroll"
+        class="w-max-[100vw] grid grow snap-x overflow-scroll"
         ref={setParent}
         style={{
-          "grid-template-columns": `repeat(${days().length}, 250px) auto`,
+          "grid-template-columns": `repeat(${
+            days().length
+          }, ${scrollShift}px) auto`,
           "grid-template-rows": "auto 1fr auto",
           "max-height": "calc(100vh - 114px)",
         }}
