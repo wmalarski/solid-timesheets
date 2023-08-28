@@ -52,7 +52,6 @@ export const getTimeEntriesServerQuery = server$(
     const parsed = await parseAsync(getTimeEntriesArgsSchema(), args);
 
     const event = useRequest();
-    const fetch = server$.fetch || event.fetch;
     const request = server$.request || event.request;
     const env = server$.env || event.env;
 
@@ -60,7 +59,6 @@ export const getTimeEntriesServerQuery = server$(
 
     return jsonFetcher<GetTimeEntriesResult>({
       env,
-      fetch,
       path: "/time_entries.json",
       query: {
         from: parsed.from && formatRequestDate(parsed.from),
@@ -100,7 +98,6 @@ export const createTimeEntryServerMutation = server$(
 
     return jsonFetcher<TimeEntry>({
       env: server$.env,
-      fetch: server$.fetch,
       init: {
         body: JSON.stringify({
           time_entry: {
@@ -142,7 +139,6 @@ export const updateTimeEntryServerMutation = server$(
 
     await jsonRequestFetcher({
       env: server$.env,
-      fetch: server$.fetch,
       init: {
         body: JSON.stringify({
           time_entry: {
@@ -186,7 +182,6 @@ export const upsertTimeEntriesServerMutation = server$(
       ...parsed.create.map((entry) =>
         jsonRequestFetcher({
           env: server$.env,
-          fetch: server$.fetch,
           init: {
             body: JSON.stringify({
               time_entry: {
@@ -207,7 +202,6 @@ export const upsertTimeEntriesServerMutation = server$(
       ...parsed.update.map((entry) =>
         jsonRequestFetcher({
           env: server$.env,
-          fetch: server$.fetch,
           init: {
             body: JSON.stringify({
               time_entry: {
@@ -248,7 +242,6 @@ export const deleteTimeEntryServerMutation = server$(
 
     await fetcher({
       env: server$.env,
-      fetch: server$.fetch,
       init: { method: "DELETE" },
       path: `/time_entries/${parsed.id}.json`,
       token: session.token,

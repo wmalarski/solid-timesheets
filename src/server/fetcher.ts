@@ -10,7 +10,6 @@ export type FetcherError = {
 
 export type FetcherArgs = {
   env: Env;
-  fetch: Fetch;
   init?: RequestInit;
   path: string;
   query?: Record<string, unknown>;
@@ -18,7 +17,6 @@ export type FetcherArgs = {
 };
 
 export const fetcher = async ({
-  fetch,
   env,
   init,
   path,

@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const cyberpunkTheme = require("daisyui/src/colors/themes")[
+const cyberpunkTheme = require("daisyui/src/theming/themes")[
   "[data-theme=cyberpunk]"
 ];
 

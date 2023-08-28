@@ -11,20 +11,17 @@ const signInArgsSchema = () => {
 };
 
 export const createSignInServerAction = () => {
-  return createServerAction$(
-    async (form: FormData, { env, fetch, request }) => {
-      const parsed = await formParse({ form, schema: signInArgsSchema() });
+  return createServerAction$(async (form: FormData, { env, request }) => {
+    const parsed = await formParse({ form, schema: signInArgsSchema() });
 
-      const cookie = await setSessionCookie({
-        env,
-        fetch,
-        request,
-        token: parsed.token,
-      });
+    const cookie = await setSessionCookie({
+      env,
+      request,
+      token: parsed.token,
+    });
 
-      return redirect(paths.timeSheets, { headers: { "Set-Cookie": cookie } });
-    }
-  );
+    return redirect(paths.timeSheets, { headers: { "Set-Cookie": cookie } });
+  });
 };
 
 export const createSignOutServerAction = () => {

@@ -16,7 +16,7 @@ import type { Issue } from "./types";
 
 const getIssuesArgsSchema = () => {
   return object({
-    assignedToId: optional(union([coerce(number(), Number), literal("me")])),
+    assignedToId: optional(union([number(), literal("me")])),
     limit: optional(coerce(number(), Number)),
     offset: optional(coerce(number(), Number)),
     sort: optional(string()),
@@ -44,7 +44,6 @@ export const getIssuesServerQuery = server$(
     const parsed = await parseAsync(getIssuesArgsSchema(), args);
 
     const event = useRequest();
-    const fetch = server$.fetch || event.fetch;
     const request = server$.request || event.request;
     const env = server$.env || event.env;
 
@@ -52,7 +51,6 @@ export const getIssuesServerQuery = server$(
 
     return jsonFetcher<GetIssuesResult>({
       env,
-      fetch,
       path: "/issues.json",
       query: {
         assigned_to_id: parsed.assignedToId,

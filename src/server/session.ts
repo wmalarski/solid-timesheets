@@ -7,7 +7,7 @@ import {
   string,
   type Input,
 } from "valibot";
-import { jsonFetcher, type Fetch } from "./fetcher";
+import { jsonFetcher } from "./fetcher";
 import type { User } from "./types";
 
 const createStorage = (env: Env) => {
@@ -93,14 +93,12 @@ export const getSessionOrThrow = async ({
 
 type SetSessionCookieArgs = {
   env: Env;
-  fetch: Fetch;
   request: Request;
   token: string;
 };
 
 export const setSessionCookie = async ({
   env,
-  fetch,
   request,
   token,
 }: SetSessionCookieArgs) => {
@@ -110,7 +108,6 @@ export const setSessionCookie = async ({
 
   const data = await jsonFetcher<{ user: User }>({
     env,
-    fetch,
     path: "/users/current.json",
     token,
   });
