@@ -8,7 +8,7 @@ import {
   number,
   object,
   optional,
-  parse,
+  parseAsync,
   partial,
   string,
   withDefault,
@@ -49,7 +49,7 @@ export const getAllTimeEntriesKey = () => {
 
 export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
-    const parsed = parse(getTimeEntriesArgsSchema(), args);
+    const parsed = await parseAsync(getTimeEntriesArgsSchema(), args);
 
     const event = useRequest();
     const fetch = server$.fetch || event.fetch;
@@ -91,7 +91,7 @@ export type CreateTimeEntryArgs = Input<
 
 export const createTimeEntryServerMutation = server$(
   async (args: CreateTimeEntryArgs) => {
-    const parsed = parse(createTimeEntryArgsSchema(), args);
+    const parsed = await parseAsync(createTimeEntryArgsSchema(), args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -133,7 +133,7 @@ export type UpdateTimeEntryArgs = Input<
 
 export const updateTimeEntryServerMutation = server$(
   async (args: UpdateTimeEntryArgs) => {
-    const parsed = parse(updateTimeEntryArgsSchema(), args);
+    const parsed = await parseAsync(updateTimeEntryArgsSchema(), args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -175,7 +175,7 @@ type UpsertTimeEntriesArgs = Input<
 
 export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
-    const parsed = parse(upsertTimeEntriesArgsSchema(), args);
+    const parsed = await parseAsync(upsertTimeEntriesArgsSchema(), args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -239,7 +239,7 @@ type DeleteTimeEntryArgs = Input<ReturnType<typeof deleteTimeEntryArgsSchema>>;
 
 export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
-    const parsed = parse(deleteTimeEntryArgsSchema(), args);
+    const parsed = await parseAsync(deleteTimeEntryArgsSchema(), args);
 
     const session = await getSessionOrThrow({
       env: server$.env,

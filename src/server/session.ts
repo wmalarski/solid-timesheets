@@ -1,5 +1,12 @@
 import { createCookieSessionStorage } from "solid-start";
-import { coerce, number, object, safeParse, string, type Input } from "valibot";
+import {
+  coerce,
+  number,
+  object,
+  safeParseAsync,
+  string,
+  type Input,
+} from "valibot";
 import { jsonFetcher, type Fetch } from "./fetcher";
 import type { User } from "./types";
 
@@ -44,7 +51,7 @@ const getSessionFromCookie = async ({
 
   const session = await storage.getSession(request.headers.get("Cookie"));
 
-  const parsed = safeParse(sessionSchema(), {
+  const parsed = await safeParseAsync(sessionSchema(), {
     [fullNameKey]: session.get(fullNameKey),
     [idKey]: session.get(idKey),
     [tokenKey]: session.get(tokenKey),

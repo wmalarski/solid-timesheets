@@ -1,22 +1,24 @@
 import { ServerError } from "solid-start/server";
-import type { z } from "zod";
+import { safeParseAsync, type Input, type ObjectSchema } from "valibot";
 
-type ZodFormParse<T extends z.ZodTypeAny> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FormParseArgs<T extends ObjectSchema<any>> = {
   form: FormData;
   schema: T;
 };
 
-export const zodFormParse = async <T extends z.ZodTypeAny>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const formParse = async <T extends ObjectSchema<any>>({
   form,
   schema,
-}: ZodFormParse<T>): Promise<z.infer<T>> => {
+}: FormParseArgs<T>): Promise<Input<T>> => {
   const entries = Object.fromEntries(form.entries());
 
-  const parsed = await schema.safeParseAsync(entries);
+  const parsed = await safeParseAsync(schema, entries);
 
   if (!parsed.success) {
-    throw new ServerError(JSON.stringify(parsed.error.issues));
+    throw new ServerError(JSON.stringify(parsed.issues));
   }
 
-  return parsed.data;
+  return parsed.output;
 };

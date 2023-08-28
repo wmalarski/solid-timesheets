@@ -5,7 +5,7 @@ import {
   number,
   object,
   optional,
-  parse,
+  parseAsync,
   string,
   union,
   type Input,
@@ -41,7 +41,7 @@ export const getIssuesKey = (
 
 export const getIssuesServerQuery = server$(
   async ([, args]: ReturnType<typeof getIssuesKey>) => {
-    const parsed = parse(getIssuesArgsSchema(), args);
+    const parsed = await parseAsync(getIssuesArgsSchema(), args);
 
     const event = useRequest();
     const fetch = server$.fetch || event.fetch;
