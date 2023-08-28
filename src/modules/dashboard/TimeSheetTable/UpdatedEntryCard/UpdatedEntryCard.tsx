@@ -14,7 +14,7 @@ import {
   updateTimeEntryServerMutation,
   type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
-import type { Issue, TimeEntry } from "~/server/types";
+import type { IssueEssentials, TimeEntry } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { UpdatedCardMenu } from "../CardMenu";
 import { useTimeSheetContext } from "../EntriesStore";
@@ -134,7 +134,7 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
 type UpdatedEntryCardProps = {
   entry: TimeEntry;
-  issue: Issue;
+  issue: IssueEssentials;
 };
 
 export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
@@ -182,7 +182,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
             <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
           }
         />
-        <div class="border-y-[1px] border-base-300 py-2">
+        <div class="border-base-300 border-y-[1px] py-2">
           <TrackingRow timeEntryId={props.entry.id} />
         </div>
         <Show

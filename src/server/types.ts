@@ -95,3 +95,5 @@ export type Issue = {
   updated_on: string;
   fixed_version?: FixedVersion;
 };
+
+export type IssueEssentials = Pick<Issue, "id" | "subject" | "project">;

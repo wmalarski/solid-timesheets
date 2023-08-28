@@ -1,12 +1,12 @@
 import type { Component, JSX } from "solid-js";
 import { Badge } from "~/components/Badge";
 import { issueHref } from "~/server/issues";
-import type { Issue } from "~/server/types";
+import type { IssueEssentials } from "~/server/types";
 import { useDashboardConfig } from "../../DashboardConfig";
 
 type Props = {
   isPending: boolean;
-  issue: Issue;
+  issue: IssueEssentials;
   menu: JSX.Element;
 };
 

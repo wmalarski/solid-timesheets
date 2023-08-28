@@ -1,4 +1,4 @@
-import type { Issue, TimeEntry } from "~/server/types";
+import type { Issue, IssueEssentials, TimeEntry } from "~/server/types";
 import type { CreatingEntryData, UpdatingEntryData } from "../EntriesStore";
 
 const getOrSetDefault = <K, V>(
@@ -26,7 +26,7 @@ type GroupTimeEntriesArgs = {
 
 export type IssueTimeEntryPair = {
   entry: TimeEntry;
-  issue: Issue;
+  issue: IssueEssentials;
 };
 
 export const groupTimeEntries = ({
@@ -38,12 +38,15 @@ export const groupTimeEntries = ({
 
   entries.forEach((entry) => {
     const issue = issuesMap.get(entry.issue.id);
-    if (!issue) {
-      return;
-    }
+
+    const essentials = issue || {
+      id: entry.issue.id,
+      project: entry.project,
+      subject: String(entry.issue.id),
+    };
 
     const day = getOrSetDefault(dayMap, entry.spent_on, fallbackDayArray);
-    day.push({ entry, issue });
+    day.push({ entry, issue: essentials });
   });
 
   return dayMap;
