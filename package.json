@@ -47,7 +47,7 @@
     "@tanstack/solid-query": "5.0.0-beta.20",
     "class-variance-authority": "0.7.0",
     "daisyui": "^3.6.3",
-    "solid-icons": "1.0.11",
+    "solid-icons": "1.0.4",
     "solid-js": "^1.7.11",
     "solid-start": "^0.3.4",
     "tailwind-merge": "1.14.0",
