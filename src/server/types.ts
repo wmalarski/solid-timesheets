@@ -97,3 +97,12 @@ export type Issue = {
 };
 
 export type IssueEssentials = Pick<Issue, "id" | "subject" | "project">;
+
+export type SearchResult = {
+  id: number;
+  title: string;
+  type: string;
+  url: string;
+  description: string;
+  datetime: string;
+};
