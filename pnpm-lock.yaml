@@ -39,8 +39,8 @@ dependencies:
     specifier: ^3.6.3
     version: 3.6.3
   solid-icons:
-    specifier: 1.0.11
-    version: 1.0.11(solid-js@1.7.11)
+    specifier: 1.0.4
+    version: 1.0.4(solid-js@1.7.11)
   solid-js:
     specifier: ^1.7.11
     version: 1.7.11
@@ -5208,8 +5208,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /solid-icons@1.0.11(solid-js@1.7.11):
-    resolution: {integrity: sha512-shEL5Otrl73LPZukpanJKi6ISnQhpIvhqqAb8haKyCGrixHOYC6yGfNkSE7jpkKSikZ0rGtSMRiFETRrec2Uzw==}
+  /solid-icons@1.0.4(solid-js@1.7.11):
+    resolution: {integrity: sha512-gJTp4in3+OYCs9WvDkSLt4Los2unR3Uoder8wjh15GsfP20xiNOLfPTJllXmn+fI8+k3x7bRYtLGIgWd9fUQug==}
     engines: {node: '>= 16'}
     peerDependencies:
       solid-js: '*'
