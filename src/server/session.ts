@@ -1,5 +1,5 @@
 import { createCookieSessionStorage } from "solid-start";
-import { z } from "zod";
+import { coerce, number, object, safeParse, string, type Input } from "valibot";
 import { jsonFetcher, type Fetch } from "./fetcher";
 import type { User } from "./types";
 
@@ -22,14 +22,14 @@ const idKey = "id";
 const tokenKey = "token";
 
 const sessionSchema = () => {
-  return z.object({
-    [fullNameKey]: z.string(),
-    [idKey]: z.coerce.number(),
-    [tokenKey]: z.string(),
+  return object({
+    [fullNameKey]: string(),
+    [idKey]: coerce(number(), Number),
+    [tokenKey]: string(),
   });
 };
 
-export type Session = z.infer<ReturnType<typeof sessionSchema>>;
+export type Session = Input<ReturnType<typeof sessionSchema>>;
 
 type GetSessionArgs = {
   env: Env;
@@ -44,14 +44,14 @@ const getSessionFromCookie = async ({
 
   const session = await storage.getSession(request.headers.get("Cookie"));
 
-  const parsed = sessionSchema().safeParse({
+  const parsed = safeParse(sessionSchema(), {
     [fullNameKey]: session.get(fullNameKey),
     [idKey]: session.get(idKey),
     [tokenKey]: session.get(tokenKey),
   });
 
   if (parsed.success) {
-    return parsed.data;
+    return parsed.output;
   }
 
   return null;

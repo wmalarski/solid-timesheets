@@ -11,6 +11,7 @@
     "tanstack",
     "Timesheets",
     "undici",
-    "upsert"
+    "upsert",
+    "valibot"
   ]
 }

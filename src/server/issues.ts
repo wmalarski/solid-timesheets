@@ -1,18 +1,28 @@
 import server$, { useRequest } from "solid-start/server";
-import { z } from "zod";
+import {
+  coerce,
+  literal,
+  number,
+  object,
+  optional,
+  parse,
+  string,
+  union,
+  type Input,
+} from "valibot";
 import { jsonFetcher } from "./fetcher";
 import { getSessionOrThrow } from "./session";
 import type { Issue } from "./types";
 
 const getIssuesArgsSchema = () => {
-  return z.object({
-    assignedToId: z.union([z.coerce.number(), z.literal("me")]).optional(),
-    limit: z.coerce.number().optional(),
-    offset: z.coerce.number().optional(),
-    sort: z.string().optional(),
-    statusId: z
-      .union([z.literal("open"), z.literal("closed"), z.literal("*")])
-      .optional(),
+  return object({
+    assignedToId: optional(union([coerce(number(), Number), literal("me")])),
+    limit: optional(coerce(number(), Number)),
+    offset: optional(coerce(number(), Number)),
+    sort: optional(string()),
+    statusId: optional(
+      union([literal("open"), literal("closed"), literal("*")])
+    ),
   });
 };
 
@@ -24,14 +34,14 @@ type GetIssuesResult = {
 };
 
 export const getIssuesKey = (
-  args: z.infer<ReturnType<typeof getIssuesArgsSchema>>
+  args: Input<ReturnType<typeof getIssuesArgsSchema>>
 ) => {
   return ["getIssues", args] as const;
 };
 
 export const getIssuesServerQuery = server$(
   async ([, args]: ReturnType<typeof getIssuesKey>) => {
-    const parsed = getIssuesArgsSchema().parse(args);
+    const parsed = parse(getIssuesArgsSchema(), args);
 
     const event = useRequest();
     const fetch = server$.fetch || event.fetch;

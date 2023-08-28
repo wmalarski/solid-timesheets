@@ -1,5 +1,19 @@
 import server$, { useRequest } from "solid-start/server";
-import { z } from "zod";
+import {
+  array,
+  coerce,
+  date,
+  maxLength,
+  merge,
+  number,
+  object,
+  optional,
+  parse,
+  partial,
+  string,
+  withDefault,
+  type Input,
+} from "valibot";
 import { formatRequestDate } from "~/utils/format";
 import { buildSearchParams } from "~/utils/searchParams";
 import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
@@ -7,16 +21,16 @@ import { getSessionOrThrow } from "./session";
 import type { TimeEntry } from "./types";
 
 const getTimeEntriesArgsSchema = () => {
-  return z.object({
-    from: z.coerce.date().optional(),
-    limit: z.coerce.number().optional(),
-    offset: z.coerce.number().optional(),
-    projectId: z.coerce.number().optional(),
-    to: z.coerce.date().optional(),
+  return object({
+    from: optional(coerce(date(), (value) => new Date(String(value)))),
+    limit: optional(coerce(number(), Number)),
+    offset: optional(coerce(number(), Number)),
+    projectId: optional(coerce(number(), Number)),
+    to: optional(coerce(date(), (value) => new Date(String(value)))),
   });
 };
 
-type GetTimeEntriesArgs = z.infer<ReturnType<typeof getTimeEntriesArgsSchema>>;
+type GetTimeEntriesArgs = Input<ReturnType<typeof getTimeEntriesArgsSchema>>;
 
 type GetTimeEntriesResult = {
   time_entries: TimeEntry[];
@@ -35,7 +49,7 @@ export const getAllTimeEntriesKey = () => {
 
 export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
-    const parsed = getTimeEntriesArgsSchema().parse(args);
+    const parsed = parse(getTimeEntriesArgsSchema(), args);
 
     const event = useRequest();
     const fetch = server$.fetch || event.fetch;
@@ -62,22 +76,22 @@ export const getTimeEntriesServerQuery = server$(
 );
 
 const createTimeEntryArgsSchema = () => {
-  return z.object({
-    activityId: z.coerce.number().optional(),
-    comments: z.string().max(255).optional().default(""),
-    hours: z.coerce.number(),
-    issueId: z.coerce.number(),
-    spentOn: z.coerce.date(),
+  return object({
+    activityId: optional(coerce(number(), Number)),
+    comments: withDefault(string([maxLength(255)]), ""),
+    hours: coerce(number(), Number),
+    issueId: coerce(number(), Number),
+    spentOn: coerce(date(), (value) => new Date(String(value))),
   });
 };
 
-export type CreateTimeEntryArgs = z.infer<
+export type CreateTimeEntryArgs = Input<
   ReturnType<typeof createTimeEntryArgsSchema>
 >;
 
 export const createTimeEntryServerMutation = server$(
   async (args: CreateTimeEntryArgs) => {
-    const parsed = createTimeEntryArgsSchema().parse(args);
+    const parsed = parse(createTimeEntryArgsSchema(), args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -107,19 +121,19 @@ export const createTimeEntryServerMutation = server$(
 );
 
 const updateTimeEntryArgsSchema = () => {
-  return z.intersection(
-    createTimeEntryArgsSchema().partial(),
-    z.object({ id: z.number() })
-  );
+  return merge([
+    partial(createTimeEntryArgsSchema()),
+    object({ id: number() }),
+  ]);
 };
 
-export type UpdateTimeEntryArgs = z.infer<
+export type UpdateTimeEntryArgs = Input<
   ReturnType<typeof updateTimeEntryArgsSchema>
 >;
 
 export const updateTimeEntryServerMutation = server$(
   async (args: UpdateTimeEntryArgs) => {
-    const parsed = updateTimeEntryArgsSchema().parse(args);
+    const parsed = parse(updateTimeEntryArgsSchema(), args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -149,19 +163,19 @@ export const updateTimeEntryServerMutation = server$(
 );
 
 const upsertTimeEntriesArgsSchema = () => {
-  return z.object({
-    create: z.array(createTimeEntryArgsSchema()),
-    update: z.array(updateTimeEntryArgsSchema()),
+  return object({
+    create: array(createTimeEntryArgsSchema()),
+    update: array(updateTimeEntryArgsSchema()),
   });
 };
 
-type UpsertTimeEntriesArgs = z.infer<
+type UpsertTimeEntriesArgs = Input<
   ReturnType<typeof upsertTimeEntriesArgsSchema>
 >;
 
 export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
-    const parsed = upsertTimeEntriesArgsSchema().parse(args);
+    const parsed = parse(upsertTimeEntriesArgsSchema(), args);
 
     const session = await getSessionOrThrow({
       env: server$.env,
@@ -216,18 +230,16 @@ export const upsertTimeEntriesServerMutation = server$(
 );
 
 const deleteTimeEntryArgsSchema = () => {
-  return z.object({
-    id: z.number(),
+  return object({
+    id: number(),
   });
 };
 
-type DeleteTimeEntryArgs = z.infer<
-  ReturnType<typeof deleteTimeEntryArgsSchema>
->;
+type DeleteTimeEntryArgs = Input<ReturnType<typeof deleteTimeEntryArgsSchema>>;
 
 export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
-    const parsed = deleteTimeEntryArgsSchema().parse(args);
+    const parsed = parse(deleteTimeEntryArgsSchema(), args);
 
     const session = await getSessionOrThrow({
       env: server$.env,

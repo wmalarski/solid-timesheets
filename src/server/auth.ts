@@ -1,12 +1,12 @@
 import { createServerAction$, redirect } from "solid-start/server";
-import { z } from "zod";
+import { object, string } from "valibot";
 import { paths } from "~/utils/paths";
 import { destroySessionCookie, setSessionCookie } from "./session";
 import { zodFormParse } from "./utils";
 
 const signInArgsSchema = () => {
-  return z.object({
-    token: z.string(),
+  return object({
+    token: string(),
   });
 };
 
@@ -23,7 +23,7 @@ export const createSignInServerAction = () => {
       });
 
       return redirect(paths.timeSheets, { headers: { "Set-Cookie": cookie } });
-    }
+    },
   );
 };
 
