@@ -9,6 +9,7 @@ import {
 } from "valibot";
 import { jsonFetcher } from "./fetcher";
 import type { User } from "./types";
+import { removeInvalidCharacters } from "./utils";
 
 const createStorage = (env: Env) => {
   return createCookieSessionStorage({
@@ -114,7 +115,10 @@ export const setSessionCookie = async ({
 
   session.set(tokenKey, token);
   session.set(idKey, data.user.id);
-  session.set(fullNameKey, `${data.user.firstname} ${data.user.lastname}`);
+  session.set(
+    fullNameKey,
+    removeInvalidCharacters(`${data.user.firstname} ${data.user.lastname}`)
+  );
 
   return storage.commitSession(session);
 };

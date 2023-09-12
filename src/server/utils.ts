@@ -22,3 +22,7 @@ export const formParse = async <T extends ObjectSchema<any>>({
 
   return parsed.output;
 };
+
+export const removeInvalidCharacters = (text: string) => {
+  return text.replace(/[\u0250-\ue007]/g, "");
+};

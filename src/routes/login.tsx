@@ -1,7 +1,7 @@
 import { useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
 import { Footer, Title } from "~/modules/auth/Layout";
-import { SignIn } from "~/modules/auth/SignIn";
+import { SignInAlternative } from "~/modules/auth/SignIn";
 import { getSession } from "~/server/session";
 import { paths } from "~/utils/paths";
 
@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <main class="mx-auto flex flex-col items-center p-4">
       <Title />
-      <SignIn />
+      <SignInAlternative />
       <Footer />
     </main>
   );
