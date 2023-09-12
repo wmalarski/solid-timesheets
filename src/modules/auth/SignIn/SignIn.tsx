@@ -1,7 +1,6 @@
 import { useI18n } from "@solid-primitives/i18n";
 import { createMutation } from "@tanstack/solid-query";
 import { Show, type Component, type JSX } from "solid-js";
-import { useNavigate } from "solid-start";
 import { Alert, AlertIcon } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import { Card, CardBody, cardTitleClass } from "~/components/Card";
@@ -14,7 +13,6 @@ import {
 } from "~/components/TextField";
 import { ThemeSwitch } from "~/components/ThemeSwitch";
 import { createSignInServerAction, signInServerMutation } from "~/server/auth";
-import { paths } from "~/utils/paths";
 
 type FormWrapperProps = {
   children: JSX.Element;
@@ -89,12 +87,14 @@ export const SignIn: Component = () => {
 };
 
 export const SignInAlternative: Component = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const mutation = createMutation(() => ({
     mutationFn: signInServerMutation,
     onSuccess: () => {
-      navigate(paths.timeSheets);
+      // navigate is not working here for some reason
+      // navigate(paths.timeSheets);
+      window.location.reload();
     },
   }));
 
@@ -107,7 +107,7 @@ export const SignInAlternative: Component = () => {
 
   return (
     <FormWrapper>
-      <form onSubmit={onSubmit} class="flex flex-col gap-4">
+      <form onSubmit={onSubmit} method="post" class="flex flex-col gap-4">
         <FormContent pending={mutation.isPending} error={mutation.error} />
       </form>
     </FormWrapper>

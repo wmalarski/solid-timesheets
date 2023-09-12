@@ -1,4 +1,8 @@
-import server$, { createServerAction$, redirect } from "solid-start/server";
+import server$, {
+  createServerAction$,
+  json,
+  redirect,
+} from "solid-start/server";
 import { object, parseAsync, regex, string, type Input } from "valibot";
 import { paths } from "~/utils/paths";
 import { destroySessionCookie, setSessionCookie } from "./session";
@@ -35,7 +39,7 @@ export const signInServerMutation = server$(async (args: SignInArgs) => {
     token: parsed.token,
   });
 
-  throw redirect(paths.timeSheets, { headers: { "Set-Cookie": cookie } });
+  return json(null, { headers: { "Set-Cookie": cookie } });
 });
 
 export const createSignOutServerAction = () => {
