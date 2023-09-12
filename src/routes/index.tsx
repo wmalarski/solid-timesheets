@@ -6,8 +6,8 @@ import { getSession } from "~/server/session";
 import { paths } from "~/utils/paths";
 
 export const routeData = () => {
-  return createServerData$(async (_source, { env, request }) => {
-    const session = await getSession({ env, request });
+  return createServerData$((_source, { locals }) => {
+    const session = getSession({ locals });
 
     if (session) {
       return redirect(paths.timeSheets);

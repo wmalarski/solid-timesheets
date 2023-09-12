@@ -1,5 +1,6 @@
 import { createQuery } from "@tanstack/solid-query";
 import { Suspense, type Component } from "solid-js";
+import { isServer } from "solid-js/web";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getTimeEntriesKey,
@@ -40,11 +41,13 @@ export const TimeSheetTable: Component = () => {
   };
 
   const timeEntriesQuery = createQuery(() => ({
+    enabled: !isServer,
     queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
     queryKey: getTimeEntriesKey(timeEntriesArgs()),
   }));
 
   const issuesQuery = createQuery(() => ({
+    enabled: !isServer,
     queryFn: (context) => getIssuesServerQuery(context.queryKey),
     queryKey: getIssuesKey({
       assignedToId: "me",

@@ -1,4 +1,5 @@
-import { createCookieSessionStorage } from "solid-start";
+import { createCookieSessionStorage, type FetchEvent } from "solid-start";
+import type { Middleware } from "solid-start/entry-server";
 import {
   coerce,
   number,
@@ -39,18 +40,12 @@ const sessionSchema = () => {
 
 export type Session = Input<ReturnType<typeof sessionSchema>>;
 
-type GetSessionArgs = {
-  env: Env;
-  request: Request;
-};
+const getSessionFromCookie = async (
+  event: FetchEvent
+): Promise<Session | null> => {
+  const storage = createStorage(event.env);
 
-const getSessionFromCookie = async ({
-  env,
-  request,
-}: GetSessionArgs): Promise<Session | null> => {
-  const storage = createStorage(env);
-
-  const session = await storage.getSession(request.headers.get("Cookie"));
+  const session = await storage.getSession(event.request.headers.get("Cookie"));
 
   const parsed = await safeParseAsync(sessionSchema(), {
     [fullNameKey]: session.get(fullNameKey),
@@ -65,25 +60,22 @@ const getSessionFromCookie = async ({
   return null;
 };
 
-export const getSession = ({
-  env,
-  request,
-}: GetSessionArgs): Promise<Session | null> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const unsafeRequest = request as any;
-
-  if (!unsafeRequest?.sessionPromise) {
-    unsafeRequest.sessionPromise = getSessionFromCookie({ env, request });
-  }
-
-  return unsafeRequest?.sessionPromise;
+export const sessionMiddleware: Middleware = ({ forward }) => {
+  return async (event) => {
+    const session = await getSessionFromCookie(event);
+    event.locals.session = session;
+    return forward(event);
+  };
 };
 
-export const getSessionOrThrow = async ({
-  env,
-  request,
-}: GetSessionArgs): Promise<Session> => {
-  const session = await getSession({ env, request });
+type GetSessionArgs = Pick<FetchEvent, "locals">;
+
+export const getSession = ({ locals }: GetSessionArgs): Session | null => {
+  return locals.session as Session | null;
+};
+
+export const getSessionOrThrow = (args: GetSessionArgs): Session => {
+  const session = getSession(args);
 
   if (!session) {
     throw { code: 401, message: "Unauthorized" };

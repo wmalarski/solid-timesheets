@@ -1,4 +1,4 @@
-import server$, { useRequest } from "solid-start/server";
+import server$ from "solid-start/server";
 import {
   coerce,
   literal,
@@ -43,14 +43,10 @@ export const getIssuesServerQuery = server$(
   async ([, args]: ReturnType<typeof getIssuesKey>) => {
     const parsed = await parseAsync(getIssuesArgsSchema(), args);
 
-    const event = useRequest();
-    const request = server$.request || event.request;
-    const env = server$.env || event.env;
-
-    const session = await getSessionOrThrow({ env, request });
+    const session = getSessionOrThrow({ locals: server$.locals });
 
     return jsonFetcher<GetIssuesResult>({
-      env,
+      env: server$.env,
       path: "/issues.json",
       query: {
         assigned_to_id: parsed.assignedToId,
