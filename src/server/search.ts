@@ -37,7 +37,11 @@ export const getSearchServerQuery = server$(
   async ([, args]: ReturnType<typeof getSearchKey>) => {
     const parsed = await parseAsync(getSearchArgsSchema(), args);
 
-    const session = getSessionOrThrow({ locals: server$.locals });
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      locals: server$.locals,
+      request: server$.request,
+    });
 
     return jsonFetcher<GetSearchResult>({
       env: server$.env,

@@ -20,8 +20,8 @@ const PendingProcess = lazy(() =>
 );
 
 export const routeData = () => {
-  return createServerData$((_source, { locals, env }) => {
-    const session = getSession({ locals });
+  return createServerData$(async (_source, { locals, env, request }) => {
+    const session = await getSession({ env, locals, request });
 
     if (!session) {
       throw redirect(paths.home);

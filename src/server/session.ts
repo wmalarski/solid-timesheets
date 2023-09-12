@@ -40,12 +40,13 @@ const sessionSchema = () => {
 
 export type Session = Input<ReturnType<typeof sessionSchema>>;
 
-const getSessionFromCookie = async (
-  event: FetchEvent
-): Promise<Session | null> => {
-  const storage = createStorage(event.env);
+const getSessionFromCookie = async ({
+  request,
+  env,
+}: Pick<FetchEvent, "request" | "env">): Promise<Session | null> => {
+  const storage = createStorage(env);
 
-  const session = await storage.getSession(event.request.headers.get("Cookie"));
+  const session = await storage.getSession(request.headers.get("Cookie"));
 
   const parsed = await safeParseAsync(sessionSchema(), {
     [fullNameKey]: session.get(fullNameKey),
@@ -63,19 +64,34 @@ const getSessionFromCookie = async (
 export const sessionMiddleware: Middleware = ({ forward }) => {
   return async (event) => {
     const session = await getSessionFromCookie(event);
-    event.locals.session = session;
+    if (event?.locals) {
+      event.locals.session = session;
+    }
     return forward(event);
   };
 };
 
-type GetSessionArgs = Pick<FetchEvent, "locals">;
+type GetSessionArgs = Pick<FetchEvent, "locals" | "env" | "request">;
 
-export const getSession = ({ locals }: GetSessionArgs): Session | null => {
-  return locals.session as Session | null;
+export const getSession = async ({
+  locals,
+  env,
+  request,
+}: GetSessionArgs): Promise<Session | null> => {
+  if ("session" in locals) {
+    return locals.session as Session | null;
+  }
+
+  const session = await getSessionFromCookie({ env, request });
+  locals.session = session;
+
+  return session;
 };
 
-export const getSessionOrThrow = (args: GetSessionArgs): Session => {
-  const session = getSession(args);
+export const getSessionOrThrow = async (
+  args: GetSessionArgs
+): Promise<Session> => {
+  const session = await getSession(args);
 
   if (!session) {
     throw { code: 401, message: "Unauthorized" };

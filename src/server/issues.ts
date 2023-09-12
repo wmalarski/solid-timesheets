@@ -43,7 +43,11 @@ export const getIssuesServerQuery = server$(
   async ([, args]: ReturnType<typeof getIssuesKey>) => {
     const parsed = await parseAsync(getIssuesArgsSchema(), args);
 
-    const session = getSessionOrThrow({ locals: server$.locals });
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      locals: server$.locals,
+      request: server$.request,
+    });
 
     return jsonFetcher<GetIssuesResult>({
       env: server$.env,

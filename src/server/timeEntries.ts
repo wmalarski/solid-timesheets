@@ -51,7 +51,11 @@ export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
     const parsed = await parseAsync(getTimeEntriesArgsSchema(), args);
 
-    const session = getSessionOrThrow({ locals: server$.locals });
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      locals: server$.locals,
+      request: server$.request,
+    });
 
     return jsonFetcher<GetTimeEntriesResult>({
       env: server$.env,
@@ -87,7 +91,11 @@ export const createTimeEntryServerMutation = server$(
   async (args: CreateTimeEntryArgs) => {
     const parsed = await parseAsync(createTimeEntryArgsSchema(), args);
 
-    const session = getSessionOrThrow({ locals: server$.locals });
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      locals: server$.locals,
+      request: server$.request,
+    });
 
     return jsonFetcher<TimeEntry>({
       env: server$.env,
@@ -125,7 +133,11 @@ export const updateTimeEntryServerMutation = server$(
   async (args: UpdateTimeEntryArgs) => {
     const parsed = await parseAsync(updateTimeEntryArgsSchema(), args);
 
-    const session = getSessionOrThrow({ locals: server$.locals });
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      locals: server$.locals,
+      request: server$.request,
+    });
 
     await jsonRequestFetcher({
       env: server$.env,
@@ -163,7 +175,11 @@ export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
     const parsed = await parseAsync(upsertTimeEntriesArgsSchema(), args);
 
-    const session = getSessionOrThrow({ locals: server$.locals });
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      locals: server$.locals,
+      request: server$.request,
+    });
 
     await Promise.all([
       ...parsed.create.map((entry) =>
@@ -222,7 +238,11 @@ export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
     const parsed = await parseAsync(deleteTimeEntryArgsSchema(), args);
 
-    const session = getSessionOrThrow({ locals: server$.locals });
+    const session = await getSessionOrThrow({
+      env: server$.env,
+      locals: server$.locals,
+      request: server$.request,
+    });
 
     await fetcher({
       env: server$.env,
