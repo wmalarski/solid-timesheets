@@ -9,14 +9,10 @@ import {
   type TextFieldInputProps,
 } from "~/components/TextField";
 
-type TimeEntryFieldsData = {
-  comments?: string;
-  hours?: number;
-};
-
 type TimeEntryFieldsProps = {
-  data: TimeEntryFieldsData;
+  comments?: string;
   error?: string;
+  hours?: number;
   isLoading?: boolean;
   onCommentsChange: (comments: string) => void;
   onHoursChange: (hours: number) => void;
@@ -57,7 +53,7 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           size="xs"
           step={0.25}
           type="number"
-          value={props.data.hours}
+          value={props.hours}
           variant="bordered"
         />
       </TextFieldRoot>
@@ -75,7 +71,7 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           placeholder={t("dashboard.timeEntry.comments.placeholder")}
           size="xs"
           type="text"
-          value={props.data.comments}
+          value={props.comments}
           variant="bordered"
         />
       </TextFieldRoot>

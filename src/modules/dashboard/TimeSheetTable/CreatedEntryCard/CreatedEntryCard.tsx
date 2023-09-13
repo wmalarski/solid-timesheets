@@ -49,7 +49,8 @@ const CreateForm: Component<CreateFormProps> = (props) => {
 
   return (
     <TimeEntryFields
-      data={props.entry.args}
+      comments={props.entry.args.comments}
+      hours={props.entry.args.hours}
       isLoading={props.isPending}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}

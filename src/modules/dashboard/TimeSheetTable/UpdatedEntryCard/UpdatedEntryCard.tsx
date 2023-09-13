@@ -39,7 +39,8 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
 
   return (
     <TimeEntryFields
-      data={props.args}
+      comments={props.args.comments}
+      hours={props.args.hours}
       isLoading={props.isPending}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
