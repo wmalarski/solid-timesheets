@@ -71,18 +71,22 @@ export const getSession = ({
   env,
   request,
 }: GetSessionArgs): Promise<Session | null> => {
-  if (!locals) {
-    throw new ServerError("locals not defined");
+  if (!request || !env || !locals) {
+    throw new ServerError(
+      `locals: ${Boolean(locals)}; env:${Boolean(env)}; request:${Boolean(
+        request
+      )}`
+    );
   }
 
-  if ("session" in locals) {
-    return locals.session as Promise<Session | null>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const unsafeRequest = request as any;
+
+  if (!unsafeRequest?.sessionPromise) {
+    unsafeRequest.sessionPromise = getSessionFromCookie({ env, request });
   }
 
-  const session = getSessionFromCookie({ env, request });
-  locals.session = session;
-
-  return session;
+  return unsafeRequest?.sessionPromise;
 };
 
 export const getSessionOrThrow = async (
