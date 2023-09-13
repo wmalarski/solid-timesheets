@@ -1,4 +1,4 @@
-import server$ from "solid-start/server";
+import server$, { useRequest } from "solid-start/server";
 import {
   array,
   coerce,
@@ -50,14 +50,15 @@ export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
     const parsed = await parseAsync(getTimeEntriesArgsSchema(), args);
 
-    const session = await getSessionOrThrow({
-      env: server$.env,
-      locals: server$.locals,
-      request: server$.request,
-    });
+    const serverRequest = useRequest();
+    const env = server$.env || serverRequest.env;
+    const locals = server$.locals || serverRequest.locals;
+    const request = server$.request || serverRequest.request;
+
+    const session = await getSessionOrThrow({ env, locals, request });
 
     return jsonFetcher<GetTimeEntriesResult>({
-      env: server$.env,
+      env,
       path: "/time_entries.json",
       query: {
         from: parsed.from && formatRequestDate(parsed.from),
@@ -90,14 +91,15 @@ export const createTimeEntryServerMutation = server$(
   async (args: CreateTimeEntryArgs) => {
     const parsed = await parseAsync(createTimeEntryArgsSchema(), args);
 
-    const session = await getSessionOrThrow({
-      env: server$.env,
-      locals: server$.locals,
-      request: server$.request,
-    });
+    const serverRequest = useRequest();
+    const env = server$.env || serverRequest.env;
+    const locals = server$.locals || serverRequest.locals;
+    const request = server$.request || serverRequest.request;
+
+    const session = await getSessionOrThrow({ env, locals, request });
 
     return jsonFetcher<TimeEntry>({
-      env: server$.env,
+      env,
       init: {
         body: JSON.stringify({
           time_entry: {
@@ -132,14 +134,15 @@ export const updateTimeEntryServerMutation = server$(
   async (args: UpdateTimeEntryArgs) => {
     const parsed = await parseAsync(updateTimeEntryArgsSchema(), args);
 
-    const session = await getSessionOrThrow({
-      env: server$.env,
-      locals: server$.locals,
-      request: server$.request,
-    });
+    const serverRequest = useRequest();
+    const env = server$.env || serverRequest.env;
+    const locals = server$.locals || serverRequest.locals;
+    const request = server$.request || serverRequest.request;
+
+    const session = await getSessionOrThrow({ env, locals, request });
 
     await jsonRequestFetcher({
-      env: server$.env,
+      env,
       init: {
         body: JSON.stringify({
           time_entry: {
@@ -174,16 +177,17 @@ export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
     const parsed = await parseAsync(upsertTimeEntriesArgsSchema(), args);
 
-    const session = await getSessionOrThrow({
-      env: server$.env,
-      locals: server$.locals,
-      request: server$.request,
-    });
+    const serverRequest = useRequest();
+    const env = server$.env || serverRequest.env;
+    const locals = server$.locals || serverRequest.locals;
+    const request = server$.request || serverRequest.request;
+
+    const session = await getSessionOrThrow({ env, locals, request });
 
     await Promise.all([
       ...parsed.create.map((entry) =>
         jsonRequestFetcher({
-          env: server$.env,
+          env,
           init: {
             body: JSON.stringify({
               time_entry: {
@@ -203,7 +207,7 @@ export const upsertTimeEntriesServerMutation = server$(
       ),
       ...parsed.update.map((entry) =>
         jsonRequestFetcher({
-          env: server$.env,
+          env,
           init: {
             body: JSON.stringify({
               time_entry: {
@@ -237,14 +241,15 @@ export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
     const parsed = await parseAsync(deleteTimeEntryArgsSchema(), args);
 
-    const session = await getSessionOrThrow({
-      env: server$.env,
-      locals: server$.locals,
-      request: server$.request,
-    });
+    const serverRequest = useRequest();
+    const env = server$.env || serverRequest.env;
+    const locals = server$.locals || serverRequest.locals;
+    const request = server$.request || serverRequest.request;
+
+    const session = await getSessionOrThrow({ env, locals, request });
 
     await fetcher({
-      env: server$.env,
+      env,
       init: { method: "DELETE" },
       path: `/time_entries/${parsed.id}.json`,
       token: session.token,

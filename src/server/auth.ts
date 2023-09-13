@@ -2,6 +2,7 @@ import server$, {
   createServerAction$,
   json,
   redirect,
+  useRequest,
 } from "solid-start/server";
 import { object, parseAsync, regex, string, type Input } from "valibot";
 import { paths } from "~/utils/paths";
@@ -33,8 +34,11 @@ export const createSignInServerAction = () => {
 export const signInServerMutation = server$(async (args: SignInArgs) => {
   const parsed = await parseAsync(signInArgsSchema(), args);
 
+  const serverRequest = useRequest();
+  const env = server$.env || serverRequest.env;
+
   const cookie = await setSessionCookie({
-    env: server$.env,
+    env,
     request: server$.request,
     token: parsed.token,
   });

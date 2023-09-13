@@ -1,4 +1,8 @@
-import { createCookieSessionStorage, type FetchEvent } from "solid-start";
+import {
+  ServerError,
+  createCookieSessionStorage,
+  type FetchEvent,
+} from "solid-start";
 import {
   coerce,
   number,
@@ -67,6 +71,10 @@ export const getSession = ({
   env,
   request,
 }: GetSessionArgs): Promise<Session | null> => {
+  if (!locals) {
+    throw new ServerError("locals not defined");
+  }
+
   if ("session" in locals) {
     return locals.session as Promise<Session | null>;
   }
