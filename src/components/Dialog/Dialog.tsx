@@ -88,10 +88,24 @@ export const DialogHeader: Component<DialogHeaderProps> = (props) => {
   );
 };
 
-export type DialogCloseButtonProps = Dialog.DialogCloseButtonProps;
+export type DialogCloseButtonProps = Dialog.DialogCloseButtonProps &
+  VariantProps<typeof buttonClass>;
 
 export const DialogCloseButton: Component<DialogCloseButtonProps> = (props) => {
-  return <Dialog.CloseButton {...props} class={twCx("w-4 h-4", props.class)} />;
+  const [split, rest] = splitProps(props, [
+    "color",
+    "isLoading",
+    "shape",
+    "size",
+    "variant",
+  ]);
+
+  return (
+    <Dialog.CloseButton
+      {...rest}
+      class={buttonClass({ class: props.class, ...split })}
+    />
+  );
 };
 
 export type DialogTitleProps = Dialog.DialogTitleProps;
