@@ -11,7 +11,6 @@ import {
   parseAsync,
   partial,
   string,
-  withDefault,
   type Input,
 } from "valibot";
 import { formatRequestDate } from "~/utils/format";
@@ -76,7 +75,7 @@ export const getTimeEntriesServerQuery = server$(
 const createTimeEntryArgsSchema = () => {
   return object({
     activityId: optional(coerce(number(), Number)),
-    comments: withDefault(string([maxLength(255)]), ""),
+    comments: optional(string([maxLength(255)]), ""),
     hours: coerce(number(), Number),
     issueId: coerce(number(), Number),
     spentOn: coerce(date(), (value) => new Date(String(value))),

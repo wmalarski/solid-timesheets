@@ -182,7 +182,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
             <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
           }
         />
-        <div class="border-base-300 border-y-[1px] py-2">
+        <div class="border-y-[1px] border-base-300 py-2">
           <TrackingRow timeEntryId={props.entry.id} />
         </div>
         <Show

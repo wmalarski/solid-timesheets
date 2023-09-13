@@ -1,7 +1,4 @@
-import type { ServerFunctionEvent } from "solid-start";
 import { buildSearchParams } from "~/utils/searchParams";
-
-export type Fetch = ServerFunctionEvent["fetch"];
 
 export type FetcherError = {
   status: number;
