@@ -1,5 +1,4 @@
 import { createCookieSessionStorage, type FetchEvent } from "solid-start";
-import type { Middleware } from "solid-start/entry-server";
 import {
   coerce,
   number,
@@ -61,28 +60,18 @@ const getSessionFromCookie = async ({
   return null;
 };
 
-export const sessionMiddleware: Middleware = ({ forward }) => {
-  return async (event) => {
-    const session = await getSessionFromCookie(event);
-    if (event?.locals) {
-      event.locals.session = session;
-    }
-    return forward(event);
-  };
-};
-
 type GetSessionArgs = Pick<FetchEvent, "locals" | "env" | "request">;
 
-export const getSession = async ({
+export const getSession = ({
   locals,
   env,
   request,
 }: GetSessionArgs): Promise<Session | null> => {
   if ("session" in locals) {
-    return locals.session as Session | null;
+    return locals.session as Promise<Session | null>;
   }
 
-  const session = await getSessionFromCookie({ env, request });
+  const session = getSessionFromCookie({ env, request });
   locals.session = session;
 
   return session;
