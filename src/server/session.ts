@@ -64,19 +64,14 @@ const getSessionFromCookie = async ({
   return null;
 };
 
-type GetSessionArgs = Pick<FetchEvent, "locals" | "env" | "request">;
+type GetSessionArgs = Pick<FetchEvent, "env" | "request">;
 
 export const getSession = ({
-  locals,
   env,
   request,
 }: GetSessionArgs): Promise<Session | null> => {
-  if (!request || !env || !locals) {
-    throw new ServerError(
-      `locals: ${Boolean(locals)}; env:${Boolean(env)}; request:${Boolean(
-        request
-      )}`
-    );
+  if (!request || !env) {
+    throw new ServerError(`env:${Boolean(env)}; request:${Boolean(request)}`);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

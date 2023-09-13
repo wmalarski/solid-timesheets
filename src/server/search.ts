@@ -1,4 +1,4 @@
-import server$, { useRequest } from "solid-start/server";
+import server$ from "solid-start/server";
 import {
   coerce,
   number,
@@ -37,12 +37,10 @@ export const getSearchServerQuery = server$(
   async ([, args]: ReturnType<typeof getSearchKey>) => {
     const parsed = await parseAsync(getSearchArgsSchema(), args);
 
-    const serverRequest = useRequest();
-    const env = server$.env || serverRequest.env;
-    const locals = server$.locals || serverRequest.locals;
-    const request = server$.request || serverRequest.request;
+    const env = server$.env;
+    const request = server$.request;
 
-    const session = await getSessionOrThrow({ env, locals, request });
+    const session = await getSessionOrThrow({ env, request });
 
     return jsonFetcher<GetSearchResult>({
       env,

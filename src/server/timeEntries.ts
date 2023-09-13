@@ -1,4 +1,4 @@
-import server$, { useRequest } from "solid-start/server";
+import server$ from "solid-start/server";
 import {
   array,
   coerce,
@@ -50,12 +50,10 @@ export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
     const parsed = await parseAsync(getTimeEntriesArgsSchema(), args);
 
-    const serverRequest = useRequest();
-    const env = server$.env || serverRequest.env;
-    const locals = server$.locals || serverRequest.locals;
-    const request = server$.request || serverRequest.request;
+    const env = server$.env;
+    const request = server$.request;
 
-    const session = await getSessionOrThrow({ env, locals, request });
+    const session = await getSessionOrThrow({ env, request });
 
     return jsonFetcher<GetTimeEntriesResult>({
       env,
@@ -91,12 +89,10 @@ export const createTimeEntryServerMutation = server$(
   async (args: CreateTimeEntryArgs) => {
     const parsed = await parseAsync(createTimeEntryArgsSchema(), args);
 
-    const serverRequest = useRequest();
-    const env = server$.env || serverRequest.env;
-    const locals = server$.locals || serverRequest.locals;
-    const request = server$.request || serverRequest.request;
+    const env = server$.env;
+    const request = server$.request;
 
-    const session = await getSessionOrThrow({ env, locals, request });
+    const session = await getSessionOrThrow({ env, request });
 
     return jsonFetcher<TimeEntry>({
       env,
@@ -134,12 +130,10 @@ export const updateTimeEntryServerMutation = server$(
   async (args: UpdateTimeEntryArgs) => {
     const parsed = await parseAsync(updateTimeEntryArgsSchema(), args);
 
-    const serverRequest = useRequest();
-    const env = server$.env || serverRequest.env;
-    const locals = server$.locals || serverRequest.locals;
-    const request = server$.request || serverRequest.request;
+    const env = server$.env;
+    const request = server$.request;
 
-    const session = await getSessionOrThrow({ env, locals, request });
+    const session = await getSessionOrThrow({ env, request });
 
     await jsonRequestFetcher({
       env,
@@ -177,12 +171,10 @@ export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
     const parsed = await parseAsync(upsertTimeEntriesArgsSchema(), args);
 
-    const serverRequest = useRequest();
-    const env = server$.env || serverRequest.env;
-    const locals = server$.locals || serverRequest.locals;
-    const request = server$.request || serverRequest.request;
+    const env = server$.env;
+    const request = server$.request;
 
-    const session = await getSessionOrThrow({ env, locals, request });
+    const session = await getSessionOrThrow({ env, request });
 
     await Promise.all([
       ...parsed.create.map((entry) =>
@@ -241,12 +233,10 @@ export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
     const parsed = await parseAsync(deleteTimeEntryArgsSchema(), args);
 
-    const serverRequest = useRequest();
-    const env = server$.env || serverRequest.env;
-    const locals = server$.locals || serverRequest.locals;
-    const request = server$.request || serverRequest.request;
+    const env = server$.env;
+    const request = server$.request;
 
-    const session = await getSessionOrThrow({ env, locals, request });
+    const session = await getSessionOrThrow({ env, request });
 
     await fetcher({
       env,
