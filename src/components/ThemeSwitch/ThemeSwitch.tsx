@@ -1,10 +1,10 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { IoMoonOutline, IoSunnySharp } from "solid-icons/io";
 import { createMemo, type Component } from "solid-js";
+import { useI18n } from "~/contexts/I18nContext";
 import { useThemeContext } from "~/contexts/ThemeContext";
 
 export const ThemeSwitch: Component = () => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setTheme, theme } = useThemeContext();
 

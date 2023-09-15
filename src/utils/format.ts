@@ -1,4 +1,4 @@
-import { useI18n } from "@solid-primitives/i18n";
+import { useI18n } from "~/contexts/I18nContext";
 
 export const formatRequestDate = (date: Date) => {
   const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
@@ -7,7 +7,7 @@ export const formatRequestDate = (date: Date) => {
 };
 
 export const formatMonth = (date: Date) => {
-  const [, { locale }] = useI18n();
+  const { locale } = useI18n();
 
   return Intl.DateTimeFormat(locale(), {
     month: "long",
@@ -16,19 +16,19 @@ export const formatMonth = (date: Date) => {
 };
 
 export const formatDay = (date: Date) => {
-  const [, { locale }] = useI18n();
+  const { locale } = useI18n();
 
   return Intl.DateTimeFormat(locale(), { day: "numeric" }).format(date);
 };
 
 export const formatWeekday = (date: Date) => {
-  const [, { locale }] = useI18n();
+  const { locale } = useI18n();
 
   return Intl.DateTimeFormat(locale(), { weekday: "long" }).format(date);
 };
 
 export const formatTime = (seconds: number) => {
-  const [, { locale }] = useI18n();
+  const { locale } = useI18n();
 
   const hours = Math.floor((seconds / (1000 * 60 * 60)) % 24);
 

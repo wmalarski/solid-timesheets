@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { IoCloseSharp } from "solid-icons/io";
 import { splitProps, type Component } from "solid-js";
 import {
@@ -14,13 +13,14 @@ import {
   AlertDialogTrigger,
   type AlertDialogTriggerProps,
 } from "~/components/AlertDialog";
+import { useI18n } from "~/contexts/I18nContext";
 
 type DeleteAlertPortalProps = {
   onConfirm: VoidFunction;
 };
 
 const DeleteAlertPortal: Component<DeleteAlertPortalProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   return (
     <AlertDialogPortal>

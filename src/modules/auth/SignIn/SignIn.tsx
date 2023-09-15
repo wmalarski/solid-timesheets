@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { createMutation } from "@tanstack/solid-query";
 import { Show, type Component, type JSX } from "solid-js";
 import { Alert, AlertIcon } from "~/components/Alert";
@@ -12,6 +11,7 @@ import {
   TextFieldRoot,
 } from "~/components/TextField";
 import { ThemeSwitch } from "~/components/ThemeSwitch";
+import { useI18n } from "~/contexts/I18nContext";
 import { createSignInServerAction, signInServerMutation } from "~/server/auth";
 
 type FormWrapperProps = {
@@ -19,7 +19,7 @@ type FormWrapperProps = {
 };
 
 const FormWrapper: Component<FormWrapperProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   return (
     <Card variant="bordered" class="w-full max-w-md">
@@ -40,7 +40,7 @@ type FormContentProps = {
 };
 
 const FormContent: Component<FormContentProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   return (
     <>
@@ -63,9 +63,7 @@ const FormContent: Component<FormContentProps> = (props) => {
           variant="bordered"
           placeholder={t("signIn.placeholder")}
         />
-        <TextFieldDescription>
-          {t("signIn.description", {}, "")}
-        </TextFieldDescription>
+        <TextFieldDescription>{t("signIn.description")}</TextFieldDescription>
       </TextFieldRoot>
       <Button disabled={props.pending} isLoading={props.pending} type="submit">
         {t("signIn.button")}

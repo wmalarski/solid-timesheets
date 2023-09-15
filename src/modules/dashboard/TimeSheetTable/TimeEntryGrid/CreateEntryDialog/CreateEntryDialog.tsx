@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { createWritableMemo } from "@solid-primitives/memo";
 import { IoAddSharp, IoCloseSharp } from "solid-icons/io";
 import { createSignal, type Component, type JSX } from "solid-js";
@@ -14,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/Dialog";
+import { useI18n } from "~/contexts/I18nContext";
 import type { Issue } from "~/server/types";
 import { createSheetEntryArgs, useTimeSheetContext } from "../../EntriesStore";
 import { TimeEntryFields } from "../../TimeEntryFields";
@@ -25,7 +25,7 @@ type CreateEntryFormProps = {
 };
 
 const CreateEntryForm: Component<CreateEntryFormProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
 
@@ -57,9 +57,9 @@ const CreateEntryForm: Component<CreateEntryFormProps> = (props) => {
         onHoursChange={setHours}
       />
       <Button variant="ghost" onClick={props.onCancelClick} type="button">
-        {t("board.settings.delete.cancel")}
+        {t("dashboard.createDialog.cancel")}
       </Button>
-      <Button type="submit">{t("board.settings.delete.button")}</Button>
+      <Button type="submit">{t("dashboard.createDialog.submit")}</Button>
     </form>
   );
 };
@@ -70,7 +70,7 @@ type CreateEntryDialogProps = {
 };
 
 export const CreateEntryDialog: Component<CreateEntryDialogProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const [isOpen, setIsOpen] = createSignal(false);
 
@@ -81,7 +81,7 @@ export const CreateEntryDialog: Component<CreateEntryDialogProps> = (props) => {
   return (
     <DialogRoot open={isOpen()} onOpenChange={setIsOpen}>
       <DialogTrigger
-        aria-label={t("dashboard.create")}
+        aria-label={t("dashboard.createDialog.title")}
         shape="square"
         size="sm"
         variant="ghost"
@@ -93,7 +93,7 @@ export const CreateEntryDialog: Component<CreateEntryDialogProps> = (props) => {
         <DialogPositioner>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{t("dashboard.create")}</DialogTitle>
+              <DialogTitle>{t("dashboard.createDialog.title")}</DialogTitle>
               <DialogCloseButton>
                 <IoCloseSharp />
               </DialogCloseButton>

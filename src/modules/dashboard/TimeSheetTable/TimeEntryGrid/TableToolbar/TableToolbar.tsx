@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import {
   createMutation,
   useIsMutating,
@@ -14,6 +13,7 @@ import {
 import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { showToast } from "~/components/Toast";
+import { useI18n } from "~/contexts/I18nContext";
 import { useDashboardConfig } from "~/modules/dashboard/DashboardConfig";
 import {
   getAllTimeEntriesKey,
@@ -73,7 +73,7 @@ type ResetButtonProps = {
 };
 
 const ResetButton: Component<ResetButtonProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
 
@@ -102,7 +102,7 @@ type SaveButtonProps = {
 };
 
 const SaveButton: Component<SaveButtonProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { state, setState } = useTimeSheetContext();
 
@@ -160,7 +160,7 @@ type DownloadButtonProps = {
 };
 
 const DownloadButton: Component<DownloadButtonProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { selectedDate } = useTimeSheetSearchParams();
   const config = useDashboardConfig();

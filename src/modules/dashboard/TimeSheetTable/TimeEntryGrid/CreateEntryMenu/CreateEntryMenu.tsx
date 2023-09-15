@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { IoAddSharp } from "solid-icons/io";
 import { For, type Component } from "solid-js";
 import {
@@ -12,6 +11,7 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
+import { useI18n } from "~/contexts/I18nContext";
 import type { Issue } from "~/server/types";
 import { createSheetEntryArgs, useTimeSheetContext } from "../../EntriesStore";
 
@@ -21,7 +21,7 @@ type Props = {
 };
 
 export const CreateEntryMenu: Component<Props> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
 
@@ -40,7 +40,7 @@ export const CreateEntryMenu: Component<Props> = (props) => {
   return (
     <DropdownMenuRoot>
       <DropdownMenuTrigger
-        aria-label={t("dashboard.create")}
+        aria-label={t("dashboard.createDialog.title")}
         shape="square"
         size="sm"
         variant="ghost"

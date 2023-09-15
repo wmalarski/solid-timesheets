@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import {
   createMutation,
   useIsMutating,
@@ -9,6 +8,7 @@ import { createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { showToast } from "~/components/Toast";
+import { useI18n } from "~/contexts/I18nContext";
 import {
   createTimeEntryServerMutation,
   getAllTimeEntriesKey,
@@ -65,7 +65,7 @@ type SaveButtonProps = {
 };
 
 const SaveButton: Component<SaveButtonProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
 
@@ -114,7 +114,7 @@ type Props = {
 };
 
 export const CreatedEntryCard: Component<Props> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
 

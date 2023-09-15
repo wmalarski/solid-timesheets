@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { createWritableMemo } from "@solid-primitives/memo";
 import { createMutation, useQueryClient } from "@tanstack/solid-query";
 import {
@@ -18,6 +17,7 @@ import { Button } from "~/components/Button";
 import { ClientOnly } from "~/components/ClientOnly";
 import { Countdown } from "~/components/Countdown";
 import { showToast } from "~/components/Toast";
+import { useI18n } from "~/contexts/I18nContext";
 import {
   getAllTimeEntriesKey,
   updateTimeEntryServerMutation,
@@ -82,7 +82,7 @@ type SaveButtonProps = {
 };
 
 const SaveButton: Component<SaveButtonProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { state } = useTimeSheetContext();
   const { reset } = useTrackingStoreContext();
@@ -144,7 +144,7 @@ type TrackingCardProps = {
 };
 
 export const TrackingCard: Component<TrackingCardProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { runningId, pause, reset, items, start } = useTrackingStoreContext();
 

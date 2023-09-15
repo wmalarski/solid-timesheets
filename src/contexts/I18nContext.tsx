@@ -1,5 +1,13 @@
-import { flatten, translator, type Translator } from "@solid-primitives/i18n";
-import { createContext, createMemo, createSignal, useContext } from "solid-js";
+import { flatten, resolveTemplate, translator } from "@solid-primitives/i18n";
+import {
+  createContext,
+  createMemo,
+  createSignal,
+  useContext,
+  type Accessor,
+  type Component,
+  type JSX,
+} from "solid-js";
 
 const en_dict = {
   dashboard: {
@@ -9,7 +17,11 @@ const en_dict = {
       description: "Are you sure you want to delete this?",
       title: "Confirm the action",
     },
-    create: "New",
+    createDialog: {
+      cancel: "Cancel",
+      submit: "Submit",
+      title: "New",
+    },
     report: "Download",
     reset: "Reset({{count}})",
     saveAll: "Save({{count}})",
@@ -79,15 +91,17 @@ export type Locale = "en";
 
 const dictionaries = { en: en_dict };
 
+type Accessed<T> = T extends Accessor<infer A> ? A : never;
+
 export const createI18nValue = () => {
   const [locale, setLocale] = createSignal<Locale>("en");
 
   const translate = createMemo(() => {
     const dict = flatten(dictionaries[locale()]);
-    return translator(() => dict);
+    return translator(() => dict, resolveTemplate);
   });
 
-  const t: Translator<typeof en_dict> = (path, ...args) => {
+  const t: Accessed<typeof translate> = (path, ...args) => {
     return translate()(path, ...args);
   };
 
@@ -103,6 +117,20 @@ export const I18nContext = createContext<I18nContextValue>({
     throw new Error("Not implemented");
   },
 });
+
+type I18nContextProviderProps = {
+  children: JSX.Element;
+};
+
+export const I18nContextProvider: Component<I18nContextProviderProps> = (
+  props
+) => {
+  const value = createI18nValue();
+
+  return (
+    <I18nContext.Provider value={value}>{props.children}</I18nContext.Provider>
+  );
+};
 
 export const useI18n = () => {
   return useContext(I18nContext);

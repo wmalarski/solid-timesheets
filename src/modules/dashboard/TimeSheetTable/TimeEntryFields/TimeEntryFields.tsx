@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { Show, type Component } from "solid-js";
 import { Alert, AlertIcon } from "~/components/Alert";
 import {
@@ -8,6 +7,7 @@ import {
   TextFieldRoot,
   type TextFieldInputProps,
 } from "~/components/TextField";
+import { useI18n } from "~/contexts/I18nContext";
 
 type TimeEntryFieldsProps = {
   comments?: string;
@@ -19,7 +19,7 @@ type TimeEntryFieldsProps = {
 };
 
 export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const onCommentsInput: TextFieldInputProps["onInput"] = (event) => {
     props.onCommentsChange(event.target.value);

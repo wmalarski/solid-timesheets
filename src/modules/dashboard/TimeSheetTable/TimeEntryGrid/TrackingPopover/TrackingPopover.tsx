@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { IoCloseSharp, IoHourglassSharp } from "solid-icons/io";
 import { Show, createMemo, createSignal, type Component } from "solid-js";
 import { ClientOnly } from "~/components/ClientOnly";
@@ -14,6 +13,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "~/components/Popover";
+import { useI18n } from "~/contexts/I18nContext";
 import type { Issue } from "~/server/types";
 import { useTimeSheetContext } from "../../EntriesStore";
 import { useTrackingStoreContext } from "../../TrackingStore";
@@ -26,7 +26,7 @@ type ClientTrackingPopoverProps = {
 const ClientTrackingPopover: Component<ClientTrackingPopoverProps> = (
   props
 ) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { state } = useTimeSheetContext();
   const { runningId, items } = useTrackingStoreContext();

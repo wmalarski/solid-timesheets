@@ -1,14 +1,14 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { IoLogOutSharp, IoTimerSharp } from "solid-icons/io";
 import { type Component } from "solid-js";
 import { Button, LinkButton } from "~/components/Button";
 import { ThemeSwitch } from "~/components/ThemeSwitch";
+import { useI18n } from "~/contexts/I18nContext";
 import { createSignOutServerAction } from "~/server/auth";
 import { paths } from "~/utils/paths";
 import { useDashboardConfig } from "../DashboardConfig";
 
 const SignOut: Component = () => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const [signOut, { Form }] = createSignOutServerAction();
 
@@ -29,7 +29,7 @@ const SignOut: Component = () => {
 };
 
 export const TopBar: Component = () => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const config = useDashboardConfig();
 

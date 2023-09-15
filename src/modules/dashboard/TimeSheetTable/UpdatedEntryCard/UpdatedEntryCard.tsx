@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import {
   createMutation,
   useIsMutating,
@@ -9,6 +8,7 @@ import { Show, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { showToast } from "~/components/Toast";
+import { useI18n } from "~/contexts/I18nContext";
 import {
   getAllTimeEntriesKey,
   updateTimeEntryServerMutation,
@@ -55,7 +55,7 @@ type CardContentProps = {
 };
 
 const CardContent: Component<CardContentProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   return (
     <div class="flex flex-col gap-2">
@@ -90,7 +90,7 @@ type SaveButtonProps = {
 };
 
 const SaveButton: Component<SaveButtonProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
 
@@ -139,7 +139,7 @@ type UpdatedEntryCardProps = {
 };
 
 export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { state, setState } = useTimeSheetContext();
 

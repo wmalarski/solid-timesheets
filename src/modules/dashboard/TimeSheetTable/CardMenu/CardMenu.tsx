@@ -1,4 +1,3 @@
-import { useI18n } from "@solid-primitives/i18n";
 import { createMutation, useQueryClient } from "@tanstack/solid-query";
 import {
   IoDuplicateSharp,
@@ -18,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
 import { showToast } from "~/components/Toast";
+import { useI18n } from "~/contexts/I18nContext";
 import {
   deleteTimeEntryServerMutation,
   getAllTimeEntriesKey,
@@ -38,7 +38,7 @@ type DeleteItemProps = {
 };
 
 const DeleteItem: Component<DeleteItemProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   return (
     <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
@@ -56,7 +56,7 @@ type DeleteUpdatedItemProps = {
 };
 
 const DeleteUpdatedItem: Component<DeleteUpdatedItemProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
 
@@ -112,7 +112,7 @@ type CopyItemsProps = {
 };
 
 export const CopyItems: Component<CopyItemsProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
 
@@ -154,7 +154,7 @@ type CreatedCardMenuProps = {
 };
 
 export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { state, setState } = useTimeSheetContext();
 
@@ -195,7 +195,7 @@ type UpdatedCardMenuProps = {
 };
 
 export const UpdatedCardMenu: Component<UpdatedCardMenuProps> = (props) => {
-  const [t] = useI18n();
+  const { t } = useI18n();
 
   const { state } = useTimeSheetContext();
 
