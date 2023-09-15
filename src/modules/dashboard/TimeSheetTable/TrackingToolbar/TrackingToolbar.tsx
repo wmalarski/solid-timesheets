@@ -24,6 +24,7 @@ import {
 } from "~/server/timeEntries";
 import { secondsToNow } from "~/utils/date";
 import { formatTime } from "~/utils/format";
+import { DeleteAlertDialog } from "../DeleteAlertDialog";
 import { useTimeSheetContext } from "../EntriesStore";
 import { useTrackingStoreContext, type TrackingItem } from "../TrackingStore";
 
@@ -172,16 +173,16 @@ export const TrackingCard: Component<TrackingCardProps> = (props) => {
     <div class="flex items-center">
       <TrackingTime item={item()} isRunning={isCurrentRunning()} />
       <Show when={item()}>
-        <Button
+        <DeleteAlertDialog
           aria-label={t("dashboard.tracking.reset")}
           disabled={!item()}
-          onClick={onResetClick}
+          onConfirm={onResetClick}
           shape="square"
           size="sm"
           variant="ghost"
         >
           <IoReloadSharp class="h-4 w-4" />
-        </Button>
+        </DeleteAlertDialog>
       </Show>
       <Show
         when={isCurrentRunning()}

@@ -17,6 +17,7 @@ import {
 import type { IssueEssentials, TimeEntry } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { UpdatedCardMenu } from "../CardMenu";
+import { DeleteAlertDialog } from "../DeleteAlertDialog";
 import { useTimeSheetContext } from "../EntriesStore";
 import { TimeEntryFields } from "../TimeEntryFields";
 import { TrackingRow } from "../TrackingToolbar";
@@ -200,15 +201,15 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
             <div class="flex flex-col gap-2">
               <UpdateForm args={entry().args} isPending={isPending()} />
               <div class="flex justify-end gap-2">
-                <Button
+                <DeleteAlertDialog
                   disabled={isPending()}
-                  onClick={onResetClick}
+                  onConfirm={onResetClick}
                   size="xs"
                   variant="ghost"
                 >
                   <IoReloadSharp />
                   {t("dashboard.timeEntry.reset")}
-                </Button>
+                </DeleteAlertDialog>
                 <SaveButton args={entry().args} isPending={isPending()} />
               </div>
             </div>

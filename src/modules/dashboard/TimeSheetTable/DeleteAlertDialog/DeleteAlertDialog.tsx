@@ -31,19 +31,25 @@ const DeleteAlertPortal: Component<DeleteAlertPortalProps> = (props) => {
             <AlertDialogTitle>
               {t("dashboard.confirmDelete.title")}
             </AlertDialogTitle>
-            <AlertDialogCloseButton>
+            <AlertDialogCloseButton variant="ghost">
               <IoCloseSharp />
             </AlertDialogCloseButton>
           </AlertDialogHeader>
           <AlertDialogDescription>
             {t("dashboard.confirmDelete.description")}
           </AlertDialogDescription>
-          <AlertDialogCloseButton>
-            {t("dashboard.confirmDelete.cancel")}
-          </AlertDialogCloseButton>
-          <AlertDialogCloseButton onClick={props.onConfirm}>
-            {t("dashboard.confirmDelete.confirm")}
-          </AlertDialogCloseButton>
+          <div class="flex justify-end pt-4">
+            <AlertDialogCloseButton variant="ghost" size="sm">
+              {t("dashboard.confirmDelete.cancel")}
+            </AlertDialogCloseButton>
+            <AlertDialogCloseButton
+              onClick={props.onConfirm}
+              size="sm"
+              variant="outline"
+            >
+              {t("dashboard.confirmDelete.confirm")}
+            </AlertDialogCloseButton>
+          </div>
         </AlertDialogContent>
       </AlertDialogPositioner>
     </AlertDialogPortal>
@@ -65,14 +71,16 @@ export const DeleteAlertDialog: Component<DeleteAlertDialogProps> = (props) => {
 };
 
 type DeleteAlertControlledDialogProps = {
+  isOpen: boolean;
   onConfirm: VoidFunction;
+  onIsOpenChange: (isOpen: boolean) => void;
 };
 
 export const DeleteAlertControlledDialog: Component<
   DeleteAlertControlledDialogProps
 > = (props) => {
   return (
-    <AlertDialogRoot>
+    <AlertDialogRoot open={props.isOpen} onOpenChange={props.onIsOpenChange}>
       <DeleteAlertPortal onConfirm={props.onConfirm} />
     </AlertDialogRoot>
   );

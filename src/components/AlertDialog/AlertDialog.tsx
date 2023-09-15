@@ -43,7 +43,7 @@ export const AlertDialogOverlay: Component<AlertDialogOverlayProps> = (
     <AlertDialog.Overlay
       {...props}
       class={twCx(
-        "fixed inset-0 z-50 bg-base-content bg-opacity-50",
+        "fixed inset-0 z-50 bg-base-200 bg-opacity-80",
         styles.overlay,
         props.class
       )}
@@ -76,7 +76,7 @@ export const AlertDialogContent: Component<AlertDialogContentProps> = (
     <AlertDialog.Content
       {...props}
       class={twCx(
-        "z-50 max-w-lg bg-base-100 shadow-xl p-8 rounded-2xl",
+        "z-50 max-w-lg bg-base-100 shadow-xl p-8",
         styles.content,
         props.class
       )}

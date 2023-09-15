@@ -23,6 +23,7 @@ import {
 import type { Issue } from "~/server/types";
 import { getNextMonth, getPreviousMonth } from "~/utils/date";
 import { formatMonth } from "~/utils/format";
+import { DeleteAlertDialog } from "../../DeleteAlertDialog";
 import { resetSheetEntries, useTimeSheetContext } from "../../EntriesStore";
 import { useTimeSheetSearchParams } from "../../TimeSheetTable.utils";
 import { TrackingPopover } from "../TrackingPopover";
@@ -82,9 +83,9 @@ const ResetButton: Component<ResetButtonProps> = (props) => {
   };
 
   return (
-    <Button
+    <DeleteAlertDialog
+      onConfirm={onClick}
       disabled={props.isDisabled}
-      onClick={onClick}
       size="sm"
       variant="ghost"
     >
@@ -92,7 +93,7 @@ const ResetButton: Component<ResetButtonProps> = (props) => {
       <span class="hidden sm:block">
         {t("dashboard.reset", { count: String(props.count) })}
       </span>
-    </Button>
+    </DeleteAlertDialog>
   );
 };
 

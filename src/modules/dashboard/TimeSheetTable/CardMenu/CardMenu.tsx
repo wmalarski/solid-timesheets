@@ -4,7 +4,7 @@ import {
   IoEllipsisHorizontalSharp,
   IoTrashSharp,
 } from "solid-icons/io";
-import { type Component } from "solid-js";
+import { createSignal, type Component } from "solid-js";
 import {
   DropdownMenuArrow,
   DropdownMenuContent,
@@ -23,6 +23,7 @@ import {
   getAllTimeEntriesKey,
   type CreateTimeEntryArgs,
 } from "~/server/timeEntries";
+import { DeleteAlertControlledDialog } from "../DeleteAlertDialog";
 import {
   copyToCurrentDay,
   copyToEndOfMonth,
@@ -40,8 +41,19 @@ type DeleteItemProps = {
 const DeleteItem: Component<DeleteItemProps> = (props) => {
   const { t } = useI18n();
 
+  const [isOpen, setIsOpen] = createSignal(false);
+
+  const onClick = () => {
+    setIsOpen(true);
+  };
+
   return (
-    <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
+    <DropdownMenuItem onClick={onClick} disabled={props.isDisabled}>
+      <DeleteAlertControlledDialog
+        isOpen={isOpen()}
+        onIsOpenChange={setIsOpen}
+        onConfirm={props.onClick}
+      />
       <DropdownMenuItemLabel>
         <IoTrashSharp />
         {t("dashboard.timeEntry.delete")}

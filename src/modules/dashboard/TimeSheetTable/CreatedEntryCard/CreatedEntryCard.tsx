@@ -16,6 +16,7 @@ import {
 import type { Issue } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { CreatedCardMenu } from "../CardMenu";
+import { DeleteAlertDialog } from "../DeleteAlertDialog";
 import {
   sheetEntryMapKey,
   useTimeSheetContext,
@@ -148,15 +149,15 @@ export const CreatedEntryCard: Component<Props> = (props) => {
         />
         <CreateForm entry={props.entry} key={key()} isPending={isPending()} />
         <div class="flex justify-end gap-2">
-          <Button
+          <DeleteAlertDialog
             disabled={isPending()}
-            onClick={onDelete}
+            onConfirm={onDelete}
             size="xs"
             variant="ghost"
           >
             <IoTrashSharp />
             {t("dashboard.timeEntry.delete")}
-          </Button>
+          </DeleteAlertDialog>
           <SaveButton entry={props.entry} isPending={isPending()} key={key()} />
         </div>
       </CardBody>
