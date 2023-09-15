@@ -51,7 +51,7 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
 type CardContentProps = {
   entry: TimeEntry;
   isPending: boolean;
-  onUpdateClick: () => void;
+  onUpdateClick: VoidFunction;
 };
 
 const CardContent: Component<CardContentProps> = (props) => {

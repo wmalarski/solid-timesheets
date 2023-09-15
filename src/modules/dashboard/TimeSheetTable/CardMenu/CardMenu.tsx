@@ -34,7 +34,7 @@ import {
 
 type DeleteItemProps = {
   isDisabled: boolean;
-  onClick: () => void;
+  onClick: VoidFunction;
 };
 
 const DeleteItem: Component<DeleteItemProps> = (props) => {
@@ -92,7 +92,7 @@ const DeleteUpdatedItem: Component<DeleteUpdatedItemProps> = (props) => {
 type CopyItemProps = {
   isDisabled: boolean;
   label: string;
-  onClick: () => void;
+  onClick: VoidFunction;
 };
 
 const CopyItem: Component<CopyItemProps> = (props) => {

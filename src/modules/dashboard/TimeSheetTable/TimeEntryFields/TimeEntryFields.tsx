@@ -14,7 +14,7 @@ type TimeEntryFieldsProps = {
   error?: string;
   hours?: number;
   isLoading?: boolean;
-  onCommentsChange: (comments: string) => void;
+  onCommentsChange: FunctionStringCallback;
   onHoursChange: (hours: number) => void;
 };
 
