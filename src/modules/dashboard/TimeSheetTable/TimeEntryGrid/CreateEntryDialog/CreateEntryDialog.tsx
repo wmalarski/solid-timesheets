@@ -56,10 +56,19 @@ const CreateEntryForm: Component<CreateEntryFormProps> = (props) => {
         onCommentsChange={setComments}
         onHoursChange={setHours}
       />
-      <Button variant="ghost" onClick={props.onCancelClick} type="button">
-        {t("dashboard.createDialog.cancel")}
-      </Button>
-      <Button type="submit">{t("dashboard.createDialog.submit")}</Button>
+      <div class="flex justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={props.onCancelClick}
+          type="button"
+        >
+          {t("dashboard.createDialog.cancel")}
+        </Button>
+        <Button type="submit" variant="outline" size="sm">
+          {t("dashboard.createDialog.submit")}
+        </Button>
+      </div>
     </form>
   );
 };
@@ -94,7 +103,7 @@ export const CreateEntryDialog: Component<CreateEntryDialogProps> = (props) => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t("dashboard.createDialog.title")}</DialogTitle>
-              <DialogCloseButton>
+              <DialogCloseButton size="sm" variant="ghost" shape="square">
                 <IoCloseSharp />
               </DialogCloseButton>
             </DialogHeader>

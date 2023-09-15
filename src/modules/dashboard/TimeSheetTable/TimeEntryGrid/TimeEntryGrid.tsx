@@ -17,6 +17,7 @@ import { CreatedEntryCard } from "../CreatedEntryCard";
 import { sheetEntryMapKey, useTimeSheetContext } from "../EntriesStore";
 import { useTimeSheetSearchParams } from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
+import { CreateEntryDialog } from "./CreateEntryDialog";
 import { CreateEntryMenu } from "./CreateEntryMenu";
 import { TableToolbar } from "./TableToolbar";
 import {
@@ -57,6 +58,7 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
         <span class="text-3xl">{formatDay(props.date)}</span>
         <span>{formatWeekday(props.date)}</span>
       </div>
+      <CreateEntryDialog date={props.date} issues={props.issues} />
       <CreateEntryMenu date={props.date} issues={props.issues} />
     </GridCell>
   );

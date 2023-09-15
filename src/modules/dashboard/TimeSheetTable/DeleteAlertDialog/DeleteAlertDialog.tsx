@@ -31,14 +31,14 @@ const DeleteAlertPortal: Component<DeleteAlertPortalProps> = (props) => {
             <AlertDialogTitle>
               {t("dashboard.confirmDelete.title")}
             </AlertDialogTitle>
-            <AlertDialogCloseButton variant="ghost">
+            <AlertDialogCloseButton variant="ghost" size="sm" shape="square">
               <IoCloseSharp />
             </AlertDialogCloseButton>
           </AlertDialogHeader>
           <AlertDialogDescription>
             {t("dashboard.confirmDelete.description")}
           </AlertDialogDescription>
-          <div class="flex justify-end pt-4">
+          <div class="flex justify-end gap-2 pt-4">
             <AlertDialogCloseButton variant="ghost" size="sm">
               {t("dashboard.confirmDelete.cancel")}
             </AlertDialogCloseButton>
