@@ -11,10 +11,10 @@ import {
   Routes,
   Scripts,
 } from "solid-start";
+import { i18n } from "./contexts/I18nContext";
 import { ThemeContext, createThemeValue } from "./contexts/ThemeContext";
 import { Head } from "./modules/common/Head";
 import "./root.css";
-import { i18n } from "./utils/i18n";
 
 export default function Root() {
   const [queryClient] = createSignal(new QueryClient());
