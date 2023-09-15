@@ -3,6 +3,12 @@ import { createI18nContext } from "@solid-primitives/i18n";
 const dict = {
   en: {
     dashboard: {
+      confirmDelete: {
+        cancel: "Cancel",
+        confirm: "Confirm",
+        description: "Are you sure you want to delete this?",
+        title: "Confirm the action",
+      },
       create: "New",
       report: "Download",
       reset: "Reset({{count}})",

@@ -84,6 +84,17 @@ export const AlertDialogContent: Component<AlertDialogContentProps> = (
   );
 };
 
+export type AlertDialogHeaderProps = JSX.IntrinsicElements["header"];
+
+export const AlertDialogHeader: Component<AlertDialogHeaderProps> = (props) => {
+  return (
+    <header
+      {...props}
+      class={twCx("flex items-baseline justify-between mb-3", props.class)}
+    />
+  );
+};
+
 export type AlertDialogCloseButtonProps =
   AlertDialog.AlertDialogCloseButtonProps & VariantProps<typeof buttonClass>;
 
