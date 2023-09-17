@@ -40,6 +40,10 @@ const en_dict = {
         label: "Hours",
         placeholder: "Write",
       },
+      issue: {
+        label: "Issue",
+        placeholder: "Search",
+      },
       more: "More",
       new: "New",
       pending: "Pending",

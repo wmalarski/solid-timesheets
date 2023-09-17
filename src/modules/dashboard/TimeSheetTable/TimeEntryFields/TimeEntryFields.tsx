@@ -8,14 +8,17 @@ import {
   type TextFieldInputProps,
 } from "~/components/TextField";
 import { useI18n } from "~/contexts/I18nContext";
+import type { IssueEssentials } from "~/server/types";
 
 type TimeEntryFieldsProps = {
   comments?: string;
   error?: string;
   hours?: number;
   isLoading?: boolean;
+  issue: IssueEssentials;
   onCommentsChange: FunctionStringCallback;
   onHoursChange: (hours: number) => void;
+  onIssueChange: (issueId: number) => void;
 };
 
 export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
@@ -37,6 +40,26 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           {props.error}
         </Alert>
       </Show>
+
+      <TextFieldRoot>
+        <TextFieldLabel for="issue">
+          <TextFieldLabelText>
+            {t("dashboard.timeEntry.issue.label")}
+          </TextFieldLabelText>
+        </TextFieldLabel>
+        <TextFieldInput
+          disabled={props.isLoading}
+          min={0}
+          name="hours"
+          onInput={onHoursInput}
+          placeholder={t("dashboard.timeEntry.issue.placeholder")}
+          size="xs"
+          step={0.25}
+          type="number"
+          value={props.hours}
+          variant="bordered"
+        />
+      </TextFieldRoot>
 
       <TextFieldRoot>
         <TextFieldLabel for="hours">

@@ -16,8 +16,8 @@ import {
 import { useI18n } from "~/contexts/I18nContext";
 import type { Issue } from "~/server/types";
 import { createSheetEntryArgs, useTimeSheetContext } from "../../EntriesStore";
+import { IssueCombobox } from "../../IssueCombobox";
 import { TimeEntryFields } from "../../TimeEntryFields";
-import { IssueSelect } from "../IssueSelect";
 
 type CreateEntryFormProps = {
   date: Date;
@@ -52,12 +52,14 @@ const CreateEntryForm: Component<CreateEntryFormProps> = (props) => {
 
   return (
     <form class="flex flex-col gap-4" onSubmit={onSubmit}>
-      <IssueSelect issues={props.issues} />
+      <IssueCombobox issues={props.issues} />
       <TimeEntryFields
         comments={comments()}
         hours={hours()}
         onCommentsChange={setComments}
         onHoursChange={setHours}
+        issue={props.issues[0]}
+        onIssueChange={() => void 0}
       />
       <div class="flex justify-end gap-2">
         <Button

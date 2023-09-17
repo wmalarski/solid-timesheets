@@ -13,7 +13,7 @@ import {
   createTimeEntryServerMutation,
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
-import type { Issue } from "~/server/types";
+import type { Issue, IssueEssentials } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { CreatedCardMenu } from "../CardMenu";
 import { DeleteAlertDialog } from "../DeleteAlertDialog";
@@ -27,6 +27,7 @@ import { TimeEntryFields } from "../TimeEntryFields";
 type CreateFormProps = {
   entry: CreatingEntryData;
   isPending: boolean;
+  issue: IssueEssentials;
   key: string;
 };
 
@@ -53,8 +54,10 @@ const CreateForm: Component<CreateFormProps> = (props) => {
       comments={props.entry.args.comments}
       hours={props.entry.args.hours}
       isLoading={props.isPending}
+      issue={props.issue}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
+      onIssueChange={() => void 0}
     />
   );
 };
@@ -147,7 +150,12 @@ export const CreatedEntryCard: Component<Props> = (props) => {
             />
           }
         />
-        <CreateForm entry={props.entry} key={key()} isPending={isPending()} />
+        <CreateForm
+          entry={props.entry}
+          key={key()}
+          isPending={isPending()}
+          issue={props.issue}
+        />
         <div class="flex justify-end gap-2">
           <DeleteAlertDialog
             disabled={isPending()}

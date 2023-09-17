@@ -25,6 +25,7 @@ import { TrackingRow } from "../TrackingToolbar";
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
   isPending: boolean;
+  issue: IssueEssentials;
 };
 
 const UpdateForm: Component<UpdateFormProps> = (props) => {
@@ -43,8 +44,10 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
       comments={props.args.comments}
       hours={props.args.hours}
       isLoading={props.isPending}
+      issue={props.issue}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
+      onIssueChange={() => void 0}
     />
   );
 };
@@ -199,7 +202,11 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
         >
           {(entry) => (
             <div class="flex flex-col gap-2">
-              <UpdateForm args={entry().args} isPending={isPending()} />
+              <UpdateForm
+                args={entry().args}
+                isPending={isPending()}
+                issue={props.issue}
+              />
               <div class="flex justify-end gap-2">
                 <DeleteAlertDialog
                   disabled={isPending()}
