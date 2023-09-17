@@ -1,0 +1,41 @@
+.control {
+  transition: border-color 250ms, color 250ms;
+}
+/* .combobox__control_multi {
+  width: 100%;
+  min-width: 200px;
+  max-width: 300px;
+} */
+
+.trigger {
+  transition: 250ms background-color;
+}
+
+.content {
+  transform-origin: var(--kb-combobox-content-transform-origin);
+  animation: contentHide 250ms ease-in forwards;
+}
+.content[data-expanded] {
+  animation: contentShow 250ms ease-out;
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes contentHide {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+      opacity: 0;
+    transform: translateY(-8px);
+  }
+}

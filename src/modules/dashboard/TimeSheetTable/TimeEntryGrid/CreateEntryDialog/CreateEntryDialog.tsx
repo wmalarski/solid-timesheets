@@ -17,10 +17,12 @@ import { useI18n } from "~/contexts/I18nContext";
 import type { Issue } from "~/server/types";
 import { createSheetEntryArgs, useTimeSheetContext } from "../../EntriesStore";
 import { TimeEntryFields } from "../../TimeEntryFields";
+import { IssueSelect } from "../IssueSelect";
 
 type CreateEntryFormProps = {
   date: Date;
   initialIssueId: number;
+  issues: Issue[];
   onCancelClick: VoidFunction;
 };
 
@@ -50,6 +52,7 @@ const CreateEntryForm: Component<CreateEntryFormProps> = (props) => {
 
   return (
     <form class="flex flex-col gap-4" onSubmit={onSubmit}>
+      <IssueSelect issues={props.issues} />
       <TimeEntryFields
         comments={comments()}
         hours={hours()}
@@ -109,6 +112,7 @@ export const CreateEntryDialog: Component<CreateEntryDialogProps> = (props) => {
             </DialogHeader>
             <CreateEntryForm
               date={props.date}
+              issues={props.issues}
               initialIssueId={props.issues[0].id}
               onCancelClick={onCancelClick}
             />
