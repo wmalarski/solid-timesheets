@@ -1,5 +1,6 @@
 import {
   createMutation,
+  createQuery,
   useIsMutating,
   useQueryClient,
 } from "@tanstack/solid-query";
@@ -11,10 +12,12 @@ import {
   IoSaveSharp,
 } from "solid-icons/io";
 import { createMemo, type Component } from "solid-js";
+import { isServer } from "solid-js/web";
 import { Button } from "~/components/Button";
 import { showToast } from "~/components/Toast";
 import { useI18n } from "~/contexts/I18nContext";
 import { useDashboardConfig } from "~/modules/dashboard/DashboardConfig";
+import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getAllTimeEntriesKey,
   upsertTimeEntriesServerMutation,
@@ -26,6 +29,7 @@ import { formatMonth } from "~/utils/format";
 import { DeleteAlertDialog } from "../../DeleteAlertDialog";
 import { resetSheetEntries, useTimeSheetContext } from "../../EntriesStore";
 import { useTimeSheetSearchParams } from "../../TimeSheetTable.utils";
+import { groupIssues } from "../TimeEntryGrid.utils";
 import { TrackingPopover } from "../TrackingPopover";
 
 type MonthSelectProps = {
@@ -193,11 +197,11 @@ const DownloadButton: Component<DownloadButtonProps> = (props) => {
   );
 };
 
-type TableToolbarProps = {
+type ToolbarProps = {
   issuesMap: Map<number, Issue>;
 };
 
-export const TableToolbar: Component<TableToolbarProps> = (props) => {
+const Toolbar: Component<ToolbarProps> = (props) => {
   const { state } = useTimeSheetContext();
 
   const isMutating = useIsMutating();
@@ -239,4 +243,22 @@ export const TableToolbar: Component<TableToolbarProps> = (props) => {
       </div>
     </div>
   );
+};
+
+export const TableToolbar: Component = () => {
+  const issuesQuery = createQuery(() => ({
+    enabled: !isServer,
+    queryFn: (context) => getIssuesServerQuery(context.queryKey),
+    queryKey: getIssuesKey({
+      assignedToId: "me",
+      sort: "project",
+      statusId: "open",
+    }),
+  }));
+
+  const issuesMap = createMemo(() =>
+    groupIssues(issuesQuery.data?.issues || [])
+  );
+
+  return <Toolbar issuesMap={issuesMap()} />;
 };

@@ -1,14 +1,5 @@
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
-import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
-import {
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  type Component,
-} from "solid-js";
-import { Button } from "~/components/Button";
+import { For, Show, createMemo, type Component } from "solid-js";
 import { GridCell } from "~/components/Grid";
 import type { Issue, TimeEntry } from "~/server/types";
 import { getDaysInMonth, isToday } from "~/utils/date";
@@ -17,9 +8,7 @@ import { CreatedEntryCard } from "../CreatedEntryCard";
 import { sheetEntryMapKey, useTimeSheetContext } from "../EntriesStore";
 import { useTimeSheetSearchParams } from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
-import { CreateEntryDialog } from "./CreateEntryDialog";
 import { CreateEntryMenu } from "./CreateEntryMenu";
-import { TableToolbar } from "./TableToolbar";
 import {
   groupIssues,
   groupTimeEntries,
@@ -34,22 +23,13 @@ type HeaderCellProps = {
 };
 
 const HeaderCell: Component<HeaderCellProps> = (props) => {
-  const [ref, setRef] = createSignal<HTMLDivElement>();
-
   const isDateToday = createMemo(() => {
     return isToday(props.date);
-  });
-
-  createEffect(() => {
-    if (isDateToday()) {
-      ref()?.scrollIntoView({ inline: "start" });
-    }
   });
 
   return (
     <GridCell
       bg={isDateToday() ? "base-200" : "base-100"}
-      ref={setRef}
       class="z-20 flex snap-mandatory snap-start items-center justify-between gap-2"
       sticky="top"
       borders="bottomRight"
@@ -58,7 +38,7 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
         <span class="text-3xl">{formatDay(props.date)}</span>
         <span>{formatWeekday(props.date)}</span>
       </div>
-      <CreateEntryDialog date={props.date} issues={props.issues} />
+      {/* <CreateEntryDialog date={props.date} issues={props.issues} /> */}
       <CreateEntryMenu date={props.date} issues={props.issues} />
     </GridCell>
   );
@@ -110,43 +90,6 @@ const Cell: Component<CellProps> = (props) => {
         {(pair) => <UpdatedEntryCard entry={pair.entry} issue={pair.issue} />}
       </For>
     </GridCell>
-  );
-};
-
-type ScrollButtonsProps = {
-  parent?: HTMLDivElement;
-};
-
-const scrollShift = 250;
-
-const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
-  const onBackClick = () => {
-    props.parent?.scrollBy({ behavior: "smooth", left: -scrollShift });
-  };
-
-  const onForwardClick = () => {
-    props.parent?.scrollBy({ behavior: "smooth", left: scrollShift });
-  };
-
-  return (
-    <>
-      <Button
-        class="absolute left-2 top-2/4 hidden bg-base-100 sm:block"
-        onClick={onBackClick}
-        size="sm"
-        variant="outline"
-      >
-        <IoChevronBackSharp />
-      </Button>
-      <Button
-        class="absolute right-2 top-2/4 hidden bg-base-100 sm:block"
-        onClick={onForwardClick}
-        size="sm"
-        variant="outline"
-      >
-        <IoChevronForwardSharp />
-      </Button>
-    </>
   );
 };
 
@@ -220,14 +163,13 @@ const Footer: Component<FooterProps> = (props) => {
   );
 };
 
-type Props = {
+type EntryGridProps = {
+  days: Date[];
   issues: Issue[];
   timeEntries: TimeEntry[];
 };
 
-export const TimeEntryGrid: Component<Props> = (props) => {
-  const [parent, setParent] = createSignal<HTMLDivElement>();
-
+const EntryGrid: Component<EntryGridProps> = (props) => {
   const issuesMap = createMemo(() => groupIssues(props.issues));
 
   const timeEntryGroups = createMemo(() =>
@@ -237,37 +179,38 @@ export const TimeEntryGrid: Component<Props> = (props) => {
     })
   );
 
+  return (
+    <>
+      <Header days={props.days} issues={props.issues} />
+      <For each={props.days}>
+        {(day) => (
+          <Cell
+            date={day}
+            issuesMap={issuesMap()}
+            pairs={timeEntryGroups().get(formatRequestDate(day))}
+          />
+        )}
+      </For>
+      <GridCell bg="base-100" />
+      <Footer days={props.days} timeEntries={props.timeEntries} />
+    </>
+  );
+};
+
+type Props = {
+  issues: Issue[];
+  timeEntries: TimeEntry[];
+};
+
+export const TimeEntryGrid: Component<Props> = (props) => {
   const { selectedDate } = useTimeSheetSearchParams();
   const days = createMemo(() => getDaysInMonth(selectedDate()));
 
   return (
-    <div class="relative flex grow flex-col" ref={setParent}>
-      <TableToolbar issuesMap={issuesMap()} />
-      <div
-        class="w-max-[100vw] grid grow snap-x overflow-scroll"
-        ref={setParent}
-        style={{
-          "grid-template-columns": `repeat(${
-            days().length
-          }, ${scrollShift}px) auto`,
-          "grid-template-rows": "auto 1fr auto",
-          "max-height": "calc(100vh - 114px)",
-        }}
-      >
-        <Header days={days()} issues={props.issues} />
-        <For each={days()}>
-          {(day) => (
-            <Cell
-              date={day}
-              issuesMap={issuesMap()}
-              pairs={timeEntryGroups().get(formatRequestDate(day))}
-            />
-          )}
-        </For>
-        <GridCell bg="base-100" />
-        <Footer days={days()} timeEntries={props.timeEntries} />
-      </div>
-      <ScrollButtons parent={parent()} />
-    </div>
+    <EntryGrid
+      days={days()}
+      issues={props.issues}
+      timeEntries={props.timeEntries}
+    />
   );
 };

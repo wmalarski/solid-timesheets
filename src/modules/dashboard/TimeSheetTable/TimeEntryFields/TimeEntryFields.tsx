@@ -41,7 +41,7 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
         </Alert>
       </Show>
 
-      <TextFieldRoot>
+      {/* <TextFieldRoot>
         <TextFieldLabel for="issue">
           <TextFieldLabelText>
             {t("dashboard.timeEntry.issue.label")}
@@ -59,7 +59,7 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           value={props.hours}
           variant="bordered"
         />
-      </TextFieldRoot>
+      </TextFieldRoot> */}
 
       <TextFieldRoot>
         <TextFieldLabel for="hours">
