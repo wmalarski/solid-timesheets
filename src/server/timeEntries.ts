@@ -29,7 +29,9 @@ const getTimeEntriesArgsSchema = () => {
   });
 };
 
-type GetTimeEntriesArgs = Input<ReturnType<typeof getTimeEntriesArgsSchema>>;
+export type GetTimeEntriesArgs = Input<
+  ReturnType<typeof getTimeEntriesArgsSchema>
+>;
 
 type GetTimeEntriesResult = {
   time_entries: TimeEntry[];

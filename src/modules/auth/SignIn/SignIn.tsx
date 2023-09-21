@@ -1,5 +1,5 @@
 import { createMutation } from "@tanstack/solid-query";
-import { Show, type Component, type JSX } from "solid-js";
+import { Show, type Component, type JSX, type ParentProps } from "solid-js";
 import { Alert, AlertIcon } from "~/components/Alert";
 import { Button } from "~/components/Button";
 import { Card, CardBody, cardTitleClass } from "~/components/Card";
@@ -14,11 +14,7 @@ import { ThemeSwitch } from "~/components/ThemeSwitch";
 import { useI18n } from "~/contexts/I18nContext";
 import { createSignInServerAction, signInServerMutation } from "~/server/auth";
 
-type FormWrapperProps = {
-  children: JSX.Element;
-};
-
-const FormWrapper: Component<FormWrapperProps> = (props) => {
+const FormWrapper: Component<ParentProps> = (props) => {
   const { t } = useI18n();
 
   return (

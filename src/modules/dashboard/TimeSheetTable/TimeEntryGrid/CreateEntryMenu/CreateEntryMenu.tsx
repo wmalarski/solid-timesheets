@@ -1,5 +1,7 @@
+import { createQuery } from "@tanstack/solid-query";
 import { IoAddSharp } from "solid-icons/io";
 import { For, type Component } from "solid-js";
+import { isServer } from "solid-js/web";
 import {
   DropdownMenuArrow,
   DropdownMenuContent,
@@ -12,16 +14,26 @@ import {
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
 import { useI18n } from "~/contexts/I18nContext";
+import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import type { Issue } from "~/server/types";
 import { createSheetEntryArgs, useTimeSheetContext } from "../../EntriesStore";
 
 type Props = {
-  issues: Issue[];
   date: Date;
 };
 
 export const CreateEntryMenu: Component<Props> = (props) => {
   const { t } = useI18n();
+
+  const issuesQuery = createQuery(() => ({
+    enabled: !isServer,
+    queryFn: (context) => getIssuesServerQuery(context.queryKey),
+    queryKey: getIssuesKey({
+      assignedToId: "me",
+      sort: "project",
+      statusId: "open",
+    }),
+  }));
 
   const { setState } = useTimeSheetContext();
 
@@ -51,7 +63,7 @@ export const CreateEntryMenu: Component<Props> = (props) => {
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
         <DropdownMenuContent class="max-h-96 overflow-y-scroll">
-          <For each={props.issues}>
+          <For each={issuesQuery.data?.issues}>
             {(issue) => (
               <DropdownMenuItem
                 onClick={() => onCreateClick(issue)}

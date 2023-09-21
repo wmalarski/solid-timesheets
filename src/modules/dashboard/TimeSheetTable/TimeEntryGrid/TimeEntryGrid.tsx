@@ -1,12 +1,20 @@
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
-import { For, Show, createMemo, type Component } from "solid-js";
+import { createQuery, isServer } from "@tanstack/solid-query";
+import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
+import { For, Show, createMemo, createSignal, type Component } from "solid-js";
+import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
+import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
+import {
+  getTimeEntriesKey,
+  getTimeEntriesServerQuery,
+  type GetTimeEntriesArgs,
+} from "~/server/timeEntries";
 import type { Issue, TimeEntry } from "~/server/types";
-import { getDaysInMonth, isToday } from "~/utils/date";
+import { isToday } from "~/utils/date";
 import { formatDay, formatRequestDate, formatWeekday } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
 import { sheetEntryMapKey, useTimeSheetContext } from "../EntriesStore";
-import { useTimeSheetSearchParams } from "../TimeSheetTable.utils";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
 import { CreateEntryMenu } from "./CreateEntryMenu";
 import {
@@ -19,7 +27,6 @@ import {
 
 type HeaderCellProps = {
   date: Date;
-  issues: Issue[];
 };
 
 const HeaderCell: Component<HeaderCellProps> = (props) => {
@@ -39,22 +46,19 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
         <span>{formatWeekday(props.date)}</span>
       </div>
       {/* <CreateEntryDialog date={props.date} issues={props.issues} /> */}
-      <CreateEntryMenu date={props.date} issues={props.issues} />
+      <CreateEntryMenu date={props.date} />
     </GridCell>
   );
 };
 
 type HeaderProps = {
   days: Date[];
-  issues: Issue[];
 };
 
-const Header: Component<HeaderProps> = (props) => {
+export const Header: Component<HeaderProps> = (props) => {
   return (
     <>
-      <For each={props.days}>
-        {(date) => <HeaderCell date={date} issues={props.issues} />}
-      </For>
+      <For each={props.days}>{(date) => <HeaderCell date={date} />}</For>
       <GridCell bg="base-100" borders="bottom" sticky="top" />
     </>
   );
@@ -163,6 +167,43 @@ const Footer: Component<FooterProps> = (props) => {
   );
 };
 
+type ScrollButtonsProps = {
+  parent?: HTMLDivElement;
+};
+
+const scrollShift = 250;
+
+const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
+  const onBackClick = () => {
+    props.parent?.scrollBy({ behavior: "smooth", left: -scrollShift });
+  };
+
+  const onForwardClick = () => {
+    props.parent?.scrollBy({ behavior: "smooth", left: scrollShift });
+  };
+
+  return (
+    <>
+      <Button
+        class="absolute left-2 top-2/4 hidden bg-base-100 sm:block"
+        onClick={onBackClick}
+        size="sm"
+        variant="outline"
+      >
+        <IoChevronBackSharp />
+      </Button>
+      <Button
+        class="absolute right-2 top-2/4 hidden bg-base-100 sm:block"
+        onClick={onForwardClick}
+        size="sm"
+        variant="outline"
+      >
+        <IoChevronForwardSharp />
+      </Button>
+    </>
+  );
+};
+
 type EntryGridProps = {
   days: Date[];
   issues: Issue[];
@@ -170,6 +211,8 @@ type EntryGridProps = {
 };
 
 const EntryGrid: Component<EntryGridProps> = (props) => {
+  const [parent, setParent] = createSignal<HTMLDivElement>();
+
   const issuesMap = createMemo(() => groupIssues(props.issues));
 
   const timeEntryGroups = createMemo(() =>
@@ -180,8 +223,15 @@ const EntryGrid: Component<EntryGridProps> = (props) => {
   );
 
   return (
-    <>
-      <Header days={props.days} issues={props.issues} />
+    <div
+      class="w-max-[100vw] grid grow snap-x overflow-scroll"
+      ref={setParent}
+      style={{
+        "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
+        "grid-template-rows": "auto 1fr auto",
+      }}
+    >
+      <Header days={props.days} />
       <For each={props.days}>
         {(day) => (
           <Cell
@@ -191,26 +241,43 @@ const EntryGrid: Component<EntryGridProps> = (props) => {
           />
         )}
       </For>
+      <For each={props.days}>
+        {(day) => <Cell date={day} issuesMap={new Map()} pairs={[]} />}
+      </For>
       <GridCell bg="base-100" />
       <Footer days={props.days} timeEntries={props.timeEntries} />
-    </>
+      <ScrollButtons parent={parent()} />
+    </div>
   );
 };
 
 type Props = {
-  issues: Issue[];
-  timeEntries: TimeEntry[];
+  args: GetTimeEntriesArgs;
+  days: Date[];
 };
 
 export const TimeEntryGrid: Component<Props> = (props) => {
-  const { selectedDate } = useTimeSheetSearchParams();
-  const days = createMemo(() => getDaysInMonth(selectedDate()));
+  const timeEntriesQuery = createQuery(() => ({
+    enabled: !isServer,
+    queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
+    queryKey: getTimeEntriesKey(props.args),
+  }));
+
+  const issuesQuery = createQuery(() => ({
+    enabled: !isServer,
+    queryFn: (context) => getIssuesServerQuery(context.queryKey),
+    queryKey: getIssuesKey({
+      assignedToId: "me",
+      sort: "project",
+      statusId: "open",
+    }),
+  }));
 
   return (
     <EntryGrid
-      days={days()}
-      issues={props.issues}
-      timeEntries={props.timeEntries}
+      days={props.days}
+      issues={issuesQuery.data?.issues || []}
+      timeEntries={timeEntriesQuery.data?.time_entries || []}
     />
   );
 };

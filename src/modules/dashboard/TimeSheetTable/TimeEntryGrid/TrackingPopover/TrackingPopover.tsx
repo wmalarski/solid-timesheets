@@ -1,5 +1,7 @@
+import { createQuery } from "@tanstack/solid-query";
 import { IoCloseSharp, IoHourglassSharp } from "solid-icons/io";
 import { Show, createMemo, createSignal, type Component } from "solid-js";
+import { isServer } from "solid-js/web";
 import { ClientOnly } from "~/components/ClientOnly";
 import { Countdown } from "~/components/Countdown";
 import {
@@ -14,19 +16,28 @@ import {
   PopoverTrigger,
 } from "~/components/Popover";
 import { useI18n } from "~/contexts/I18nContext";
-import type { Issue } from "~/server/types";
+import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import { useTimeSheetContext } from "../../EntriesStore";
 import { useTrackingStoreContext } from "../../TrackingStore";
 import { TrackingCard, createTimeCounter } from "../../TrackingToolbar";
+import { groupIssues } from "../TimeEntryGrid.utils";
 
-type ClientTrackingPopoverProps = {
-  issuesMap: Map<number, Issue>;
-};
-
-const ClientTrackingPopover: Component<ClientTrackingPopoverProps> = (
-  props
-) => {
+const ClientTrackingPopover: Component = () => {
   const { t } = useI18n();
+
+  const issuesQuery = createQuery(() => ({
+    enabled: !isServer,
+    queryFn: (context) => getIssuesServerQuery(context.queryKey),
+    queryKey: getIssuesKey({
+      assignedToId: "me",
+      sort: "project",
+      statusId: "open",
+    }),
+  }));
+
+  const issuesMap = createMemo(() =>
+    groupIssues(issuesQuery.data?.issues || [])
+  );
 
   const { state } = useTimeSheetContext();
   const { runningId, items } = useTrackingStoreContext();
@@ -44,7 +55,7 @@ const ClientTrackingPopover: Component<ClientTrackingPopoverProps> = (
       return null;
     }
 
-    return props.issuesMap?.get(entry.issueId) || null;
+    return issuesMap().get(entry.issueId) || null;
   });
 
   const item = createMemo(() => {
@@ -89,14 +100,11 @@ const ClientTrackingPopover: Component<ClientTrackingPopoverProps> = (
     </PopoverRoot>
   );
 };
-type TrackingPopoverProps = {
-  issuesMap: Map<number, Issue>;
-};
 
-export const TrackingPopover: Component<TrackingPopoverProps> = (props) => {
+export const TrackingPopover: Component = () => {
   return (
     <ClientOnly>
-      <ClientTrackingPopover issuesMap={props.issuesMap} />
+      <ClientTrackingPopover />
     </ClientOnly>
   );
 };

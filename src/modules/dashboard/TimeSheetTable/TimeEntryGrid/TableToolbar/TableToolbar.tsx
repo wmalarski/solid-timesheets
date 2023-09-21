@@ -20,13 +20,11 @@ import {
   upsertTimeEntriesServerMutation,
   workTimeHref,
 } from "~/server/timeEntries";
-import type { Issue } from "~/server/types";
 import { getNextMonth, getPreviousMonth } from "~/utils/date";
 import { formatMonth } from "~/utils/format";
 import { DeleteAlertDialog } from "../../DeleteAlertDialog";
 import { resetSheetEntries, useTimeSheetContext } from "../../EntriesStore";
 import { useTimeSheetSearchParams } from "../../TimeSheetTable.utils";
-import { groupIssues } from "../TimeEntryGrid.utils";
 import { TrackingPopover } from "../TrackingPopover";
 
 type MonthSelectProps = {
@@ -194,14 +192,8 @@ const DownloadButton: Component<DownloadButtonProps> = (props) => {
   );
 };
 
-type TableToolbarProps = {
-  issues: Issue[];
-};
-
-export const TableToolbar: Component<TableToolbarProps> = (props) => {
+export const TableToolbar: Component = () => {
   const { state } = useTimeSheetContext();
-
-  const issuesMap = createMemo(() => groupIssues(props.issues));
 
   const isMutating = useIsMutating();
 
@@ -238,7 +230,7 @@ export const TableToolbar: Component<TableToolbarProps> = (props) => {
           isDisabled={shouldDisableActions()}
         />
         <DownloadButton isDisabled={isDisabled()} />
-        <TrackingPopover issuesMap={issuesMap()} />
+        <TrackingPopover />
       </div>
     </div>
   );

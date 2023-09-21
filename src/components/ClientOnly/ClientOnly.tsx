@@ -1,16 +1,12 @@
 import {
+  Show,
   createSignal,
   onMount,
-  Show,
   type Component,
-  type JSX,
+  type ParentProps,
 } from "solid-js";
 
-type Props = {
-  children: JSX.Element;
-};
-
-export const ClientOnly: Component<Props> = (props) => {
+export const ClientOnly: Component<ParentProps> = (props) => {
   const [isMounted, setIsMounted] = createSignal(false);
 
   onMount(() => {

@@ -6,7 +6,7 @@ import {
   useContext,
   type Accessor,
   type Component,
-  type JSX,
+  type ParentProps,
 } from "solid-js";
 
 const en_dict = {
@@ -122,13 +122,7 @@ export const I18nContext = createContext<I18nContextValue>({
   },
 });
 
-type I18nContextProviderProps = {
-  children: JSX.Element;
-};
-
-export const I18nContextProvider: Component<I18nContextProviderProps> = (
-  props
-) => {
+export const I18nContextProvider: Component<ParentProps> = (props) => {
   const value = createI18nValue();
 
   return (
