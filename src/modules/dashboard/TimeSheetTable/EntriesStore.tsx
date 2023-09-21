@@ -1,4 +1,10 @@
-import { createContext, createEffect, useContext } from "solid-js";
+import {
+  createContext,
+  createEffect,
+  useContext,
+  type Component,
+  type ParentProps,
+} from "solid-js";
 import { createStore, produce, type SetStoreFunction } from "solid-js/store";
 import type {
   CreateTimeEntryArgs,
@@ -84,6 +90,24 @@ export const TimeSheetContext = createContext<TimeSheetContextValue>({
 
 export const useTimeSheetContext = () => {
   return useContext(TimeSheetContext);
+};
+
+type TimeSheetContextProviderProps = ParentProps<{
+  timeEntries: TimeEntry[];
+}>;
+
+export const TimeSheetContextProvider: Component<
+  TimeSheetContextProviderProps
+> = (props) => {
+  const value = useCreatedTimeSeries({
+    timeEntries: () => props.timeEntries,
+  });
+
+  return (
+    <TimeSheetContext.Provider value={value}>
+      {props.children}
+    </TimeSheetContext.Provider>
+  );
 };
 
 const randomEntryId = () => {

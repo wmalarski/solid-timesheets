@@ -1,6 +1,5 @@
 import {
   createMutation,
-  createQuery,
   useIsMutating,
   useQueryClient,
 } from "@tanstack/solid-query";
@@ -12,12 +11,10 @@ import {
   IoSaveSharp,
 } from "solid-icons/io";
 import { createMemo, type Component } from "solid-js";
-import { isServer } from "solid-js/web";
 import { Button } from "~/components/Button";
 import { showToast } from "~/components/Toast";
 import { useI18n } from "~/contexts/I18nContext";
 import { useDashboardConfig } from "~/modules/dashboard/DashboardConfig";
-import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getAllTimeEntriesKey,
   upsertTimeEntriesServerMutation,
@@ -197,12 +194,14 @@ const DownloadButton: Component<DownloadButtonProps> = (props) => {
   );
 };
 
-type ToolbarProps = {
-  issuesMap: Map<number, Issue>;
+type TableToolbarProps = {
+  issues: Issue[];
 };
 
-const Toolbar: Component<ToolbarProps> = (props) => {
+export const TableToolbar: Component<TableToolbarProps> = (props) => {
   const { state } = useTimeSheetContext();
+
+  const issuesMap = createMemo(() => groupIssues(props.issues));
 
   const isMutating = useIsMutating();
 
@@ -239,26 +238,8 @@ const Toolbar: Component<ToolbarProps> = (props) => {
           isDisabled={shouldDisableActions()}
         />
         <DownloadButton isDisabled={isDisabled()} />
-        <TrackingPopover issuesMap={props.issuesMap} />
+        <TrackingPopover issuesMap={issuesMap()} />
       </div>
     </div>
   );
-};
-
-export const TableToolbar: Component = () => {
-  const issuesQuery = createQuery(() => ({
-    enabled: !isServer,
-    queryFn: (context) => getIssuesServerQuery(context.queryKey),
-    queryKey: getIssuesKey({
-      assignedToId: "me",
-      sort: "project",
-      statusId: "open",
-    }),
-  }));
-
-  const issuesMap = createMemo(() =>
-    groupIssues(issuesQuery.data?.issues || [])
-  );
-
-  return <Toolbar issuesMap={issuesMap()} />;
 };

@@ -1,5 +1,11 @@
 import { createLocalStorage } from "@solid-primitives/storage";
-import { createContext, createMemo, useContext } from "solid-js";
+import {
+  createContext,
+  createMemo,
+  useContext,
+  type Component,
+  type ParentProps,
+} from "solid-js";
 import { secondsToNow } from "~/utils/date";
 
 const itemsKey = "items";
@@ -94,7 +100,7 @@ export const useTrackingStore = () => {
 
 type TrackingStoreContextValue = ReturnType<typeof useTrackingStore>;
 
-export const TrackingStoreContext = createContext<TrackingStoreContextValue>({
+const TrackingStoreContext = createContext<TrackingStoreContextValue>({
   items: () => ({}),
   pause: () => void 0,
   reset: () => void 0,
@@ -106,4 +112,14 @@ export const TrackingStoreContext = createContext<TrackingStoreContextValue>({
 
 export const useTrackingStoreContext = () => {
   return useContext(TrackingStoreContext);
+};
+
+export const TrackingStoreProvider: Component<ParentProps> = (props) => {
+  const trackingStore = useTrackingStore();
+
+  return (
+    <TrackingStoreContext.Provider value={trackingStore}>
+      {props.children}
+    </TrackingStoreContext.Provider>
+  );
 };

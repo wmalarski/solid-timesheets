@@ -1,13 +1,6 @@
 import { createQuery } from "@tanstack/solid-query";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
-import {
-  Suspense,
-  createEffect,
-  createMemo,
-  createSignal,
-  type Component,
-  type JSX,
-} from "solid-js";
+import { createMemo, createSignal, type Component, type JSX } from "solid-js";
 import { isServer } from "solid-js/web";
 import { Button } from "~/components/Button";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
@@ -16,11 +9,11 @@ import {
   getTimeEntriesServerQuery,
 } from "~/server/timeEntries";
 import { getDaysInMonth, getNextMonth } from "~/utils/date";
-import { TimeSheetContext, useCreatedTimeSeries } from "./EntriesStore";
+import { TimeSheetContextProvider } from "./EntriesStore";
 import { TimeEntryGrid } from "./TimeEntryGrid";
 import { TableToolbar } from "./TimeEntryGrid/TableToolbar";
 import { useTimeSheetSearchParams } from "./TimeSheetTable.utils";
-import { TrackingStoreContext, useTrackingStore } from "./TrackingStore";
+import { TrackingStoreProvider } from "./TrackingStore";
 
 type ScrollButtonsProps = {
   parent?: HTMLDivElement;
@@ -67,37 +60,38 @@ type ScrollContainerProps = {
 const ScrollContainer: Component<ScrollContainerProps> = (props) => {
   const [parent, setParent] = createSignal<HTMLDivElement>();
 
-  createEffect(() => {
-    const date = new Date();
-    const dayOfMonth = date.getUTCDate();
-    parent()?.scrollBy({ left: scrollShift * (dayOfMonth - 1) });
-  });
+  // createEffect(() => {
+  //   const date = new Date();
+  //   const dayOfMonth = date.getUTCDate();
+  //   parent()?.scrollBy({ left: scrollShift * (dayOfMonth - 1) });
+  // });
 
   return (
     <>
-      <div
-        class="w-max-[100vw] grid grow snap-x overflow-scroll"
-        ref={setParent}
-        style={{
-          "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
-          "grid-template-rows": "auto 1fr auto",
-          "max-height": "calc(100vh - 114px)",
-        }}
-      >
-        {props.children}
+      <div class="w-max-[100vw] overflow-scroll" ref={setParent}>
+        <div
+          class="grid grow snap-x"
+          style={{
+            "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
+            "grid-template-rows": "auto 1fr auto",
+            "max-height": "calc(100vh - 114px)",
+            width: `${props.days.length * scrollShift}px`,
+          }}
+        >
+          {props.children}
+        </div>
       </div>
       <ScrollButtons parent={parent()} />
     </>
   );
 };
 
-type ProviderProps = {
-  selectedDate: Date;
-};
+export const TimeSheetTable: Component = () => {
+  const { selectedDate } = useTimeSheetSearchParams();
+  const days = createMemo(() => getDaysInMonth(selectedDate()));
 
-const Provider: Component<ProviderProps> = (props) => {
   const timeEntriesArgs = () => {
-    const from = props.selectedDate;
+    const from = selectedDate();
     const to = getNextMonth(from);
     return { from, limit: 100, to };
   };
@@ -118,36 +112,21 @@ const Provider: Component<ProviderProps> = (props) => {
     }),
   }));
 
-  const value = useCreatedTimeSeries({
-    timeEntries: () => timeEntriesQuery.data?.time_entries || [],
-  });
-
   return (
-    <TimeSheetContext.Provider value={value}>
-      <TimeEntryGrid
-        issues={issuesQuery.data?.issues || []}
+    <TrackingStoreProvider>
+      <TimeSheetContextProvider
         timeEntries={timeEntriesQuery.data?.time_entries || []}
-      />
-    </TimeSheetContext.Provider>
-  );
-};
-
-export const TimeSheetTable: Component = () => {
-  const trackingStore = useTrackingStore();
-
-  const { selectedDate } = useTimeSheetSearchParams();
-  const days = createMemo(() => getDaysInMonth(selectedDate()));
-
-  return (
-    <TrackingStoreContext.Provider value={trackingStore}>
-      <div class="relative flex grow flex-col">
-        <TableToolbar />
-        <ScrollContainer days={days()}>
-          <Suspense fallback={<TimeEntryGrid issues={[]} timeEntries={[]} />}>
-            <Provider selectedDate={selectedDate()} />
-          </Suspense>
-        </ScrollContainer>
-      </div>
-    </TrackingStoreContext.Provider>
+      >
+        <div class="relative flex grow flex-col">
+          <TableToolbar issues={issuesQuery.data?.issues || []} />
+          <ScrollContainer days={days()}>
+            <TimeEntryGrid
+              issues={issuesQuery.data?.issues || []}
+              timeEntries={timeEntriesQuery.data?.time_entries || []}
+            />
+          </ScrollContainer>
+        </div>
+      </TimeSheetContextProvider>
+    </TrackingStoreProvider>
   );
 };
