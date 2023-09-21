@@ -19,7 +19,10 @@ export const TimeSheetTable: Component = () => {
   return (
     <TrackingStoreProvider>
       <TimeSheetContextProvider args={timeEntriesArgs()}>
-        <div class="grid h-full" style={{ "grid-template-rows": "auto 1fr" }}>
+        <div
+          class="relative grid h-full"
+          style={{ "grid-template-rows": "auto 1fr" }}
+        >
           <TableToolbar />
           <TimeEntryGrid days={days()} args={timeEntriesArgs()} />
         </div>

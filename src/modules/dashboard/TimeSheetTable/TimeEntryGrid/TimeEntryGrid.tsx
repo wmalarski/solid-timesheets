@@ -1,7 +1,7 @@
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
 import { createQuery, isServer } from "@tanstack/solid-query";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
-import { For, Show, createMemo, createSignal, type Component } from "solid-js";
+import { For, Show, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
 import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
@@ -167,25 +167,21 @@ const Footer: Component<FooterProps> = (props) => {
   );
 };
 
-type ScrollButtonsProps = {
-  parent?: HTMLDivElement;
-};
-
 const scrollShift = 250;
 
-const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
+const ScrollButtons: Component = () => {
   const onBackClick = () => {
-    props.parent?.scrollBy({ behavior: "smooth", left: -scrollShift });
+    window.scrollBy({ behavior: "smooth", left: -scrollShift });
   };
 
   const onForwardClick = () => {
-    props.parent?.scrollBy({ behavior: "smooth", left: scrollShift });
+    window.scrollBy({ behavior: "smooth", left: scrollShift });
   };
 
   return (
-    <>
+    <div class="sticky left-0 max-w-[100vw]">
       <Button
-        class="absolute left-2 top-2/4 hidden bg-base-100 sm:block"
+        class="absolute left-2 top-[calc(-1*calc(100vh/2))] hidden bg-base-100 sm:block"
         onClick={onBackClick}
         size="sm"
         variant="outline"
@@ -193,14 +189,14 @@ const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
         <IoChevronBackSharp />
       </Button>
       <Button
-        class="absolute right-2 top-2/4 hidden bg-base-100 sm:block"
+        class="absolute right-2 top-[calc(-1*calc(100vh/2))] hidden bg-base-100 sm:block"
         onClick={onForwardClick}
         size="sm"
         variant="outline"
       >
         <IoChevronForwardSharp />
       </Button>
-    </>
+    </div>
   );
 };
 
@@ -211,8 +207,6 @@ type EntryGridProps = {
 };
 
 const EntryGrid: Component<EntryGridProps> = (props) => {
-  const [parent, setParent] = createSignal<HTMLDivElement>();
-
   const issuesMap = createMemo(() => groupIssues(props.issues));
 
   const timeEntryGroups = createMemo(() =>
@@ -223,31 +217,29 @@ const EntryGrid: Component<EntryGridProps> = (props) => {
   );
 
   return (
-    <div
-      class="w-max-[100vw] grid grow snap-x overflow-scroll"
-      ref={setParent}
-      style={{
-        "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
-        "grid-template-rows": "auto 1fr auto",
-      }}
-    >
-      <Header days={props.days} />
-      <For each={props.days}>
-        {(day) => (
-          <Cell
-            date={day}
-            issuesMap={issuesMap()}
-            pairs={timeEntryGroups().get(formatRequestDate(day))}
-          />
-        )}
-      </For>
-      <For each={props.days}>
-        {(day) => <Cell date={day} issuesMap={new Map()} pairs={[]} />}
-      </For>
-      <GridCell bg="base-100" />
-      <Footer days={props.days} timeEntries={props.timeEntries} />
-      <ScrollButtons parent={parent()} />
-    </div>
+    <>
+      <div
+        class="relative grid"
+        style={{
+          "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
+          "grid-template-rows": "auto 1fr auto",
+        }}
+      >
+        <Header days={props.days} />
+        <For each={props.days}>
+          {(day) => (
+            <Cell
+              date={day}
+              issuesMap={issuesMap()}
+              pairs={timeEntryGroups().get(formatRequestDate(day))}
+            />
+          )}
+        </For>
+        <GridCell bg="base-100" />
+        <Footer days={props.days} timeEntries={props.timeEntries} />
+      </div>
+      <ScrollButtons />
+    </>
   );
 };
 
