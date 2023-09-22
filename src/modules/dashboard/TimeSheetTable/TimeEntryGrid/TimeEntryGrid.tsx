@@ -1,22 +1,20 @@
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
-import { createQuery, isServer } from "@tanstack/solid-query";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
 import { For, Show, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
-import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
-import {
-  getTimeEntriesKey,
-  getTimeEntriesServerQuery,
-  type GetTimeEntriesArgs,
-} from "~/server/timeEntries";
 import type { Issue, TimeEntry } from "~/server/types";
 import { isToday } from "~/utils/date";
 import { formatDay, formatRequestDate, formatWeekday } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
-import { sheetEntryMapKey, useTimeSheetContext } from "../EntriesStore";
+import {
+  TimeSheetContextProvider,
+  sheetEntryMapKey,
+  useTimeSheetContext,
+} from "../EntriesStore";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
 import { CreateEntryMenu } from "./CreateEntryMenu";
+import { TableToolbar } from "./TableToolbar";
 import {
   groupIssues,
   groupTimeEntries,
@@ -206,7 +204,7 @@ type EntryGridProps = {
   timeEntries: TimeEntry[];
 };
 
-const EntryGrid: Component<EntryGridProps> = (props) => {
+export const TimeEntryGrid: Component<EntryGridProps> = (props) => {
   const issuesMap = createMemo(() => groupIssues(props.issues));
 
   const timeEntryGroups = createMemo(() =>
@@ -217,59 +215,34 @@ const EntryGrid: Component<EntryGridProps> = (props) => {
   );
 
   return (
-    <>
+    <TimeSheetContextProvider timeEntries={props.timeEntries}>
       <div
-        class="relative grid"
-        style={{
-          "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
-          "grid-template-rows": "auto 1fr auto",
-        }}
+        class="relative grid h-full"
+        style={{ "grid-template-rows": "auto 1fr" }}
       >
-        <Header days={props.days} />
-        <For each={props.days}>
-          {(day) => (
-            <Cell
-              date={day}
-              issuesMap={issuesMap()}
-              pairs={timeEntryGroups().get(formatRequestDate(day))}
-            />
-          )}
-        </For>
-        <GridCell bg="base-100" />
-        <Footer days={props.days} timeEntries={props.timeEntries} />
+        <TableToolbar />
+        <div
+          class="relative grid"
+          style={{
+            "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
+            "grid-template-rows": "auto 1fr auto",
+          }}
+        >
+          <Header days={props.days} />
+          <For each={props.days}>
+            {(day) => (
+              <Cell
+                date={day}
+                issuesMap={issuesMap()}
+                pairs={timeEntryGroups().get(formatRequestDate(day))}
+              />
+            )}
+          </For>
+          <GridCell bg="base-100" />
+          <Footer days={props.days} timeEntries={props.timeEntries} />
+        </div>
+        <ScrollButtons />
       </div>
-      <ScrollButtons />
-    </>
-  );
-};
-
-type Props = {
-  args: GetTimeEntriesArgs;
-  days: Date[];
-};
-
-export const TimeEntryGrid: Component<Props> = (props) => {
-  const timeEntriesQuery = createQuery(() => ({
-    enabled: !isServer,
-    queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
-    queryKey: getTimeEntriesKey(props.args),
-  }));
-
-  const issuesQuery = createQuery(() => ({
-    enabled: !isServer,
-    queryFn: (context) => getIssuesServerQuery(context.queryKey),
-    queryKey: getIssuesKey({
-      assignedToId: "me",
-      sort: "project",
-      statusId: "open",
-    }),
-  }));
-
-  return (
-    <EntryGrid
-      days={props.days}
-      issues={issuesQuery.data?.issues || []}
-      timeEntries={timeEntriesQuery.data?.time_entries || []}
-    />
+    </TimeSheetContextProvider>
   );
 };

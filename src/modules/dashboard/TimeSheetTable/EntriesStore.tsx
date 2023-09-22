@@ -1,4 +1,3 @@
-import { createQuery } from "@tanstack/solid-query";
 import {
   createContext,
   createEffect,
@@ -7,12 +6,8 @@ import {
   type ParentProps,
 } from "solid-js";
 import { createStore, produce, type SetStoreFunction } from "solid-js/store";
-import { isServer } from "solid-js/web";
 import {
-  getTimeEntriesKey,
-  getTimeEntriesServerQuery,
   type CreateTimeEntryArgs,
-  type GetTimeEntriesArgs,
   type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
@@ -98,20 +93,14 @@ export const useTimeSheetContext = () => {
 };
 
 type TimeSheetContextProviderProps = ParentProps<{
-  args: GetTimeEntriesArgs;
+  timeEntries: TimeEntry[];
 }>;
 
 export const TimeSheetContextProvider: Component<
   TimeSheetContextProviderProps
 > = (props) => {
-  const timeEntriesQuery = createQuery(() => ({
-    enabled: !isServer,
-    queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
-    queryKey: getTimeEntriesKey(props.args),
-  }));
-
   const value = useCreatedTimeSeries({
-    timeEntries: () => timeEntriesQuery.data?.time_entries || [],
+    timeEntries: () => props.timeEntries || [],
   });
 
   return (
