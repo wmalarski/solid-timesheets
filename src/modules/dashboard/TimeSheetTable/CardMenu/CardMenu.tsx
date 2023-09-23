@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/DropdownMenu";
-import { showToast } from "~/components/Toast";
+import { showToastAsync } from "~/components/Toast/showToastAsync";
 import { useI18n } from "~/contexts/I18nContext";
 import {
   deleteTimeEntryServerMutation,
@@ -72,8 +72,8 @@ const DeleteUpdatedDialog: Component<DeleteUpdatedDialogProps> = (props) => {
 
   const mutation = createMutation(() => ({
     mutationFn: deleteTimeEntryServerMutation,
-    onError: () => {
-      showToast({
+    onError: async () => {
+      await showToastAsync({
         description: t("dashboard.toasts.wrong"),
         title: t("dashboard.toasts.error"),
         variant: "error",
@@ -82,10 +82,10 @@ const DeleteUpdatedDialog: Component<DeleteUpdatedDialogProps> = (props) => {
     onSettled: () => {
       props.onIsOpenChange(false);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       setState("updateMap", props.id, undefined);
-      showToast({
+      await showToastAsync({
         description: t("dashboard.toasts.remove"),
         title: t("dashboard.toasts.success"),
         variant: "success",

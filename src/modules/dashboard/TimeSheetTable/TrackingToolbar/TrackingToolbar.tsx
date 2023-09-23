@@ -18,7 +18,7 @@ import {
 import { Button } from "~/components/Button";
 import { ClientOnly } from "~/components/ClientOnly";
 import { Countdown } from "~/components/Countdown";
-import { showToast } from "~/components/Toast";
+import { showToastAsync } from "~/components/Toast/showToastAsync";
 import { useI18n } from "~/contexts/I18nContext";
 import {
   getAllTimeEntriesKey,
@@ -99,17 +99,17 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
   const mutation = createMutation(() => ({
     mutationFn: updateTimeEntryServerMutation,
-    onError: () => {
-      showToast({
+    onError: async () => {
+      await showToastAsync({
         description: t("dashboard.toasts.wrong"),
         title: t("dashboard.toasts.error"),
         variant: "error",
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       reset(props.timeEntryId);
-      showToast({
+      await showToastAsync({
         description: t("dashboard.toasts.updated"),
         title: t("dashboard.toasts.success"),
         variant: "success",

@@ -12,7 +12,7 @@ import {
 } from "solid-icons/io";
 import { Suspense, createMemo, lazy, type Component } from "solid-js";
 import { Button } from "~/components/Button";
-import { showToast } from "~/components/Toast";
+import { showToastAsync } from "~/components/Toast/showToastAsync";
 import { useI18n } from "~/contexts/I18nContext";
 import { useDashboardConfig } from "~/modules/dashboard/DashboardConfig";
 import {
@@ -122,17 +122,17 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
   const mutation = createMutation(() => ({
     mutationFn: upsertTimeEntriesServerMutation,
-    onError: () => {
-      showToast({
+    onError: async () => {
+      await showToastAsync({
         description: t("dashboard.toasts.wrong"),
         title: t("dashboard.toasts.error"),
         variant: "error",
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
       resetSheetEntries({ setState });
-      showToast({
+      await showToastAsync({
         description: t("dashboard.toasts.saved"),
         title: t("dashboard.toasts.success"),
         variant: "success",

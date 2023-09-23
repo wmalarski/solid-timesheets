@@ -114,7 +114,7 @@ export const ToastProvider: Component = () => {
   );
 };
 
-type ShowToastArgs = {
+export type ShowToastArgs = {
   variant: AlertIconProps["variant"];
   title: string;
   description: string;
