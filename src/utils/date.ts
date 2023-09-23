@@ -48,6 +48,10 @@ export const getDaysInMonth = (start: Date) => {
     });
 };
 
+export const getCurrentDayOfMonth = () => {
+  return new Date().getUTCDate();
+};
+
 export const getDaysLeftInMonth = (start: Date) => {
   const startDay = start.getUTCDate();
 
@@ -60,6 +64,14 @@ export const isDayOff = (date: Date) => {
   const day = date.getUTCDay();
 
   return daysOffUTC.includes(day);
+};
+
+export const isCurrentMonth = (date: Date) => {
+  const now = new Date();
+  return (
+    now.getUTCFullYear() === date.getUTCFullYear() &&
+    now.getUTCMonth() === date.getUTCMonth()
+  );
 };
 
 export const getDaysLeftInWeek = (start: Date) => {

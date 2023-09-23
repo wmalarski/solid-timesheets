@@ -1,10 +1,10 @@
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
-import { For, createMemo, type Component } from "solid-js";
+import { For, createEffect, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
 import type { TimeEntry } from "~/server/types";
-import { isToday } from "~/utils/date";
+import { getCurrentDayOfMonth, isCurrentMonth, isToday } from "~/utils/date";
 import { formatDay, formatRequestDate, formatWeekday } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
 import {
@@ -194,11 +194,21 @@ const ScrollButtons: Component = () => {
 
 type EntryGridProps = {
   days: Date[];
+  selectedDate: Date;
   timeEntries: TimeEntry[];
 };
 
 export const TimeEntryGrid: Component<EntryGridProps> = (props) => {
   const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
+
+  createEffect(() => {
+    const shouldScroll = isCurrentMonth(props.selectedDate);
+    if (!shouldScroll) {
+      return;
+    }
+    const left = scrollShift * (getCurrentDayOfMonth() - 1);
+    window?.scrollTo({ left });
+  });
 
   return (
     <TimeSheetContextProvider timeEntries={props.timeEntries}>

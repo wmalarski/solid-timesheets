@@ -27,9 +27,18 @@ const Provider: Component<ProviderProps> = (props) => {
   }));
 
   return (
-    <Suspense fallback={<TimeEntryGrid days={props.days} timeEntries={[]} />}>
+    <Suspense
+      fallback={
+        <TimeEntryGrid
+          days={props.days}
+          selectedDate={props.selectedDate}
+          timeEntries={[]}
+        />
+      }
+    >
       <TimeEntryGrid
         days={props.days}
+        selectedDate={props.selectedDate}
         timeEntries={timeEntriesQuery.data || []}
       />
     </Suspense>
