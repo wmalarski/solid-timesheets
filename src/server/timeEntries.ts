@@ -83,6 +83,10 @@ export const getTimeEntriesServerQuery = server$(
 
     const timeEntries = await getTimeEntries({ context, ...parsed });
 
+    if (timeEntries.length === 0) {
+      return { issues: [], timeEntries };
+    }
+
     const issuesIds = timeEntries.map((timeEntry) => timeEntry.issue.id);
     const uniqueIds = [...new Set(issuesIds)];
 

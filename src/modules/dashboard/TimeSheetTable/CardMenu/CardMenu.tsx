@@ -41,19 +41,8 @@ type DeleteItemProps = {
 const DeleteItem: Component<DeleteItemProps> = (props) => {
   const { t } = useI18n();
 
-  const [isOpen, setIsOpen] = createSignal(false);
-
-  const onClick = () => {
-    setIsOpen(true);
-  };
-
   return (
-    <DropdownMenuItem onClick={onClick} disabled={props.isDisabled}>
-      <DeleteAlertControlledDialog
-        isOpen={isOpen()}
-        onIsOpenChange={setIsOpen}
-        onConfirm={props.onClick}
-      />
+    <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
       <DropdownMenuItemLabel>
         <IoTrashSharp />
         {t("dashboard.timeEntry.delete")}
@@ -62,12 +51,14 @@ const DeleteItem: Component<DeleteItemProps> = (props) => {
   );
 };
 
-type DeleteUpdatedItemProps = {
+type DeleteUpdatedDialogProps = {
   id: number;
   isDisabled: boolean;
+  isOpen: boolean;
+  onIsOpenChange: (isOpen: boolean) => void;
 };
 
-const DeleteUpdatedItem: Component<DeleteUpdatedItemProps> = (props) => {
+const DeleteUpdatedDialog: Component<DeleteUpdatedDialogProps> = (props) => {
   const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
@@ -82,6 +73,9 @@ const DeleteUpdatedItem: Component<DeleteUpdatedItemProps> = (props) => {
         title: t("dashboard.toasts.error"),
         variant: "error",
       });
+    },
+    onSettled: () => {
+      props.onIsOpenChange(false);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getAllTimeEntriesKey() });
@@ -98,7 +92,13 @@ const DeleteUpdatedItem: Component<DeleteUpdatedItemProps> = (props) => {
     mutation.mutate({ id: props.id });
   };
 
-  return <DeleteItem isDisabled={props.isDisabled} onClick={onClick} />;
+  return (
+    <DeleteAlertControlledDialog
+      isOpen={props.isOpen}
+      onIsOpenChange={props.onIsOpenChange}
+      onConfirm={onClick}
+    />
+  );
 };
 
 type CopyItemProps = {
@@ -174,31 +174,44 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
     return state.dateMap[props.key]?.[props.id]?.args;
   };
 
-  const onDeleteClick = () => {
+  const onDeleteConfirm = () => {
     setState("dateMap", props.key, props.id, undefined);
   };
 
+  const [isWarningOpen, setIsWarningOpen] = createSignal(false);
+
+  const onDeleteClick = () => {
+    setIsWarningOpen(true);
+  };
+
   return (
-    <DropdownMenuRoot>
-      <DropdownMenuTrigger
-        aria-label={t("dashboard.timeEntry.more")}
-        shape="square"
-        size="sm"
-        variant="ghost"
-      >
-        <DropdownMenuIcon rotation={90}>
-          <IoEllipsisHorizontalSharp />
-        </DropdownMenuIcon>
-      </DropdownMenuTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuContent>
-          <CopyItems isDisabled={props.isDisabled} args={args()} />
-          <DropdownMenuSeparator />
-          <DeleteItem isDisabled={props.isDisabled} onClick={onDeleteClick} />
-          <DropdownMenuArrow />
-        </DropdownMenuContent>
-      </DropdownMenuPortal>
-    </DropdownMenuRoot>
+    <>
+      <DropdownMenuRoot>
+        <DropdownMenuTrigger
+          aria-label={t("dashboard.timeEntry.more")}
+          shape="square"
+          size="sm"
+          variant="ghost"
+        >
+          <DropdownMenuIcon rotation={90}>
+            <IoEllipsisHorizontalSharp />
+          </DropdownMenuIcon>
+        </DropdownMenuTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuContent>
+            <CopyItems isDisabled={props.isDisabled} args={args()} />
+            <DropdownMenuSeparator />
+            <DeleteItem isDisabled={props.isDisabled} onClick={onDeleteClick} />
+            <DropdownMenuArrow />
+          </DropdownMenuContent>
+        </DropdownMenuPortal>
+      </DropdownMenuRoot>
+      <DeleteAlertControlledDialog
+        isOpen={isWarningOpen()}
+        onIsOpenChange={setIsWarningOpen}
+        onConfirm={onDeleteConfirm}
+      />
+    </>
   );
 };
 type UpdatedCardMenuProps = {
@@ -215,26 +228,40 @@ export const UpdatedCardMenu: Component<UpdatedCardMenuProps> = (props) => {
     return state.timeEntryMap.get(props.id);
   };
 
+  const [isWarningOpen, setIsWarningOpen] = createSignal(false);
+
+  const onDeleteClick = () => {
+    setIsWarningOpen(true);
+  };
+
   return (
-    <DropdownMenuRoot>
-      <DropdownMenuTrigger
-        aria-label={t("dashboard.timeEntry.more")}
-        shape="square"
-        size="sm"
-        variant="ghost"
-      >
-        <DropdownMenuIcon rotation={90}>
-          <IoEllipsisHorizontalSharp />
-        </DropdownMenuIcon>
-      </DropdownMenuTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuContent>
-          <CopyItems isDisabled={props.isDisabled} args={args()} />
-          <DropdownMenuSeparator />
-          <DeleteUpdatedItem id={props.id} isDisabled={props.isDisabled} />
-          <DropdownMenuArrow />
-        </DropdownMenuContent>
-      </DropdownMenuPortal>
-    </DropdownMenuRoot>
+    <>
+      <DropdownMenuRoot>
+        <DropdownMenuTrigger
+          aria-label={t("dashboard.timeEntry.more")}
+          shape="square"
+          size="sm"
+          variant="ghost"
+        >
+          <DropdownMenuIcon rotation={90}>
+            <IoEllipsisHorizontalSharp />
+          </DropdownMenuIcon>
+        </DropdownMenuTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuContent>
+            <CopyItems isDisabled={props.isDisabled} args={args()} />
+            <DropdownMenuSeparator />
+            <DeleteItem isDisabled={props.isDisabled} onClick={onDeleteClick} />
+            <DropdownMenuArrow />
+          </DropdownMenuContent>
+        </DropdownMenuPortal>
+      </DropdownMenuRoot>
+      <DeleteUpdatedDialog
+        id={props.id}
+        isDisabled={props.isDisabled}
+        isOpen={isWarningOpen()}
+        onIsOpenChange={setIsWarningOpen}
+      />
+    </>
   );
 };
