@@ -12,7 +12,7 @@ import {
   type Input,
 } from "valibot";
 import { jsonFetcher } from "./fetcher";
-import { getSessionOrThrow } from "./session";
+import { getSessionOrThrow, type Session } from "./session";
 import type { Issue } from "./types";
 
 const getIssuesArgsSchema = () => {
@@ -28,6 +28,10 @@ const getIssuesArgsSchema = () => {
   });
 };
 
+type GetIssuesSchema = Input<ReturnType<typeof getIssuesArgsSchema>>;
+
+type GetIssuesArgs = GetIssuesSchema & { env: Env; session: Session };
+
 type GetIssuesResult = {
   issues: Issue[];
   total_count: number;
@@ -35,9 +39,23 @@ type GetIssuesResult = {
   limit: number;
 };
 
-export const getIssuesKey = (
-  args: Input<ReturnType<typeof getIssuesArgsSchema>>
-) => {
+export const getIssues = (args: GetIssuesArgs) => {
+  return jsonFetcher<GetIssuesResult>({
+    env: args.env,
+    path: "/issues.json",
+    query: {
+      assigned_to_id: args.assignedToId,
+      issue_id: args.issueIds?.join(","),
+      limit: args.limit,
+      offset: args.offset,
+      sort: args.sort,
+      status_id: args.statusId,
+    },
+    token: args.session.token,
+  });
+};
+
+export const getIssuesKey = (args: GetIssuesSchema) => {
   return ["getIssues", args] as const;
 };
 
@@ -50,19 +68,7 @@ export const getIssuesServerQuery = server$(
 
     const session = await getSessionOrThrow({ env, request });
 
-    return jsonFetcher<GetIssuesResult>({
-      env,
-      path: "/issues.json",
-      query: {
-        assigned_to_id: parsed.assignedToId,
-        issue_id: parsed.issueIds?.join(","),
-        limit: parsed.limit,
-        offset: parsed.offset,
-        sort: parsed.sort,
-        status_id: parsed.statusId,
-      },
-      token: session.token,
-    });
+    return getIssues({ env, session, ...parsed });
   }
 );
 

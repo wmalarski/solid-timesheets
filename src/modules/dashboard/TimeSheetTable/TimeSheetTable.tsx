@@ -1,6 +1,5 @@
 import { createQuery, isServer } from "@tanstack/solid-query";
 import { createMemo, type Component } from "solid-js";
-import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
 import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
@@ -28,21 +27,11 @@ const Provider: Component<ProviderProps> = (props) => {
     queryKey: getTimeEntriesKey(timeEntriesArgs()),
   }));
 
-  const issuesQuery = createQuery(() => ({
-    enabled: !isServer,
-    queryFn: (context) => getIssuesServerQuery(context.queryKey),
-    queryKey: getIssuesKey({
-      assignedToId: "me",
-      sort: "project",
-      statusId: "open",
-    }),
-  }));
-
   return (
     <TimeEntryGrid
       days={props.days}
-      issues={issuesQuery.data?.issues || []}
-      timeEntries={timeEntriesQuery.data || []}
+      issues={timeEntriesQuery.data?.issues || []}
+      timeEntries={timeEntriesQuery.data?.timeEntries || []}
     />
   );
 };

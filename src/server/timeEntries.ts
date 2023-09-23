@@ -16,16 +16,20 @@ import {
 import { formatRequestDate } from "~/utils/format";
 import { buildSearchParams } from "~/utils/searchParams";
 import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
+import { getIssues } from "./issues";
 import { getSessionOrThrow, type Session } from "./session";
 import type { TimeEntry } from "./types";
 
-type FetchTimeEntriesArgs = {
-  env: Env;
-  from?: Date;
-  session: Session;
-  to?: Date;
-  limit: number;
+const getTimeEntriesArgsSchema = () => {
+  return object({
+    from: optional(coerce(date(), (value) => new Date(String(value)))),
+    to: optional(coerce(date(), (value) => new Date(String(value)))),
+  });
 };
+
+type GetTimeEntriesSchema = Input<ReturnType<typeof getTimeEntriesArgsSchema>>;
+
+type GetTimeEntriesArgs = GetTimeEntriesSchema & { env: Env; session: Session };
 
 type GetTimeEntriesResult = {
   time_entries: TimeEntry[];
@@ -34,10 +38,10 @@ type GetTimeEntriesResult = {
   limit: number;
 };
 
-const fetchTimeEntries = async (args: FetchTimeEntriesArgs) => {
+const getTimeEntries = async (args: GetTimeEntriesArgs) => {
   const base = {
     from: args.from && formatRequestDate(args.from),
-    limit: args.limit,
+    limit: 100,
     to: args.to && formatRequestDate(args.to),
     user_id: args.session.id,
   };
@@ -54,29 +58,14 @@ const fetchTimeEntries = async (args: FetchTimeEntriesArgs) => {
       token: args.session.token,
     });
 
-    console.log({ result });
-
     timeEntries.push(...result.time_entries);
     totalCount = result.total_count;
   }
 
-  console.log({ timeEntries });
-
   return timeEntries;
 };
 
-const getTimeEntriesArgsSchema = () => {
-  return object({
-    from: optional(coerce(date(), (value) => new Date(String(value)))),
-    to: optional(coerce(date(), (value) => new Date(String(value)))),
-  });
-};
-
-export type GetTimeEntriesArgs = Input<
-  ReturnType<typeof getTimeEntriesArgsSchema>
->;
-
-export const getTimeEntriesKey = (args: GetTimeEntriesArgs) => {
+export const getTimeEntriesKey = (args: GetTimeEntriesSchema) => {
   return ["getTimeEntries", args] as const;
 };
 
@@ -93,13 +82,23 @@ export const getTimeEntriesServerQuery = server$(
 
     const session = await getSessionOrThrow({ env, request });
 
-    return fetchTimeEntries({
+    const timeEntries = await getTimeEntries({ env, ...parsed, session });
+
+    const issuesIds = timeEntries.map((timeEntry) => timeEntry.issue.id);
+
+    console.log(issuesIds);
+
+    const uniqueIds = [...new Set(issuesIds)];
+
+    console.log(uniqueIds);
+
+    const result = await getIssues({
       env,
-      from: parsed.from,
-      limit: 20,
+      issueIds: uniqueIds,
       session,
-      to: parsed.to,
     });
+
+    return { issues: result.issues, timeEntries };
   }
 );
 
