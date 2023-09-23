@@ -1,5 +1,6 @@
 import server$ from "solid-start/server";
 import {
+  array,
   coerce,
   literal,
   number,
@@ -17,6 +18,7 @@ import type { Issue } from "./types";
 const getIssuesArgsSchema = () => {
   return object({
     assignedToId: optional(union([number(), literal("me")])),
+    issueIds: optional(array(coerce(number(), Number))),
     limit: optional(coerce(number(), Number)),
     offset: optional(coerce(number(), Number)),
     sort: optional(string()),
@@ -53,6 +55,7 @@ export const getIssuesServerQuery = server$(
       path: "/issues.json",
       query: {
         assigned_to_id: parsed.assignedToId,
+        issue_id: parsed.issueIds?.join(","),
         limit: parsed.limit,
         offset: parsed.offset,
         sort: parsed.sort,

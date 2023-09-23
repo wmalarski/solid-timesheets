@@ -16,22 +16,16 @@ import {
 import { formatRequestDate } from "~/utils/format";
 import { buildSearchParams } from "~/utils/searchParams";
 import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
-import { getSessionOrThrow } from "./session";
+import { getSessionOrThrow, type Session } from "./session";
 import type { TimeEntry } from "./types";
 
-const getTimeEntriesArgsSchema = () => {
-  return object({
-    from: optional(coerce(date(), (value) => new Date(String(value)))),
-    limit: optional(coerce(number(), Number)),
-    offset: optional(coerce(number(), Number)),
-    projectId: optional(coerce(number(), Number)),
-    to: optional(coerce(date(), (value) => new Date(String(value)))),
-  });
+type FetchTimeEntriesArgs = {
+  env: Env;
+  from?: Date;
+  session: Session;
+  to?: Date;
+  limit: number;
 };
-
-export type GetTimeEntriesArgs = Input<
-  ReturnType<typeof getTimeEntriesArgsSchema>
->;
 
 type GetTimeEntriesResult = {
   time_entries: TimeEntry[];
@@ -39,6 +33,48 @@ type GetTimeEntriesResult = {
   offset: number;
   limit: number;
 };
+
+const fetchTimeEntries = async (args: FetchTimeEntriesArgs) => {
+  const base = {
+    from: args.from && formatRequestDate(args.from),
+    limit: args.limit,
+    to: args.to && formatRequestDate(args.to),
+    user_id: args.session.id,
+  };
+
+  const timeEntries: TimeEntry[] = [];
+  let totalCount = 1;
+
+  for (; timeEntries.length < totalCount; ) {
+    // eslint-disable-next-line no-await-in-loop
+    const result = await jsonFetcher<GetTimeEntriesResult>({
+      env: args.env,
+      path: "/time_entries.json",
+      query: { ...base, offset: timeEntries.length },
+      token: args.session.token,
+    });
+
+    console.log({ result });
+
+    timeEntries.push(...result.time_entries);
+    totalCount = result.total_count;
+  }
+
+  console.log({ timeEntries });
+
+  return timeEntries;
+};
+
+const getTimeEntriesArgsSchema = () => {
+  return object({
+    from: optional(coerce(date(), (value) => new Date(String(value)))),
+    to: optional(coerce(date(), (value) => new Date(String(value)))),
+  });
+};
+
+export type GetTimeEntriesArgs = Input<
+  ReturnType<typeof getTimeEntriesArgsSchema>
+>;
 
 export const getTimeEntriesKey = (args: GetTimeEntriesArgs) => {
   return ["getTimeEntries", args] as const;
@@ -57,18 +93,12 @@ export const getTimeEntriesServerQuery = server$(
 
     const session = await getSessionOrThrow({ env, request });
 
-    return jsonFetcher<GetTimeEntriesResult>({
+    return fetchTimeEntries({
       env,
-      path: "/time_entries.json",
-      query: {
-        from: parsed.from && formatRequestDate(parsed.from),
-        limit: parsed.limit,
-        offset: parsed.offset,
-        project_id: parsed.projectId,
-        to: parsed.to && formatRequestDate(parsed.to),
-        user_id: session.id,
-      },
-      token: session.token,
+      from: parsed.from,
+      limit: 20,
+      session,
+      to: parsed.to,
     });
   }
 );

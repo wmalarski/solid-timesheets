@@ -19,7 +19,7 @@ const Provider: Component<ProviderProps> = (props) => {
   const timeEntriesArgs = createMemo(() => {
     const from = props.selectedDate;
     const to = getNextMonth(from);
-    return { from, limit: 100, to };
+    return { from, to };
   });
 
   const timeEntriesQuery = createQuery(() => ({
@@ -42,7 +42,7 @@ const Provider: Component<ProviderProps> = (props) => {
     <TimeEntryGrid
       days={props.days}
       issues={issuesQuery.data?.issues || []}
-      timeEntries={timeEntriesQuery.data?.time_entries || []}
+      timeEntries={timeEntriesQuery.data || []}
     />
   );
 };
