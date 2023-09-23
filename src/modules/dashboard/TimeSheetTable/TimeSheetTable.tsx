@@ -30,8 +30,7 @@ const Provider: Component<ProviderProps> = (props) => {
   return (
     <TimeEntryGrid
       days={props.days}
-      issues={timeEntriesQuery.data?.issues || []}
-      timeEntries={timeEntriesQuery.data?.timeEntries || []}
+      timeEntries={timeEntriesQuery.data || []}
     />
   );
 };

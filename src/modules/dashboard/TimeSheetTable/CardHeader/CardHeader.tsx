@@ -1,17 +1,24 @@
+import { createQuery } from "@tanstack/solid-query";
 import type { Component, JSX } from "solid-js";
+import { isServer } from "solid-js/web";
 import { Badge } from "~/components/Badge";
-import { issueHref } from "~/server/issues";
-import type { IssueEssentials } from "~/server/types";
+import { getIssueKey, getIssueServerQuery, issueHref } from "~/server/issues";
 import { useDashboardConfig } from "../../DashboardConfig";
 
 type Props = {
   isPending: boolean;
-  issue: IssueEssentials;
+  issueId: number;
   menu: JSX.Element;
 };
 
 export const CardHeader: Component<Props> = (props) => {
   const config = useDashboardConfig();
+
+  const issueQuery = createQuery(() => ({
+    enabled: !isServer,
+    queryFn: (context) => getIssueServerQuery(context.queryKey),
+    queryKey: getIssueKey({ id: props.issueId }),
+  }));
 
   return (
     <header class="flex flex-col gap-2">
@@ -19,20 +26,20 @@ export const CardHeader: Component<Props> = (props) => {
         <a
           class="grow"
           href={issueHref({
-            issueId: props.issue.id,
+            issueId: props.issueId,
             rmBaseUrl: config().rmBaseUrl,
           })}
         >
           <Badge class="hover:underline" variant="outline">
-            {props.issue.id}
+            {props.issueId}
           </Badge>
         </a>
         {props.menu}
       </div>
       <span class="text-xs font-semibold uppercase">
-        {props.issue.project.name}
+        {issueQuery.data?.issue.project.name}
       </span>
-      <span class="text-base">{props.issue.subject}</span>
+      <span class="text-base">{issueQuery.data?.issue.subject}</span>
     </header>
   );
 };

@@ -1,4 +1,4 @@
-import type { Issue, IssueEssentials, TimeEntry } from "~/server/types";
+import type { TimeEntry } from "~/server/types";
 import type { CreatingEntryData, UpdatingEntryData } from "../EntriesStore";
 
 const getOrSetDefault = <K, V>(
@@ -15,38 +15,13 @@ const getOrSetDefault = <K, V>(
   return newValue;
 };
 
-export const groupIssues = (issues: Issue[]) => {
-  return new Map(issues.map((issue) => [issue.id, issue]));
-};
-
-type GroupTimeEntriesArgs = {
-  entries: TimeEntry[];
-  issuesMap: Map<number, Issue>;
-};
-
-export type IssueTimeEntryPair = {
-  entry: TimeEntry;
-  issue: IssueEssentials;
-};
-
-export const groupTimeEntries = ({
-  entries,
-  issuesMap,
-}: GroupTimeEntriesArgs) => {
-  const dayMap = new Map<string, IssueTimeEntryPair[]>();
-  const fallbackDayArray = () => new Array<IssueTimeEntryPair>();
+export const groupTimeEntries = (entries: TimeEntry[]) => {
+  const dayMap = new Map<string, TimeEntry[]>();
+  const fallbackDayArray = () => new Array<TimeEntry>();
 
   entries.forEach((entry) => {
-    const issue = issuesMap.get(entry.issue.id);
-
-    const essentials = issue || {
-      id: entry.issue.id,
-      project: entry.project,
-      subject: String(entry.issue.id),
-    };
-
     const day = getOrSetDefault(dayMap, entry.spent_on, fallbackDayArray);
-    day.push({ entry, issue: essentials });
+    day.push(entry);
   });
 
   return dayMap;

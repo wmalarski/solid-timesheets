@@ -17,7 +17,6 @@ import { formatRequestDate } from "~/utils/format";
 import { buildSearchParams } from "~/utils/searchParams";
 import { getRMContext, type RMContext } from "./context";
 import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
-import { getIssues } from "./issues";
 import type { TimeEntry } from "./types";
 
 const getTimeEntriesArgsSchema = () => {
@@ -81,18 +80,7 @@ export const getTimeEntriesServerQuery = server$(
       request: server$.request,
     });
 
-    const timeEntries = await getTimeEntries({ context, ...parsed });
-
-    if (timeEntries.length === 0) {
-      return { issues: [], timeEntries };
-    }
-
-    const issuesIds = timeEntries.map((timeEntry) => timeEntry.issue.id);
-    const uniqueIds = [...new Set(issuesIds)];
-
-    const result = await getIssues({ context, issueIds: uniqueIds });
-
-    return { issues: result.issues, timeEntries };
+    return getTimeEntries({ context, ...parsed });
   }
 );
 

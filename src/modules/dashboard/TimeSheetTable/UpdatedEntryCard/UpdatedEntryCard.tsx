@@ -14,7 +14,7 @@ import {
   updateTimeEntryServerMutation,
   type UpdateTimeEntryArgs,
 } from "~/server/timeEntries";
-import type { IssueEssentials, TimeEntry } from "~/server/types";
+import type { TimeEntry } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { UpdatedCardMenu } from "../CardMenu";
 import { DeleteAlertDialog } from "../DeleteAlertDialog";
@@ -25,7 +25,7 @@ import { TrackingRow } from "../TrackingToolbar";
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
   isPending: boolean;
-  issue: IssueEssentials;
+  issueId: number;
 };
 
 const UpdateForm: Component<UpdateFormProps> = (props) => {
@@ -44,7 +44,7 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
       comments={props.args.comments}
       hours={props.args.hours}
       isLoading={props.isPending}
-      issue={props.issue}
+      issueId={props.issueId}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
       onIssueChange={() => void 0}
@@ -139,7 +139,7 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
 type UpdatedEntryCardProps = {
   entry: TimeEntry;
-  issue: IssueEssentials;
+  issueId: number;
 };
 
 export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
@@ -182,7 +182,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
       <CardBody>
         <CardHeader
           isPending={isPending()}
-          issue={props.issue}
+          issueId={props.issueId}
           menu={
             <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
           }
@@ -205,7 +205,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
               <UpdateForm
                 args={entry().args}
                 isPending={isPending()}
-                issue={props.issue}
+                issueId={props.issueId}
               />
               <div class="flex justify-end gap-2">
                 <DeleteAlertDialog

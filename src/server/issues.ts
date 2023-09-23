@@ -71,6 +71,38 @@ export const getIssuesServerQuery = server$(
   }
 );
 
+const getIssueArgsSchema = () => {
+  return object({
+    id: coerce(number(), Number),
+  });
+};
+
+type GetIssueSchema = Input<ReturnType<typeof getIssueArgsSchema>>;
+
+type GetIssueResult = {
+  issue: Issue;
+};
+
+export const getIssueKey = (args: GetIssueSchema) => {
+  return ["getIssue", args] as const;
+};
+
+export const getIssueServerQuery = server$(
+  async ([, args]: ReturnType<typeof getIssueKey>) => {
+    const parsed = await parseAsync(getIssueArgsSchema(), args);
+
+    const context = await getRMContext({
+      env: server$.env,
+      request: server$.request,
+    });
+
+    return jsonFetcher<GetIssueResult>({
+      context,
+      path: `/issues/${parsed.id}.json`,
+    });
+  }
+);
+
 type IssueHrefArgs = {
   issueId: number;
   rmBaseUrl: string;

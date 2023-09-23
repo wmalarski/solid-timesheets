@@ -13,7 +13,6 @@ import {
   createTimeEntryServerMutation,
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
-import type { Issue, IssueEssentials } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { CreatedCardMenu } from "../CardMenu";
 import { DeleteAlertDialog } from "../DeleteAlertDialog";
@@ -27,7 +26,7 @@ import { TimeEntryFields } from "../TimeEntryFields";
 type CreateFormProps = {
   entry: CreatingEntryData;
   isPending: boolean;
-  issue: IssueEssentials;
+  issueId: number;
   key: string;
 };
 
@@ -54,7 +53,7 @@ const CreateForm: Component<CreateFormProps> = (props) => {
       comments={props.entry.args.comments}
       hours={props.entry.args.hours}
       isLoading={props.isPending}
-      issue={props.issue}
+      issueId={props.issueId}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
       onIssueChange={() => void 0}
@@ -114,7 +113,7 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
 type Props = {
   entry: CreatingEntryData;
-  issue: Issue;
+  issueId: number;
 };
 
 export const CreatedEntryCard: Component<Props> = (props) => {
@@ -141,7 +140,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
       <CardBody>
         <CardHeader
           isPending={isPending()}
-          issue={props.issue}
+          issueId={props.issueId}
           menu={
             <CreatedCardMenu
               id={props.entry.id}
@@ -154,7 +153,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
           entry={props.entry}
           key={key()}
           isPending={isPending()}
-          issue={props.issue}
+          issueId={props.issueId}
         />
         <div class="flex justify-end gap-2">
           <DeleteAlertDialog

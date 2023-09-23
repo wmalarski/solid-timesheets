@@ -1,9 +1,9 @@
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
-import { For, Show, createMemo, type Component } from "solid-js";
+import { For, createMemo, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
-import type { Issue, TimeEntry } from "~/server/types";
+import type { TimeEntry } from "~/server/types";
 import { isToday } from "~/utils/date";
 import { formatDay, formatRequestDate, formatWeekday } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
@@ -16,11 +16,9 @@ import { UpdatedEntryCard } from "../UpdatedEntryCard";
 import { CreateEntryMenu } from "./CreateEntryMenu";
 import { TableToolbar } from "./TableToolbar";
 import {
-  groupIssues,
   groupTimeEntries,
   sumDayTimeEntriesHours,
   sumTimeEntriesHoursByDay,
-  type IssueTimeEntryPair,
 } from "./TimeEntryGrid.utils";
 
 type HeaderCellProps = {
@@ -43,7 +41,6 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
         <span class="text-3xl">{formatDay(props.date)}</span>
         <span>{formatWeekday(props.date)}</span>
       </div>
-      {/* <CreateEntryDialog date={props.date} issues={props.issues} /> */}
       <CreateEntryMenu date={props.date} />
     </GridCell>
   );
@@ -64,8 +61,7 @@ export const Header: Component<HeaderProps> = (props) => {
 
 type CellProps = {
   date: Date;
-  issuesMap: Map<number, Issue>;
-  pairs?: IssueTimeEntryPair[];
+  timeEntries?: TimeEntry[];
 };
 
 const Cell: Component<CellProps> = (props) => {
@@ -83,13 +79,11 @@ const Cell: Component<CellProps> = (props) => {
     <GridCell ref={setParent} borders="right" class="flex flex-col gap-2">
       <For each={created()}>
         {(entry) => (
-          <Show when={entry && props.issuesMap.get(entry.args.issueId)}>
-            {(issue) => <CreatedEntryCard entry={entry} issue={issue()} />}
-          </Show>
+          <CreatedEntryCard entry={entry} issueId={entry.args.issueId} />
         )}
       </For>
-      <For each={props.pairs}>
-        {(pair) => <UpdatedEntryCard entry={pair.entry} issue={pair.issue} />}
+      <For each={props.timeEntries}>
+        {(entry) => <UpdatedEntryCard entry={entry} issueId={entry.issue.id} />}
       </For>
     </GridCell>
   );
@@ -200,19 +194,11 @@ const ScrollButtons: Component = () => {
 
 type EntryGridProps = {
   days: Date[];
-  issues: Issue[];
   timeEntries: TimeEntry[];
 };
 
 export const TimeEntryGrid: Component<EntryGridProps> = (props) => {
-  const issuesMap = createMemo(() => groupIssues(props.issues));
-
-  const timeEntryGroups = createMemo(() =>
-    groupTimeEntries({
-      entries: props.timeEntries,
-      issuesMap: issuesMap(),
-    })
-  );
+  const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
 
   return (
     <TimeSheetContextProvider timeEntries={props.timeEntries}>
@@ -233,8 +219,7 @@ export const TimeEntryGrid: Component<EntryGridProps> = (props) => {
             {(day) => (
               <Cell
                 date={day}
-                issuesMap={issuesMap()}
-                pairs={timeEntryGroups().get(formatRequestDate(day))}
+                timeEntries={timeEntryGroups().get(formatRequestDate(day))}
               />
             )}
           </For>

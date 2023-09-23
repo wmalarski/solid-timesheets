@@ -8,14 +8,13 @@ import {
   type TextFieldInputProps,
 } from "~/components/TextField";
 import { useI18n } from "~/contexts/I18nContext";
-import type { IssueEssentials } from "~/server/types";
 
 type TimeEntryFieldsProps = {
   comments?: string;
   error?: string;
   hours?: number;
   isLoading?: boolean;
-  issue: IssueEssentials;
+  issueId: number;
   onCommentsChange: FunctionStringCallback;
   onHoursChange: (hours: number) => void;
   onIssueChange: (issueId: number) => void;

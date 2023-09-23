@@ -56,9 +56,9 @@ const CreateEntryForm: Component<CreateEntryFormProps> = (props) => {
       <TimeEntryFields
         comments={comments()}
         hours={hours()}
+        issueId={props.issues[0].id}
         onCommentsChange={setComments}
         onHoursChange={setHours}
-        issue={props.issues[0]}
         onIssueChange={() => void 0}
       />
       <div class="flex justify-end gap-2">
