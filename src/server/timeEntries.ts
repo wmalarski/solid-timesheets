@@ -15,9 +15,9 @@ import {
 } from "valibot";
 import { formatRequestDate } from "~/utils/format";
 import { buildSearchParams } from "~/utils/searchParams";
+import { getRMContext, type RMContext } from "./context";
 import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
 import { getIssues } from "./issues";
-import { getSessionOrThrow, type Session } from "./session";
 import type { TimeEntry } from "./types";
 
 const getTimeEntriesArgsSchema = () => {
@@ -29,7 +29,7 @@ const getTimeEntriesArgsSchema = () => {
 
 type GetTimeEntriesSchema = Input<ReturnType<typeof getTimeEntriesArgsSchema>>;
 
-type GetTimeEntriesArgs = GetTimeEntriesSchema & { env: Env; session: Session };
+type GetTimeEntriesArgs = GetTimeEntriesSchema & { context: RMContext };
 
 type GetTimeEntriesResult = {
   time_entries: TimeEntry[];
@@ -43,7 +43,7 @@ const getTimeEntries = async (args: GetTimeEntriesArgs) => {
     from: args.from && formatRequestDate(args.from),
     limit: 100,
     to: args.to && formatRequestDate(args.to),
-    user_id: args.session.id,
+    user_id: args.context.session.id,
   };
 
   const timeEntries: TimeEntry[] = [];
@@ -52,10 +52,9 @@ const getTimeEntries = async (args: GetTimeEntriesArgs) => {
   for (; timeEntries.length < totalCount; ) {
     // eslint-disable-next-line no-await-in-loop
     const result = await jsonFetcher<GetTimeEntriesResult>({
-      env: args.env,
+      context: args.context,
       path: "/time_entries.json",
       query: { ...base, offset: timeEntries.length },
-      token: args.session.token,
     });
 
     timeEntries.push(...result.time_entries);
@@ -77,21 +76,17 @@ export const getTimeEntriesServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntriesKey>) => {
     const parsed = await parseAsync(getTimeEntriesArgsSchema(), args);
 
-    const env = server$.env;
-    const request = server$.request;
+    const context = await getRMContext({
+      env: server$.env,
+      request: server$.request,
+    });
 
-    const session = await getSessionOrThrow({ env, request });
-
-    const timeEntries = await getTimeEntries({ env, ...parsed, session });
+    const timeEntries = await getTimeEntries({ context, ...parsed });
 
     const issuesIds = timeEntries.map((timeEntry) => timeEntry.issue.id);
     const uniqueIds = [...new Set(issuesIds)];
 
-    const result = await getIssues({
-      env,
-      issueIds: uniqueIds,
-      session,
-    });
+    const result = await getIssues({ context, issueIds: uniqueIds });
 
     return { issues: result.issues, timeEntries };
   }
@@ -117,15 +112,14 @@ export const getTimeEntryServerQuery = server$(
   async ([, args]: ReturnType<typeof getTimeEntryKey>) => {
     const parsed = await parseAsync(getTimeEntryArgsSchema(), args);
 
-    const env = server$.env;
-    const request = server$.request;
-
-    const session = await getSessionOrThrow({ env, request });
+    const context = await getRMContext({
+      env: server$.env,
+      request: server$.request,
+    });
 
     return jsonFetcher<GetTimeEntryResult>({
-      env,
+      context,
       path: `/time_entries/${parsed.id}.json`,
-      token: session.token,
     });
   }
 );
@@ -148,13 +142,13 @@ export const createTimeEntryServerMutation = server$(
   async (args: CreateTimeEntryArgs) => {
     const parsed = await parseAsync(createTimeEntryArgsSchema(), args);
 
-    const env = server$.env;
-    const request = server$.request;
-
-    const session = await getSessionOrThrow({ env, request });
+    const context = await getRMContext({
+      env: server$.env,
+      request: server$.request,
+    });
 
     return jsonFetcher<TimeEntry>({
-      env,
+      context,
       init: {
         body: JSON.stringify({
           time_entry: {
@@ -163,13 +157,12 @@ export const createTimeEntryServerMutation = server$(
             hours: parsed.hours,
             issue_id: parsed.issueId,
             spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
-            user_id: session.id,
+            user_id: context.session.id,
           },
         }),
         method: "POST",
       },
       path: "/time_entries.json",
-      token: session.token,
     });
   }
 );
@@ -189,13 +182,13 @@ export const updateTimeEntryServerMutation = server$(
   async (args: UpdateTimeEntryArgs) => {
     const parsed = await parseAsync(updateTimeEntryArgsSchema(), args);
 
-    const env = server$.env;
-    const request = server$.request;
-
-    const session = await getSessionOrThrow({ env, request });
+    const context = await getRMContext({
+      env: server$.env,
+      request: server$.request,
+    });
 
     await jsonRequestFetcher({
-      env,
+      context,
       init: {
         body: JSON.stringify({
           time_entry: {
@@ -204,13 +197,12 @@ export const updateTimeEntryServerMutation = server$(
             hours: parsed.hours,
             issue_id: parsed.issueId,
             spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
-            user_id: session.id,
+            user_id: context.session.id,
           },
         }),
         method: "PUT",
       },
       path: `/time_entries/${parsed.id}.json`,
-      token: session.token,
     });
   }
 );
@@ -230,15 +222,15 @@ export const upsertTimeEntriesServerMutation = server$(
   async (args: UpsertTimeEntriesArgs) => {
     const parsed = await parseAsync(upsertTimeEntriesArgsSchema(), args);
 
-    const env = server$.env;
-    const request = server$.request;
-
-    const session = await getSessionOrThrow({ env, request });
+    const context = await getRMContext({
+      env: server$.env,
+      request: server$.request,
+    });
 
     await Promise.all([
       ...parsed.create.map((entry) =>
         jsonRequestFetcher({
-          env,
+          context,
           init: {
             body: JSON.stringify({
               time_entry: {
@@ -247,18 +239,17 @@ export const upsertTimeEntriesServerMutation = server$(
                 hours: entry.hours,
                 issue_id: entry.issueId,
                 spent_on: entry.spentOn && formatRequestDate(entry.spentOn),
-                user_id: session.id,
+                user_id: context.session.id,
               },
             }),
             method: "POST",
           },
           path: "/time_entries.json",
-          token: session.token,
         })
       ),
       ...parsed.update.map((entry) =>
         jsonRequestFetcher({
-          env,
+          context,
           init: {
             body: JSON.stringify({
               time_entry: {
@@ -267,13 +258,12 @@ export const upsertTimeEntriesServerMutation = server$(
                 hours: entry.hours,
                 issue_id: entry.issueId,
                 spent_on: entry.spentOn && formatRequestDate(entry.spentOn),
-                user_id: session.id,
+                user_id: context.session.id,
               },
             }),
             method: "PUT",
           },
           path: `/time_entries/${entry.id}.json`,
-          token: session.token,
         })
       ),
     ]);
@@ -292,16 +282,15 @@ export const deleteTimeEntryServerMutation = server$(
   async (args: DeleteTimeEntryArgs) => {
     const parsed = await parseAsync(deleteTimeEntryArgsSchema(), args);
 
-    const env = server$.env;
-    const request = server$.request;
-
-    const session = await getSessionOrThrow({ env, request });
+    const context = await getRMContext({
+      env: server$.env,
+      request: server$.request,
+    });
 
     await fetcher({
-      env,
+      context,
       init: { method: "DELETE" },
       path: `/time_entries/${parsed.id}.json`,
-      token: session.token,
     });
   }
 );

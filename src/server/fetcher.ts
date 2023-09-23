@@ -1,32 +1,26 @@
 import { buildSearchParams } from "~/utils/searchParams";
+import type { RMContext } from "./context";
 
 export type FetcherError = {
   status: number;
   message: string;
 };
 
-export type FetcherArgs = {
-  env: Env;
+type FetcherArgs = {
+  context: RMContext;
   init?: RequestInit;
   path: string;
   query?: Record<string, unknown>;
-  token?: string;
 };
 
-export const fetcher = async ({
-  env,
-  init,
-  path,
-  query,
-  token,
-}: FetcherArgs) => {
+export const fetcher = async ({ context, init, path, query }: FetcherArgs) => {
   const search = buildSearchParams(query);
-  const url = `${env.RM_BASE_URL}${path}?${search}`;
+  const url = `${context.baseUrl}${path}?${search}`;
 
-  const headers = token
-    ? { ...init?.headers, "X-Redmine-API-Key": token }
-    : init?.headers || {};
-
+  const headers = {
+    ...init?.headers,
+    "X-Redmine-API-Key": context.session.token,
+  };
   const response = await fetch(url, { ...init, headers });
 
   if (response.status >= 400) {

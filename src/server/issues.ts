@@ -11,8 +11,8 @@ import {
   union,
   type Input,
 } from "valibot";
+import { getRMContext, type RMContext } from "./context";
 import { jsonFetcher } from "./fetcher";
-import { getSessionOrThrow, type Session } from "./session";
 import type { Issue } from "./types";
 
 const getIssuesArgsSchema = () => {
@@ -30,7 +30,7 @@ const getIssuesArgsSchema = () => {
 
 type GetIssuesSchema = Input<ReturnType<typeof getIssuesArgsSchema>>;
 
-type GetIssuesArgs = GetIssuesSchema & { env: Env; session: Session };
+type GetIssuesArgs = GetIssuesSchema & { context: RMContext };
 
 type GetIssuesResult = {
   issues: Issue[];
@@ -41,7 +41,7 @@ type GetIssuesResult = {
 
 export const getIssues = (args: GetIssuesArgs) => {
   return jsonFetcher<GetIssuesResult>({
-    env: args.env,
+    context: args.context,
     path: "/issues.json",
     query: {
       assigned_to_id: args.assignedToId,
@@ -51,7 +51,6 @@ export const getIssues = (args: GetIssuesArgs) => {
       sort: args.sort,
       status_id: args.statusId,
     },
-    token: args.session.token,
   });
 };
 
@@ -63,12 +62,12 @@ export const getIssuesServerQuery = server$(
   async ([, args]: ReturnType<typeof getIssuesKey>) => {
     const parsed = await parseAsync(getIssuesArgsSchema(), args);
 
-    const env = server$.env;
-    const request = server$.request;
+    const context = await getRMContext({
+      env: server$.env,
+      request: server$.request,
+    });
 
-    const session = await getSessionOrThrow({ env, request });
-
-    return getIssues({ env, session, ...parsed });
+    return getIssues({ context, ...parsed });
   }
 );
 

@@ -112,9 +112,11 @@ export const setSessionCookie = async ({
   const session = await storage.getSession(request.headers.get("Cookie"));
 
   const data = await jsonFetcher<{ user: User }>({
-    env,
+    context: {
+      baseUrl: env.RM_BASE_URL,
+      session: { fullName: "", id: 0, token },
+    },
     path: "/users/current.json",
-    token,
   });
 
   session.set(tokenKey, token);
