@@ -10,7 +10,7 @@ import {
   IoReloadSharp,
   IoSaveSharp,
 } from "solid-icons/io";
-import { createMemo, type Component } from "solid-js";
+import { Suspense, createMemo, lazy, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { showToast } from "~/components/Toast";
 import { useI18n } from "~/contexts/I18nContext";
@@ -22,10 +22,20 @@ import {
 } from "~/server/timeEntries";
 import { getNextMonth, getPreviousMonth } from "~/utils/date";
 import { formatMonth } from "~/utils/format";
-import { DeleteAlertDialog } from "../../DeleteAlertDialog";
 import { resetSheetEntries, useTimeSheetContext } from "../../EntriesStore";
 import { useTimeSheetSearchParams } from "../../TimeSheetTable.utils";
-import { TrackingPopover } from "../TrackingPopover";
+
+const DeleteAlertDialog = lazy(() =>
+  import("../../DeleteAlertDialog").then((module) => ({
+    default: module.DeleteAlertDialog,
+  }))
+);
+
+const TrackingPopover = lazy(() =>
+  import("../TrackingPopover").then((module) => ({
+    default: module.TrackingPopover,
+  }))
+);
 
 type MonthSelectProps = {
   isDisabled: boolean;
@@ -82,17 +92,19 @@ const ResetButton: Component<ResetButtonProps> = (props) => {
   };
 
   return (
-    <DeleteAlertDialog
-      onConfirm={onClick}
-      disabled={props.isDisabled}
-      size="sm"
-      variant="ghost"
-    >
-      <IoReloadSharp />
-      <span class="hidden sm:block">
-        {t("dashboard.reset", { count: String(props.count) })}
-      </span>
-    </DeleteAlertDialog>
+    <Suspense>
+      <DeleteAlertDialog
+        onConfirm={onClick}
+        disabled={props.isDisabled}
+        size="sm"
+        variant="ghost"
+      >
+        <IoReloadSharp />
+        <span class="hidden sm:block">
+          {t("dashboard.reset", { count: String(props.count) })}
+        </span>
+      </DeleteAlertDialog>
+    </Suspense>
   );
 };
 
@@ -230,7 +242,9 @@ export const TableToolbar: Component = () => {
           isDisabled={shouldDisableActions()}
         />
         <DownloadButton isDisabled={isDisabled()} />
-        <TrackingPopover />
+        <Suspense>
+          <TrackingPopover />
+        </Suspense>
       </div>
     </div>
   );

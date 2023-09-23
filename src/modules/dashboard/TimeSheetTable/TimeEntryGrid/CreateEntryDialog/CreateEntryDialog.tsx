@@ -1,6 +1,12 @@
 import { createWritableMemo } from "@solid-primitives/memo";
 import { IoAddSharp, IoCloseSharp } from "solid-icons/io";
-import { createSignal, type Component, type JSX } from "solid-js";
+import {
+  Suspense,
+  createSignal,
+  lazy,
+  type Component,
+  type JSX,
+} from "solid-js";
 import { Button } from "~/components/Button";
 import {
   DialogCloseButton,
@@ -16,8 +22,13 @@ import {
 import { useI18n } from "~/contexts/I18nContext";
 import type { Issue } from "~/server/types";
 import { createSheetEntryArgs, useTimeSheetContext } from "../../EntriesStore";
-import { IssueCombobox } from "../../IssueCombobox";
 import { TimeEntryFields } from "../../TimeEntryFields";
+
+const IssueCombobox = lazy(() =>
+  import("../../IssueCombobox").then((module) => ({
+    default: module.IssueCombobox,
+  }))
+);
 
 type CreateEntryFormProps = {
   date: Date;
@@ -52,7 +63,9 @@ const CreateEntryForm: Component<CreateEntryFormProps> = (props) => {
 
   return (
     <form class="flex flex-col gap-4" onSubmit={onSubmit}>
-      <IssueCombobox issues={props.issues} />
+      <Suspense>
+        <IssueCombobox issues={props.issues} />
+      </Suspense>
       <TimeEntryFields
         comments={comments()}
         hours={hours()}

@@ -4,7 +4,7 @@ import {
   IoEllipsisHorizontalSharp,
   IoTrashSharp,
 } from "solid-icons/io";
-import { createSignal, type Component } from "solid-js";
+import { Suspense, createSignal, lazy, type Component } from "solid-js";
 import {
   DropdownMenuArrow,
   DropdownMenuContent,
@@ -23,7 +23,6 @@ import {
   getAllTimeEntriesKey,
   type CreateTimeEntryArgs,
 } from "~/server/timeEntries";
-import { DeleteAlertControlledDialog } from "../DeleteAlertDialog";
 import {
   copyToCurrentDay,
   copyToEndOfMonth,
@@ -32,6 +31,12 @@ import {
   copyToNextWorkingDay,
   useTimeSheetContext,
 } from "../EntriesStore";
+
+const DeleteAlertControlledDialog = lazy(() =>
+  import("../DeleteAlertDialog").then((module) => ({
+    default: module.DeleteAlertControlledDialog,
+  }))
+);
 
 type DeleteItemProps = {
   isDisabled: boolean;
@@ -93,11 +98,13 @@ const DeleteUpdatedDialog: Component<DeleteUpdatedDialogProps> = (props) => {
   };
 
   return (
-    <DeleteAlertControlledDialog
-      isOpen={props.isOpen}
-      onIsOpenChange={props.onIsOpenChange}
-      onConfirm={onClick}
-    />
+    <Suspense>
+      <DeleteAlertControlledDialog
+        isOpen={props.isOpen}
+        onIsOpenChange={props.onIsOpenChange}
+        onConfirm={onClick}
+      />
+    </Suspense>
   );
 };
 
@@ -206,11 +213,13 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
           </DropdownMenuContent>
         </DropdownMenuPortal>
       </DropdownMenuRoot>
-      <DeleteAlertControlledDialog
-        isOpen={isWarningOpen()}
-        onIsOpenChange={setIsWarningOpen}
-        onConfirm={onDeleteConfirm}
-      />
+      <Suspense>
+        <DeleteAlertControlledDialog
+          isOpen={isWarningOpen()}
+          onIsOpenChange={setIsWarningOpen}
+          onConfirm={onDeleteConfirm}
+        />
+      </Suspense>
     </>
   );
 };

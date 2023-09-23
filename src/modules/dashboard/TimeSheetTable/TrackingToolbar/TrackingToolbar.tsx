@@ -8,8 +8,10 @@ import {
 } from "solid-icons/io";
 import {
   Show,
+  Suspense,
   createEffect,
   createMemo,
+  lazy,
   onCleanup,
   type Component,
 } from "solid-js";
@@ -24,9 +26,14 @@ import {
 } from "~/server/timeEntries";
 import { secondsToNow } from "~/utils/date";
 import { formatTime } from "~/utils/format";
-import { DeleteAlertDialog } from "../DeleteAlertDialog";
 import { useTimeSheetContext } from "../EntriesStore";
 import { useTrackingStoreContext, type TrackingItem } from "../TrackingStore";
+
+const DeleteAlertDialog = lazy(() =>
+  import("../DeleteAlertDialog").then((module) => ({
+    default: module.DeleteAlertDialog,
+  }))
+);
 
 type CreateTimeCounterArgs = {
   item: () => TrackingItem | undefined;
@@ -173,16 +180,18 @@ export const TrackingCard: Component<TrackingCardProps> = (props) => {
     <div class="flex items-center">
       <TrackingTime item={item()} isRunning={isCurrentRunning()} />
       <Show when={item()}>
-        <DeleteAlertDialog
-          aria-label={t("dashboard.tracking.reset")}
-          disabled={!item()}
-          onConfirm={onResetClick}
-          shape="square"
-          size="sm"
-          variant="ghost"
-        >
-          <IoReloadSharp class="h-4 w-4" />
-        </DeleteAlertDialog>
+        <Suspense>
+          <DeleteAlertDialog
+            aria-label={t("dashboard.tracking.reset")}
+            disabled={!item()}
+            onConfirm={onResetClick}
+            shape="square"
+            size="sm"
+            variant="ghost"
+          >
+            <IoReloadSharp class="h-4 w-4" />
+          </DeleteAlertDialog>
+        </Suspense>
       </Show>
       <Show
         when={isCurrentRunning()}

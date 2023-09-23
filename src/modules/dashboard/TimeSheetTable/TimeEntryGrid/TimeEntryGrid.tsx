@@ -1,10 +1,10 @@
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
-import { For, createEffect, createMemo, type Component } from "solid-js";
+import { For, Suspense, createMemo, lazy, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
 import type { TimeEntry } from "~/server/types";
-import { getCurrentDayOfMonth, isCurrentMonth, isToday } from "~/utils/date";
+import { isToday } from "~/utils/date";
 import { formatDay, formatRequestDate, formatWeekday } from "~/utils/format";
 import { CreatedEntryCard } from "../CreatedEntryCard";
 import {
@@ -13,13 +13,18 @@ import {
   useTimeSheetContext,
 } from "../EntriesStore";
 import { UpdatedEntryCard } from "../UpdatedEntryCard";
-import { CreateEntryMenu } from "./CreateEntryMenu";
 import { TableToolbar } from "./TableToolbar";
 import {
   groupTimeEntries,
   sumDayTimeEntriesHours,
   sumTimeEntriesHoursByDay,
 } from "./TimeEntryGrid.utils";
+
+const CreateEntryMenu = lazy(() =>
+  import("./CreateEntryMenu").then((module) => ({
+    default: module.CreateEntryMenu,
+  }))
+);
 
 type HeaderCellProps = {
   date: Date;
@@ -41,7 +46,9 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
         <span class="text-3xl">{formatDay(props.date)}</span>
         <span>{formatWeekday(props.date)}</span>
       </div>
-      <CreateEntryMenu date={props.date} />
+      <Suspense>
+        <CreateEntryMenu date={props.date} />
+      </Suspense>
     </GridCell>
   );
 };
@@ -200,15 +207,6 @@ type EntryGridProps = {
 
 export const TimeEntryGrid: Component<EntryGridProps> = (props) => {
   const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
-
-  createEffect(() => {
-    const shouldScroll = isCurrentMonth(props.selectedDate);
-    if (!shouldScroll) {
-      return;
-    }
-    const left = scrollShift * (getCurrentDayOfMonth() - 1);
-    window?.scrollTo({ left });
-  });
 
   return (
     <TimeSheetContextProvider timeEntries={props.timeEntries}>

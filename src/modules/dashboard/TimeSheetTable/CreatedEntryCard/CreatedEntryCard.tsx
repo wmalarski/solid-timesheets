@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from "@tanstack/solid-query";
 import { IoSaveSharp, IoTrashSharp } from "solid-icons/io";
-import { createMemo, type Component } from "solid-js";
+import { Suspense, createMemo, lazy, type Component } from "solid-js";
 import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { showToast } from "~/components/Toast";
@@ -14,14 +14,24 @@ import {
   getAllTimeEntriesKey,
 } from "~/server/timeEntries";
 import { CardHeader } from "../CardHeader";
-import { CreatedCardMenu } from "../CardMenu";
-import { DeleteAlertDialog } from "../DeleteAlertDialog";
 import {
   sheetEntryMapKey,
   useTimeSheetContext,
   type CreatingEntryData,
 } from "../EntriesStore";
 import { TimeEntryFields } from "../TimeEntryFields";
+
+const CreatedCardMenu = lazy(() =>
+  import("../CardMenu").then((module) => ({
+    default: module.CreatedCardMenu,
+  }))
+);
+
+const DeleteAlertDialog = lazy(() =>
+  import("../DeleteAlertDialog").then((module) => ({
+    default: module.DeleteAlertDialog,
+  }))
+);
 
 type CreateFormProps = {
   entry: CreatingEntryData;
@@ -142,11 +152,13 @@ export const CreatedEntryCard: Component<Props> = (props) => {
           isPending={isPending()}
           issueId={props.issueId}
           menu={
-            <CreatedCardMenu
-              id={props.entry.id}
-              isDisabled={isPending()}
-              key={key()}
-            />
+            <Suspense>
+              <CreatedCardMenu
+                id={props.entry.id}
+                isDisabled={isPending()}
+                key={key()}
+              />
+            </Suspense>
           }
         />
         <CreateForm
@@ -156,15 +168,17 @@ export const CreatedEntryCard: Component<Props> = (props) => {
           issueId={props.issueId}
         />
         <div class="flex justify-end gap-2">
-          <DeleteAlertDialog
-            disabled={isPending()}
-            onConfirm={onDelete}
-            size="xs"
-            variant="ghost"
-          >
-            <IoTrashSharp />
-            {t("dashboard.timeEntry.delete")}
-          </DeleteAlertDialog>
+          <Suspense>
+            <DeleteAlertDialog
+              disabled={isPending()}
+              onConfirm={onDelete}
+              size="xs"
+              variant="ghost"
+            >
+              <IoTrashSharp />
+              {t("dashboard.timeEntry.delete")}
+            </DeleteAlertDialog>
+          </Suspense>
           <SaveButton entry={props.entry} isPending={isPending()} key={key()} />
         </div>
       </CardBody>
