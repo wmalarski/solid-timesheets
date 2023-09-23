@@ -1,7 +1,6 @@
 import { createQuery } from "@tanstack/solid-query";
 import { IoCloseSharp, IoHourglassSharp } from "solid-icons/io";
 import { Show, createMemo, createSignal, type Component } from "solid-js";
-import { isServer } from "solid-js/web";
 import { ClientOnly } from "~/components/ClientOnly";
 import { Countdown } from "~/components/Countdown";
 import {
@@ -28,7 +27,6 @@ const TrackingPopoverContent: Component<TrackingPopoverContentProps> = (
   props
 ) => {
   const timeEntryQuery = createQuery(() => ({
-    enabled: !isServer,
     queryFn: (context) => getTimeEntryServerQuery(context.queryKey),
     queryKey: getTimeEntryKey({ id: props.timeEntryId }),
   }));

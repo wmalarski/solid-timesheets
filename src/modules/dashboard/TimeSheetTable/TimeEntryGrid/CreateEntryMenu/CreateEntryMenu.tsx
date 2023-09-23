@@ -1,7 +1,6 @@
 import { createQuery } from "@tanstack/solid-query";
 import { IoAddSharp } from "solid-icons/io";
 import { For, type Component } from "solid-js";
-import { isServer } from "solid-js/web";
 import {
   DropdownMenuArrow,
   DropdownMenuContent,
@@ -26,7 +25,6 @@ export const CreateEntryMenu: Component<Props> = (props) => {
   const { t } = useI18n();
 
   const issuesQuery = createQuery(() => ({
-    enabled: !isServer,
     queryFn: (context) => getIssuesServerQuery(context.queryKey),
     queryKey: getIssuesKey({
       assignedToId: "me",

@@ -1,6 +1,5 @@
 import { createQuery } from "@tanstack/solid-query";
 import type { Component, JSX } from "solid-js";
-import { isServer } from "solid-js/web";
 import { Badge } from "~/components/Badge";
 import { getIssueKey, getIssueServerQuery, issueHref } from "~/server/issues";
 import { useDashboardConfig } from "../../DashboardConfig";
@@ -15,7 +14,6 @@ export const CardHeader: Component<Props> = (props) => {
   const config = useDashboardConfig();
 
   const issueQuery = createQuery(() => ({
-    enabled: !isServer,
     queryFn: (context) => getIssueServerQuery(context.queryKey),
     queryKey: getIssueKey({ id: props.issueId }),
   }));

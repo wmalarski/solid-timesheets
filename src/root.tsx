@@ -1,7 +1,6 @@
 // @refresh reload
 import { I18nProvider } from "@kobalte/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
-import { Suspense, createSignal } from "solid-js";
+import { Suspense } from "solid-js";
 import {
   Body,
   ErrorBoundary,
@@ -11,13 +10,12 @@ import {
   Scripts,
 } from "solid-start";
 import { I18nContextProvider } from "./contexts/I18nContext";
+import { QueryProvider } from "./contexts/QueryProvider";
 import { ThemeContext, createThemeValue } from "./contexts/ThemeContext";
 import { Head } from "./modules/common/Head";
 import "./root.css";
 
 export default function Root() {
-  const [queryClient] = createSignal(new QueryClient());
-
   const themeValue = createThemeValue();
 
   return (
@@ -29,11 +27,11 @@ export default function Root() {
             <Body>
               <Suspense>
                 <ErrorBoundary>
-                  <QueryClientProvider client={queryClient()}>
+                  <QueryProvider>
                     <Routes>
                       <FileRoutes />
                     </Routes>
-                  </QueryClientProvider>
+                  </QueryProvider>
                 </ErrorBoundary>
               </Suspense>
               <Scripts />

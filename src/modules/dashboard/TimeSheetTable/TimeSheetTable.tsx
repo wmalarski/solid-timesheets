@@ -1,4 +1,4 @@
-import { createQuery, isServer } from "@tanstack/solid-query";
+import { createQuery } from "@tanstack/solid-query";
 import { createMemo, type Component } from "solid-js";
 import {
   getTimeEntriesKey,
@@ -22,7 +22,6 @@ const Provider: Component<ProviderProps> = (props) => {
   });
 
   const timeEntriesQuery = createQuery(() => ({
-    enabled: !isServer,
     queryFn: (context) => getTimeEntriesServerQuery(context.queryKey),
     queryKey: getTimeEntriesKey(timeEntriesArgs()),
   }));
