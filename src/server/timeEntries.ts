@@ -85,12 +85,7 @@ export const getTimeEntriesServerQuery = server$(
     const timeEntries = await getTimeEntries({ env, ...parsed, session });
 
     const issuesIds = timeEntries.map((timeEntry) => timeEntry.issue.id);
-
-    console.log(issuesIds);
-
     const uniqueIds = [...new Set(issuesIds)];
-
-    console.log(uniqueIds);
 
     const result = await getIssues({
       env,
@@ -99,6 +94,39 @@ export const getTimeEntriesServerQuery = server$(
     });
 
     return { issues: result.issues, timeEntries };
+  }
+);
+
+const getTimeEntryArgsSchema = () => {
+  return object({
+    id: coerce(number(), Number),
+  });
+};
+
+type GetTimeEntrySchema = Input<ReturnType<typeof getTimeEntryArgsSchema>>;
+
+type GetTimeEntryResult = {
+  time_entry: TimeEntry;
+};
+
+export const getTimeEntryKey = (args: GetTimeEntrySchema) => {
+  return ["getTimeEntry", args] as const;
+};
+
+export const getTimeEntryServerQuery = server$(
+  async ([, args]: ReturnType<typeof getTimeEntryKey>) => {
+    const parsed = await parseAsync(getTimeEntryArgsSchema(), args);
+
+    const env = server$.env;
+    const request = server$.request;
+
+    const session = await getSessionOrThrow({ env, request });
+
+    return jsonFetcher<GetTimeEntryResult>({
+      env,
+      path: `/time_entries/${parsed.id}.json`,
+      token: session.token,
+    });
   }
 );
 

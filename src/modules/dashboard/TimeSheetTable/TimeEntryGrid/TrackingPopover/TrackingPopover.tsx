@@ -16,47 +16,50 @@ import {
   PopoverTrigger,
 } from "~/components/Popover";
 import { useI18n } from "~/contexts/I18nContext";
-import { getIssuesKey, getIssuesServerQuery } from "~/server/issues";
-import { useTimeSheetContext } from "../../EntriesStore";
+import { getTimeEntryKey, getTimeEntryServerQuery } from "~/server/timeEntries";
 import { useTrackingStoreContext } from "../../TrackingStore";
 import { TrackingCard, createTimeCounter } from "../../TrackingToolbar";
-import { groupIssues } from "../TimeEntryGrid.utils";
+
+type TrackingPopoverContentProps = {
+  timeEntryId: number;
+};
+
+const TrackingPopoverContent: Component<TrackingPopoverContentProps> = (
+  props
+) => {
+  const timeEntryQuery = createQuery(() => ({
+    enabled: !isServer,
+    queryFn: (context) => getTimeEntryServerQuery(context.queryKey),
+    queryKey: getTimeEntryKey({ id: props.timeEntryId }),
+  }));
+
+  return (
+    <PopoverPortal>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverHeader>
+          <PopoverTitle>
+            {timeEntryQuery.data?.time_entry.project.name}
+          </PopoverTitle>
+          <PopoverCloseButton>
+            <IoCloseSharp />
+          </PopoverCloseButton>
+        </PopoverHeader>
+        <PopoverDescription>
+          {timeEntryQuery.data?.time_entry.comments}
+        </PopoverDescription>
+        <TrackingCard timeEntryId={props.timeEntryId} />
+      </PopoverContent>
+    </PopoverPortal>
+  );
+};
 
 const ClientTrackingPopover: Component = () => {
   const { t } = useI18n();
 
-  const issuesQuery = createQuery(() => ({
-    enabled: !isServer,
-    queryFn: (context) => getIssuesServerQuery(context.queryKey),
-    queryKey: getIssuesKey({
-      assignedToId: "me",
-      sort: "project",
-      statusId: "open",
-    }),
-  }));
-
-  const issuesMap = createMemo(() =>
-    groupIssues(issuesQuery.data?.issues || [])
-  );
-
-  const { state } = useTimeSheetContext();
   const { runningId, items } = useTrackingStoreContext();
 
   const [isOpen, setIsOpen] = createSignal(false);
-
-  const issue = createMemo(() => {
-    const current = runningId();
-    if (!current) {
-      return null;
-    }
-
-    const entry = state.timeEntryMap.get(current);
-    if (!entry) {
-      return null;
-    }
-
-    return issuesMap().get(entry.issueId) || null;
-  });
 
   const item = createMemo(() => {
     const current = runningId();
@@ -82,21 +85,9 @@ const ClientTrackingPopover: Component = () => {
           </Show>
         </span>
       </PopoverTrigger>
-      <PopoverPortal>
-        <PopoverContent>
-          <PopoverArrow />
-          <PopoverHeader>
-            <PopoverTitle>{issue()?.project.name}</PopoverTitle>
-            <PopoverCloseButton>
-              <IoCloseSharp />
-            </PopoverCloseButton>
-          </PopoverHeader>
-          <PopoverDescription>{issue()?.subject}</PopoverDescription>
-          <Show when={runningId()}>
-            {(runningId) => <TrackingCard timeEntryId={runningId()} />}
-          </Show>
-        </PopoverContent>
-      </PopoverPortal>
+      <Show when={runningId()}>
+        {(runningId) => <TrackingPopoverContent timeEntryId={runningId()} />}
+      </Show>
     </PopoverRoot>
   );
 };
