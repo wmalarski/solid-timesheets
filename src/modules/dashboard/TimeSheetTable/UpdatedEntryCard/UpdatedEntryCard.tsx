@@ -17,7 +17,7 @@ import {
 } from "~/server/timeEntries";
 import type { TimeEntry } from "~/server/types";
 import { CardHeader } from "../CardHeader";
-import { useTimeSheetContext } from "../EntriesStore";
+import { useTimeSheetContext, type UpdatingEntryData } from "../EntriesStore";
 import { TimeEntryFields } from "../TimeEntryFields";
 import { TrackingRow } from "../TrackingToolbar";
 
@@ -148,15 +148,13 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
   );
 };
 
-type UpdatedEntryCardProps = {
+type StaticCardProps = {
   entry: TimeEntry;
   issueId: number;
 };
 
-export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
-  const { t } = useI18n();
-
-  const { state, setState } = useTimeSheetContext();
+export const StaticCard: Component<StaticCardProps> = (props) => {
+  const { setState } = useTimeSheetContext();
 
   const isMutating = useIsMutating();
 
@@ -172,16 +170,8 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
     };
   });
 
-  const entry = createMemo(() => {
-    return state.updateMap[props.entry.id];
-  });
-
   const onUpdateClick = () => {
     setState("updateMap", props.entry.id, { args: defaultArgs() });
-  };
-
-  const onResetClick = () => {
-    setState("updateMap", props.entry.id, undefined);
   };
 
   const [isTrackingVisible, toggleIsTrackingVisible] = createReducer(
@@ -190,11 +180,7 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   );
 
   return (
-    <Card
-      color={entry() ? "black" : "disabled"}
-      size="compact"
-      variant="bordered"
-    >
+    <Card color="disabled" size="compact" variant="bordered">
       <CardBody>
         <CardHeader
           isPending={isPending()}
@@ -214,41 +200,99 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
             <TrackingRow timeEntryId={props.entry.id} />
           </div>
         </Show>
-        <Show
-          when={entry()}
-          fallback={
-            <CardContent
-              entry={props.entry}
-              isPending={isPending()}
-              onUpdateClick={onUpdateClick}
-            />
-          }
-        >
-          {(entry) => (
-            <div class="flex flex-col gap-2">
-              <UpdateForm
-                args={entry().args}
-                isPending={isPending()}
-                issueId={props.issueId}
-              />
-              <div class="flex justify-end gap-2">
-                <Suspense>
-                  <DeleteAlertDialog
-                    disabled={isPending()}
-                    onConfirm={onResetClick}
-                    size="xs"
-                    variant="ghost"
-                  >
-                    <IoReloadSharp />
-                    {t("dashboard.timeEntry.reset")}
-                  </DeleteAlertDialog>
-                </Suspense>
-                <SaveButton args={entry().args} isPending={isPending()} />
-              </div>
-            </div>
-          )}
-        </Show>
+        <CardContent
+          entry={props.entry}
+          isPending={isPending()}
+          onUpdateClick={onUpdateClick}
+        />
       </CardBody>
     </Card>
+  );
+};
+
+type EditingCardProps = {
+  entry: TimeEntry;
+  issueId: number;
+  data: UpdatingEntryData;
+};
+
+export const EditingCard: Component<EditingCardProps> = (props) => {
+  const { t } = useI18n();
+
+  const { setState } = useTimeSheetContext();
+
+  const isMutating = useIsMutating();
+
+  const isPending = createMemo(() => {
+    return isMutating() > 0;
+  });
+
+  const onResetClick = () => {
+    setState("updateMap", props.entry.id, undefined);
+  };
+
+  return (
+    <Card color="black" size="compact" variant="bordered">
+      <CardBody>
+        <CardHeader
+          isPending={isPending()}
+          issueId={props.issueId}
+          menu={
+            <Suspense>
+              <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
+            </Suspense>
+          }
+        />
+        <div class="flex flex-col gap-2">
+          <UpdateForm
+            args={props.data.args}
+            isPending={isPending()}
+            issueId={props.issueId}
+          />
+          <div class="flex justify-end gap-2">
+            <Suspense>
+              <DeleteAlertDialog
+                disabled={isPending()}
+                onConfirm={onResetClick}
+                size="xs"
+                variant="ghost"
+              >
+                <IoReloadSharp />
+                {t("dashboard.timeEntry.reset")}
+              </DeleteAlertDialog>
+            </Suspense>
+            <SaveButton args={props.data.args} isPending={isPending()} />
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  );
+};
+
+type UpdatedEntryCardProps = {
+  entry: TimeEntry;
+  issueId: number;
+};
+
+export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
+  const { state } = useTimeSheetContext();
+
+  const data = createMemo(() => {
+    return state.updateMap[props.entry.id];
+  });
+
+  return (
+    <Show
+      when={data()}
+      fallback={<StaticCard entry={props.entry} issueId={props.issueId} />}
+    >
+      {(data) => (
+        <EditingCard
+          data={data()}
+          entry={props.entry}
+          issueId={props.issueId}
+        />
+      )}
+    </Show>
   );
 };

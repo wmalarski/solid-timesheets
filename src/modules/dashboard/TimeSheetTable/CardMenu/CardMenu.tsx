@@ -5,7 +5,7 @@ import {
   IoHourglassSharp,
   IoTrashSharp,
 } from "solid-icons/io";
-import { Suspense, createSignal, lazy, type Component } from "solid-js";
+import { Show, Suspense, createSignal, lazy, type Component } from "solid-js";
 import {
   DropdownMenuArrow,
   DropdownMenuContent,
@@ -59,7 +59,7 @@ const DeleteItem: Component<DeleteItemProps> = (props) => {
 
 type TrackingItemProps = {
   isDisabled: boolean;
-  onClick: VoidFunction;
+  onClick?: VoidFunction;
 };
 
 const TrackingItem: Component<TrackingItemProps> = (props) => {
@@ -245,7 +245,7 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
 type UpdatedCardMenuProps = {
   id: number;
   isDisabled: boolean;
-  onIsTrackingVisibleToggle: () => void;
+  onIsTrackingVisibleToggle?: VoidFunction;
 };
 
 export const UpdatedCardMenu: Component<UpdatedCardMenuProps> = (props) => {
@@ -280,11 +280,13 @@ export const UpdatedCardMenu: Component<UpdatedCardMenuProps> = (props) => {
           <DropdownMenuContent>
             <CopyItems isDisabled={props.isDisabled} args={args()} />
             <DropdownMenuSeparator />
-            <TrackingItem
-              isDisabled={props.isDisabled}
-              onClick={props.onIsTrackingVisibleToggle}
-            />
-            <DropdownMenuSeparator />
+            <Show when={props.onIsTrackingVisibleToggle}>
+              <TrackingItem
+                isDisabled={props.isDisabled}
+                onClick={props.onIsTrackingVisibleToggle}
+              />
+              <DropdownMenuSeparator />
+            </Show>
             <DeleteItem isDisabled={props.isDisabled} onClick={onDeleteClick} />
             <DropdownMenuArrow />
           </DropdownMenuContent>
