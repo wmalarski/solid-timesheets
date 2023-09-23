@@ -1,3 +1,4 @@
+import { createReducer } from "@solid-primitives/memo";
 import {
   createMutation,
   useIsMutating,
@@ -77,11 +78,11 @@ const CardContent: Component<CardContentProps> = (props) => {
         <span class="select-none px-1 py-2">
           {t("dashboard.timeEntry.hours.label")}
         </span>
-        <span class="px-2 py-1 text-xs">{props.entry.hours}</span>
+        <span class="px-2 py-1 text-xs font-bold">{props.entry.hours}</span>
         <span class="select-none px-1 py-2">
           {t("dashboard.timeEntry.comments.label")}
         </span>
-        <span class="px-2 py-1 text-xs">{props.entry.comments}</span>
+        <span class="px-2 py-1 text-xs font-bold">{props.entry.comments}</span>
       </div>
       <div class="flex justify-end">
         <Button
@@ -183,6 +184,11 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
     setState("updateMap", props.entry.id, undefined);
   };
 
+  const [isTrackingVisible, toggleIsTrackingVisible] = createReducer(
+    (value) => !value,
+    false
+  );
+
   return (
     <Card
       color={entry() ? "black" : "disabled"}
@@ -195,13 +201,19 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
           issueId={props.issueId}
           menu={
             <Suspense>
-              <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
+              <UpdatedCardMenu
+                id={props.entry.id}
+                isDisabled={isPending()}
+                onIsTrackingVisibleToggle={toggleIsTrackingVisible}
+              />
             </Suspense>
           }
         />
-        <div class="border-y-[1px] border-base-300 py-2">
-          <TrackingRow timeEntryId={props.entry.id} />
-        </div>
+        <Show when={isTrackingVisible()}>
+          <div class="border-y-[1px] border-base-300 py-2">
+            <TrackingRow timeEntryId={props.entry.id} />
+          </div>
+        </Show>
         <Show
           when={entry()}
           fallback={

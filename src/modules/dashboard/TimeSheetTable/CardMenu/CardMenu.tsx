@@ -2,6 +2,7 @@ import { createMutation, useQueryClient } from "@tanstack/solid-query";
 import {
   IoDuplicateSharp,
   IoEllipsisHorizontalSharp,
+  IoHourglassSharp,
   IoTrashSharp,
 } from "solid-icons/io";
 import { Suspense, createSignal, lazy, type Component } from "solid-js";
@@ -51,6 +52,24 @@ const DeleteItem: Component<DeleteItemProps> = (props) => {
       <DropdownMenuItemLabel>
         <IoTrashSharp />
         {t("dashboard.timeEntry.delete")}
+      </DropdownMenuItemLabel>
+    </DropdownMenuItem>
+  );
+};
+
+type TrackingItemProps = {
+  isDisabled: boolean;
+  onClick: VoidFunction;
+};
+
+const TrackingItem: Component<TrackingItemProps> = (props) => {
+  const { t } = useI18n();
+
+  return (
+    <DropdownMenuItem onClick={props.onClick} disabled={props.isDisabled}>
+      <DropdownMenuItemLabel>
+        <IoHourglassSharp />
+        {t("dashboard.timeEntry.tracking")}
       </DropdownMenuItemLabel>
     </DropdownMenuItem>
   );
@@ -226,6 +245,7 @@ export const CreatedCardMenu: Component<CreatedCardMenuProps> = (props) => {
 type UpdatedCardMenuProps = {
   id: number;
   isDisabled: boolean;
+  onIsTrackingVisibleToggle: () => void;
 };
 
 export const UpdatedCardMenu: Component<UpdatedCardMenuProps> = (props) => {
@@ -259,6 +279,11 @@ export const UpdatedCardMenu: Component<UpdatedCardMenuProps> = (props) => {
         <DropdownMenuPortal>
           <DropdownMenuContent>
             <CopyItems isDisabled={props.isDisabled} args={args()} />
+            <DropdownMenuSeparator />
+            <TrackingItem
+              isDisabled={props.isDisabled}
+              onClick={props.onIsTrackingVisibleToggle}
+            />
             <DropdownMenuSeparator />
             <DeleteItem isDisabled={props.isDisabled} onClick={onDeleteClick} />
             <DropdownMenuArrow />

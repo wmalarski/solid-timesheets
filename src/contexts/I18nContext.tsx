@@ -49,6 +49,7 @@ const en_dict = {
       pending: "Pending",
       reset: "Reset",
       save: "Save",
+      tracking: "Track time",
       update: "Update",
     },
     title: "Timesheets",
