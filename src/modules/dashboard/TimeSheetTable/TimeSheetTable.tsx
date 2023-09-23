@@ -1,5 +1,5 @@
 import { createQuery } from "@tanstack/solid-query";
-import { createMemo, type Component } from "solid-js";
+import { Suspense, createMemo, type Component } from "solid-js";
 import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
@@ -27,10 +27,12 @@ const Provider: Component<ProviderProps> = (props) => {
   }));
 
   return (
-    <TimeEntryGrid
-      days={props.days}
-      timeEntries={timeEntriesQuery.data || []}
-    />
+    <Suspense fallback={<TimeEntryGrid days={props.days} timeEntries={[]} />}>
+      <TimeEntryGrid
+        days={props.days}
+        timeEntries={timeEntriesQuery.data || []}
+      />
+    </Suspense>
   );
 };
 
