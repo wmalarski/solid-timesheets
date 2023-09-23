@@ -149,7 +149,6 @@ export const CreatedEntryCard: Component<Props> = (props) => {
     <Card color="black" variant="bordered" size="compact">
       <CardBody>
         <CardHeader
-          isPending={isPending()}
           issueId={props.issueId}
           menu={
             <Suspense>

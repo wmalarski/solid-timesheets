@@ -1,6 +1,7 @@
 import { createReducer } from "@solid-primitives/memo";
 import {
   createMutation,
+  createQuery,
   useIsMutating,
   useQueryClient,
 } from "@tanstack/solid-query";
@@ -10,6 +11,7 @@ import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { showToastAsync } from "~/components/Toast/showToastAsync";
 import { useI18n } from "~/contexts/I18nContext";
+import { getIssueKey, getIssueServerQuery } from "~/server/issues";
 import {
   getAllTimeEntriesKey,
   updateTimeEntryServerMutation,
@@ -32,6 +34,26 @@ const UpdatedCardMenu = lazy(() =>
     default: module.UpdatedCardMenu,
   }))
 );
+
+type DetailsProps = {
+  issueId: number;
+};
+
+const Details: Component<DetailsProps> = (props) => {
+  const issueQuery = createQuery(() => ({
+    queryFn: (context) => getIssueServerQuery(context.queryKey),
+    queryKey: getIssueKey({ id: props.issueId }),
+  }));
+
+  return (
+    <div class="flex flex-col gap-2">
+      <span class="text-xs font-semibold uppercase">
+        {issueQuery.data?.issue.project.name}
+      </span>
+      <span class="text-base">{issueQuery.data?.issue.subject}</span>
+    </div>
+  );
+};
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
@@ -183,7 +205,6 @@ export const StaticCard: Component<StaticCardProps> = (props) => {
     <Card color="disabled" size="compact" variant="bordered">
       <CardBody>
         <CardHeader
-          isPending={isPending()}
           issueId={props.issueId}
           menu={
             <Suspense>
@@ -195,6 +216,7 @@ export const StaticCard: Component<StaticCardProps> = (props) => {
             </Suspense>
           }
         />
+        <Details issueId={props.issueId} />
         <Show when={isTrackingVisible()}>
           <div class="border-y-[1px] border-base-300 py-2">
             <TrackingRow timeEntryId={props.entry.id} />
@@ -235,7 +257,6 @@ export const EditingCard: Component<EditingCardProps> = (props) => {
     <Card color="black" size="compact" variant="bordered">
       <CardBody>
         <CardHeader
-          isPending={isPending()}
           issueId={props.issueId}
           menu={
             <Suspense>
