@@ -162,7 +162,7 @@ export const createTimeEntryServerMutation = server$(
 const updateTimeEntryArgsSchema = () => {
   return merge([
     partial(createTimeEntryArgsSchema()),
-    object({ id: number() }),
+    object({ id: number(), issueId: coerce(number(), Number) }),
   ]);
 };
 

@@ -36,7 +36,6 @@ const DeleteAlertDialog = lazy(() =>
 type CreateFormProps = {
   entry: CreatingEntryData;
   isPending: boolean;
-  issueId: number;
   key: string;
 };
 
@@ -58,15 +57,19 @@ const CreateForm: Component<CreateFormProps> = (props) => {
     setState("dateMap", props.key, props.entry.id, "args", "hours", hours);
   };
 
+  const onIssueChange = (issueId: number) => {
+    setState("dateMap", props.key, props.entry.id, "args", "issueId", issueId);
+  };
+
   return (
     <TimeEntryFields
       comments={props.entry.args.comments}
       hours={props.entry.args.hours}
       isLoading={props.isPending}
-      issueId={props.issueId}
+      issueId={props.entry.args.issueId}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
-      onIssueChange={() => void 0}
+      onIssueChange={onIssueChange}
     />
   );
 };
@@ -123,7 +126,6 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
 type Props = {
   entry: CreatingEntryData;
-  issueId: number;
 };
 
 export const CreatedEntryCard: Component<Props> = (props) => {
@@ -149,7 +151,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
     <Card color="black" variant="bordered" size="compact">
       <CardBody>
         <CardHeader
-          issueId={props.issueId}
+          issueId={props.entry.args.issueId}
           menu={
             <Suspense>
               <CreatedCardMenu
@@ -160,12 +162,7 @@ export const CreatedEntryCard: Component<Props> = (props) => {
             </Suspense>
           }
         />
-        <CreateForm
-          entry={props.entry}
-          key={key()}
-          isPending={isPending()}
-          issueId={props.issueId}
-        />
+        <CreateForm entry={props.entry} key={key()} isPending={isPending()} />
         <div class="flex justify-end gap-2">
           <Suspense>
             <DeleteAlertDialog

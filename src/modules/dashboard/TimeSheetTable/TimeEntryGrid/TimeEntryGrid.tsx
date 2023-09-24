@@ -85,12 +85,10 @@ const Cell: Component<CellProps> = (props) => {
   return (
     <GridCell ref={setParent} borders="right" class="flex flex-col gap-2">
       <For each={created()}>
-        {(entry) => (
-          <CreatedEntryCard entry={entry} issueId={entry.args.issueId} />
-        )}
+        {(entry) => <CreatedEntryCard entry={entry} />}
       </For>
       <For each={props.timeEntries}>
-        {(entry) => <UpdatedEntryCard entry={entry} issueId={entry.issue.id} />}
+        {(entry) => <UpdatedEntryCard entry={entry} />}
       </For>
     </GridCell>
   );

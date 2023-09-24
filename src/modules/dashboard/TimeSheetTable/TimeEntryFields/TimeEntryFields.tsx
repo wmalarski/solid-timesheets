@@ -1,4 +1,4 @@
-import { Show, type Component } from "solid-js";
+import { Show, Suspense, lazy, type Component } from "solid-js";
 import { Alert, AlertIcon } from "~/components/Alert";
 import {
   TextFieldInput,
@@ -8,6 +8,12 @@ import {
   type TextFieldInputProps,
 } from "~/components/TextField";
 import { useI18n } from "~/contexts/I18nContext";
+
+const IssueCombobox = lazy(() =>
+  import("../IssueCombobox").then((module) => ({
+    default: module.IssueCombobox,
+  }))
+);
 
 type TimeEntryFieldsProps = {
   comments?: string;
@@ -40,25 +46,19 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
         </Alert>
       </Show>
 
-      {/* <TextFieldRoot>
+      <TextFieldRoot>
         <TextFieldLabel for="issue">
           <TextFieldLabelText>
             {t("dashboard.timeEntry.issue.label")}
           </TextFieldLabelText>
         </TextFieldLabel>
-        <TextFieldInput
-          disabled={props.isLoading}
-          min={0}
-          name="hours"
-          onInput={onHoursInput}
-          placeholder={t("dashboard.timeEntry.issue.placeholder")}
-          size="xs"
-          step={0.25}
-          type="number"
-          value={props.hours}
-          variant="bordered"
-        />
-      </TextFieldRoot> */}
+        <Suspense>
+          <IssueCombobox
+            issueId={props.issueId}
+            onIssueChange={props.onIssueChange}
+          />
+        </Suspense>
+      </TextFieldRoot>
 
       <TextFieldRoot>
         <TextFieldLabel for="hours">

@@ -58,7 +58,6 @@ const Details: Component<DetailsProps> = (props) => {
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
   isPending: boolean;
-  issueId: number;
 };
 
 const UpdateForm: Component<UpdateFormProps> = (props) => {
@@ -72,15 +71,19 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
     setState("updateMap", props.args.id, "args", "hours", hours);
   };
 
+  const onIssueChange = (issueId: number) => {
+    setState("updateMap", props.args.id, "args", "issueId", issueId);
+  };
+
   return (
     <TimeEntryFields
       comments={props.args.comments}
       hours={props.args.hours}
       isLoading={props.isPending}
-      issueId={props.issueId}
+      issueId={props.args.issueId}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
-      onIssueChange={() => void 0}
+      onIssueChange={onIssueChange}
     />
   );
 };
@@ -172,7 +175,6 @@ const SaveButton: Component<SaveButtonProps> = (props) => {
 
 type StaticCardProps = {
   entry: TimeEntry;
-  issueId: number;
 };
 
 export const StaticCard: Component<StaticCardProps> = (props) => {
@@ -189,6 +191,7 @@ export const StaticCard: Component<StaticCardProps> = (props) => {
       comments: props.entry.comments,
       hours: props.entry.hours,
       id: props.entry.id,
+      issueId: props.entry.issue.id,
     };
   });
 
@@ -205,7 +208,7 @@ export const StaticCard: Component<StaticCardProps> = (props) => {
     <Card color="disabled" size="compact" variant="bordered">
       <CardBody>
         <CardHeader
-          issueId={props.issueId}
+          issueId={props.entry.issue.id}
           menu={
             <Suspense>
               <UpdatedCardMenu
@@ -216,7 +219,7 @@ export const StaticCard: Component<StaticCardProps> = (props) => {
             </Suspense>
           }
         />
-        <Details issueId={props.issueId} />
+        <Details issueId={props.entry.issue.id} />
         <Show when={isTrackingVisible()}>
           <div class="border-y-[1px] border-base-300 py-2">
             <TrackingRow timeEntryId={props.entry.id} />
@@ -234,7 +237,6 @@ export const StaticCard: Component<StaticCardProps> = (props) => {
 
 type EditingCardProps = {
   entry: TimeEntry;
-  issueId: number;
   data: UpdatingEntryData;
 };
 
@@ -257,7 +259,7 @@ export const EditingCard: Component<EditingCardProps> = (props) => {
     <Card color="black" size="compact" variant="bordered">
       <CardBody>
         <CardHeader
-          issueId={props.issueId}
+          issueId={props.entry.issue.id}
           menu={
             <Suspense>
               <UpdatedCardMenu id={props.entry.id} isDisabled={isPending()} />
@@ -268,7 +270,7 @@ export const EditingCard: Component<EditingCardProps> = (props) => {
           <UpdateForm
             args={props.data.args}
             isPending={isPending()}
-            issueId={props.issueId}
+            // issueId={props.entry.issue.id}
           />
           <div class="flex justify-end gap-2">
             <Suspense>
@@ -292,7 +294,6 @@ export const EditingCard: Component<EditingCardProps> = (props) => {
 
 type UpdatedEntryCardProps = {
   entry: TimeEntry;
-  issueId: number;
 };
 
 export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
@@ -303,17 +304,8 @@ export const UpdatedEntryCard: Component<UpdatedEntryCardProps> = (props) => {
   });
 
   return (
-    <Show
-      when={data()}
-      fallback={<StaticCard entry={props.entry} issueId={props.issueId} />}
-    >
-      {(data) => (
-        <EditingCard
-          data={data()}
-          entry={props.entry}
-          issueId={props.issueId}
-        />
-      )}
+    <Show when={data()} fallback={<StaticCard entry={props.entry} />}>
+      {(data) => <EditingCard data={data()} entry={props.entry} />}
     </Show>
   );
 };
