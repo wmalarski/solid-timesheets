@@ -72,6 +72,7 @@ const RadioGroup: Component<RadioGroupProps> = (props) => {
       defaultValue={String(props.defaultIssueId)}
       name="issueId"
       required
+      class="grow"
     >
       <RadioGroupLabel>{t("dashboard.timeEntry.issue.label")}</RadioGroupLabel>
       <div class="flex flex-col gap-2">
@@ -141,7 +142,10 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
   };
 
   return (
-    <form class="flex flex-col gap-4" onSubmit={onSubmit}>
+    <form
+      class="flex min-h-[50vh] w-96 max-w-lg flex-col gap-4"
+      onSubmit={onSubmit}
+    >
       <RadioGroup
         defaultIssueId={props.issueId}
         onQueryChange={onQueryChange}

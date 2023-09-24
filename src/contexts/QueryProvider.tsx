@@ -5,7 +5,9 @@ import { isServer } from "solid-js/web";
 export const QueryProvider: Component<ParentProps> = (props) => {
   const [queryClient] = createSignal(
     new QueryClient({
-      defaultOptions: { queries: { enabled: !isServer } },
+      defaultOptions: {
+        queries: { enabled: !isServer },
+      },
     })
   );
 

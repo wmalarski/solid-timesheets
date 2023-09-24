@@ -204,7 +204,11 @@ const DownloadButton: Component<DownloadButtonProps> = (props) => {
   );
 };
 
-export const TableToolbar: Component = () => {
+type TableToolbarProps = {
+  daysCont: number;
+};
+
+export const TableToolbar: Component<TableToolbarProps> = (props) => {
   const { state } = useTimeSheetContext();
 
   const isMutating = useIsMutating();
@@ -230,7 +234,10 @@ export const TableToolbar: Component = () => {
   });
 
   return (
-    <div class="sticky left-0 flex max-w-[100vw] items-center justify-between gap-2 border-b-[1px] border-base-300 p-2">
+    <div
+      class="sticky left-0 flex max-w-[100vw] items-center justify-between gap-2 border-b-[1px] border-base-300 p-2"
+      style={{ "grid-column": `1 / span ${props.daysCont + 1}` }}
+    >
       <MonthSelect isDisabled={isDisabled()} />
       <div class="flex gap-1">
         <ResetButton

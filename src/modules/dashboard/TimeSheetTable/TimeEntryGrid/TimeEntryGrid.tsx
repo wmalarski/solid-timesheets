@@ -1,6 +1,14 @@
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
 import { IoChevronBackSharp, IoChevronForwardSharp } from "solid-icons/io";
-import { For, Suspense, createMemo, lazy, type Component } from "solid-js";
+import {
+  For,
+  Show,
+  Suspense,
+  createMemo,
+  createSignal,
+  lazy,
+  type Component,
+} from "solid-js";
 import { Button } from "~/components/Button";
 import { GridCell } from "~/components/Grid";
 import type { TimeEntry } from "~/server/types";
@@ -166,19 +174,23 @@ const Footer: Component<FooterProps> = (props) => {
 
 const scrollShift = 250;
 
-const ScrollButtons: Component = () => {
+type ScrollButtonsProps = {
+  parent: HTMLDivElement;
+};
+
+const ScrollButtons: Component<ScrollButtonsProps> = (props) => {
   const onBackClick = () => {
-    window.scrollBy({ behavior: "smooth", left: -scrollShift });
+    props.parent.scrollBy({ behavior: "smooth", left: -scrollShift });
   };
 
   const onForwardClick = () => {
-    window.scrollBy({ behavior: "smooth", left: scrollShift });
+    props.parent.scrollBy({ behavior: "smooth", left: scrollShift });
   };
 
   return (
-    <div class="sticky left-0 max-w-[100vw]">
+    <>
       <Button
-        class="absolute left-2 top-[calc(-1*calc(100vh/2))] hidden bg-base-100 sm:block"
+        class="absolute left-2 top-1/2 hidden bg-base-100 sm:block"
         onClick={onBackClick}
         size="sm"
         variant="outline"
@@ -186,54 +198,72 @@ const ScrollButtons: Component = () => {
         <IoChevronBackSharp />
       </Button>
       <Button
-        class="absolute right-2 top-[calc(-1*calc(100vh/2))] hidden bg-base-100 sm:block"
+        class="absolute right-2 top-1/2 hidden bg-base-100 sm:block"
         onClick={onForwardClick}
         size="sm"
         variant="outline"
       >
         <IoChevronForwardSharp />
       </Button>
-    </div>
+    </>
   );
 };
 
 type EntryGridProps = {
   days: Date[];
-  selectedDate: Date;
   timeEntries: TimeEntry[];
 };
 
-export const TimeEntryGrid: Component<EntryGridProps> = (props) => {
+const EntryGrid: Component<EntryGridProps> = (props) => {
   const timeEntryGroups = createMemo(() => groupTimeEntries(props.timeEntries));
 
   return (
     <TimeSheetContextProvider timeEntries={props.timeEntries}>
-      <div
-        class="relative grid h-full"
-        style={{ "grid-template-rows": "auto 1fr" }}
-      >
-        <TableToolbar />
-        <div
-          class="relative grid"
-          style={{
-            "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
-            "grid-template-rows": "auto 1fr auto",
-          }}
-        >
-          <Header days={props.days} />
-          <For each={props.days}>
-            {(day) => (
-              <Cell
-                date={day}
-                timeEntries={timeEntryGroups().get(formatRequestDate(day))}
-              />
-            )}
-          </For>
-          <GridCell bg="base-100" />
-          <Footer days={props.days} timeEntries={props.timeEntries} />
-        </div>
-        <ScrollButtons />
-      </div>
+      <TableToolbar daysCont={props.days.length} />
+      <Header days={props.days} />
+      <For each={props.days}>
+        {(day) => (
+          <Cell
+            date={day}
+            timeEntries={timeEntryGroups().get(formatRequestDate(day))}
+          />
+        )}
+      </For>
+      <GridCell bg="base-100" />
+      <Footer days={props.days} timeEntries={props.timeEntries} />
     </TimeSheetContextProvider>
+  );
+};
+
+type TimeEntryGridProps = {
+  days: Date[];
+  selectedDate: Date;
+  timeEntries: TimeEntry[];
+};
+
+export const TimeEntryGrid: Component<TimeEntryGridProps> = (props) => {
+  const [parent, setParent] = createSignal<HTMLDivElement>();
+
+  return (
+    <div
+      class="grid max-w-[100vw] overflow-hidden"
+      style={{ "grid-template-rows": "auto 1fr" }}
+    >
+      <div
+        class="relative grid min-h-[calc(100vh-75px)] overflow-scroll"
+        ref={setParent}
+        style={{
+          "grid-template-columns": `repeat(${props.days.length}, ${scrollShift}px) auto`,
+          "grid-template-rows": "auto auto 1fr auto",
+        }}
+      >
+        <Suspense fallback={<EntryGrid days={props.days} timeEntries={[]} />}>
+          <EntryGrid days={props.days} timeEntries={props.timeEntries} />
+        </Suspense>
+      </div>
+      <Show when={parent()}>
+        {(parent) => <ScrollButtons parent={parent()} />}
+      </Show>
+    </div>
   );
 };
