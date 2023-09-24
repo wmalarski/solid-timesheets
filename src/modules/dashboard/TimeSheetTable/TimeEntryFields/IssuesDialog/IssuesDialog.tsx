@@ -2,6 +2,7 @@ import { createQuery, useQueryClient } from "@tanstack/solid-query";
 import { IoCloseSharp, IoPencilSharp } from "solid-icons/io";
 import {
   For,
+  Show,
   createMemo,
   createSignal,
   type Component,
@@ -59,7 +60,7 @@ const RadioGroup: Component<RadioGroupProps> = (props) => {
   return (
     <RadioGroupRoot name="issueId" defaultValue={String(props.defaultIssueId)}>
       <RadioGroupLabel>{t("dashboard.timeEntry.issue.label")}</RadioGroupLabel>
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
         <For each={props.options}>
           {(option) => (
             <RadioGroupItem value={String(option.id)}>
@@ -67,10 +68,14 @@ const RadioGroup: Component<RadioGroupProps> = (props) => {
               <RadioGroupItemControl>
                 <RadioGroupItemIndicator />
               </RadioGroupItemControl>
-              <RadioGroupItemLabel>{option.project}</RadioGroupItemLabel>
-              <RadioGroupItemDescription>
-                {option.title}
-              </RadioGroupItemDescription>
+              <div class="flex flex-col items-start justify-center">
+                <Show when={option.project}>
+                  <RadioGroupItemDescription>
+                    {option.project}
+                  </RadioGroupItemDescription>
+                </Show>
+                <RadioGroupItemLabel>{option.title}</RadioGroupItemLabel>
+              </div>
             </RadioGroupItem>
           )}
         </For>
@@ -163,10 +168,10 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
           onClick={props.onCancelClick}
           type="button"
         >
-          {t("dashboard.createDialog.cancel")}
+          {t("dashboard.timeEntry.issue.cancel")}
         </Button>
         <Button type="submit" variant="outline" size="sm">
-          {t("dashboard.createDialog.submit")}
+          {t("dashboard.timeEntry.issue.submit")}
         </Button>
       </div>
     </form>
@@ -197,7 +202,7 @@ export const IssuesDialog: Component<IssuesProps> = (props) => {
       <div class="flex justify-between gap-1">
         <IssueDetails issueId={props.issueId} />
         <DialogTrigger
-          aria-label={t("dashboard.createDialog.title")}
+          aria-label={t("dashboard.timeEntry.issue.title")}
           shape="square"
           size="sm"
         >
@@ -209,7 +214,7 @@ export const IssuesDialog: Component<IssuesProps> = (props) => {
         <DialogPositioner>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{t("dashboard.createDialog.title")}</DialogTitle>
+              <DialogTitle>{t("dashboard.timeEntry.issue.title")}</DialogTitle>
               <DialogCloseButton size="sm" variant="ghost" shape="square">
                 <IoCloseSharp />
               </DialogCloseButton>

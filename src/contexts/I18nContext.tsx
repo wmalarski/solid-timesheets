@@ -18,8 +18,6 @@ const en_dict = {
       title: "Confirm the action",
     },
     createDialog: {
-      cancel: "Cancel",
-      submit: "Submit",
       title: "New",
     },
     report: "Download",
@@ -41,8 +39,11 @@ const en_dict = {
         placeholder: "Write",
       },
       issue: {
+        cancel: "Cancel",
         label: "Issue",
         placeholder: "Search",
+        submit: "Save",
+        title: "Change issue",
       },
       more: "More",
       new: "New",

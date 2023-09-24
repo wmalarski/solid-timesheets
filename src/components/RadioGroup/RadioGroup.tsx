@@ -120,7 +120,7 @@ export const RadioGroupItemLabel: Component<RadioGroupItemLabelProps> = (
   return (
     <RadioGroup.ItemLabel
       {...props}
-      class={twCx("ml-3 text-sm select-none", props.class)}
+      class={twCx("ml-3 text-sm select-none text-ellipsis", props.class)}
     />
   );
 };
@@ -132,6 +132,12 @@ export const RadioGroupItemDescription: Component<
   RadioGroupItemDescriptionProps
 > = (props) => {
   return (
-    <RadioGroup.ItemDescription {...props} class={twCx("", props.class)} />
+    <RadioGroup.ItemDescription
+      {...props}
+      class={twCx(
+        "ml-3 text-xs font-semibold uppercase select-none text-ellipsis ",
+        props.class
+      )}
+    />
   );
 };
