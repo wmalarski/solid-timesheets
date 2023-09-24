@@ -1,4 +1,4 @@
-import { Show, Suspense, lazy, type Component } from "solid-js";
+import { Show, type Component } from "solid-js";
 import { Alert, AlertIcon } from "~/components/Alert";
 import {
   TextFieldInput,
@@ -8,12 +8,7 @@ import {
   type TextFieldInputProps,
 } from "~/components/TextField";
 import { useI18n } from "~/contexts/I18nContext";
-
-const IssuesDialog = lazy(() =>
-  import("./IssuesDialog").then((module) => ({
-    default: module.IssuesDialog,
-  }))
-);
+import { UpdateIssueDialog } from "./IssuesDialog";
 
 type TimeEntryFieldsProps = {
   comments?: string;
@@ -52,12 +47,10 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
             {t("dashboard.timeEntry.issue.label")}
           </TextFieldLabelText>
         </TextFieldLabel>
-        <Suspense>
-          <IssuesDialog
-            issueId={props.issueId}
-            onIssueChange={props.onIssueChange}
-          />
-        </Suspense>
+        <UpdateIssueDialog
+          issueId={props.issueId}
+          onIssueChange={props.onIssueChange}
+        />
       </TextFieldRoot>
 
       <TextFieldRoot>

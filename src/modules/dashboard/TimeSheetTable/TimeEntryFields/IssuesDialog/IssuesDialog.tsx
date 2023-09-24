@@ -1,8 +1,9 @@
-import { createQuery, useQueryClient } from "@tanstack/solid-query";
+import { debounce } from "@solid-primitives/scheduled";
+import { createQuery } from "@tanstack/solid-query";
 import { IoCloseSharp, IoPencilSharp } from "solid-icons/io";
 import {
   For,
-  Show,
+  Suspense,
   createMemo,
   createSignal,
   type Component,
@@ -31,54 +32,70 @@ import {
   RadioGroupLabel,
   RadioGroupRoot,
 } from "~/components/RadioGroup";
+import {
+  TextFieldInput,
+  type TextFieldInputProps,
+} from "~/components/TextField";
 import { useI18n } from "~/contexts/I18nContext";
 import {
-  getIssueKey,
-  getIssueServerQuery,
-  getIssuesKey,
-  getIssuesServerQuery,
-} from "~/server/issues";
-import { getSearchKey, getSearchServerQuery } from "~/server/search";
+  getSearchKey,
+  getSearchServerQuery,
+  type SearchOption,
+} from "~/server/search";
 import { IssueDetails } from "../../IssueDetails";
-
-type Option = {
-  id: number;
-  title: string;
-  project?: string;
-};
 
 type RadioGroupProps = {
   defaultIssueId: number;
   onQueryChange: (query: string) => void;
-  options: Option[];
+  options: SearchOption[];
   query: string;
 };
 
 const RadioGroup: Component<RadioGroupProps> = (props) => {
   const { t } = useI18n();
 
+  const [value, setValue] = createSignal("");
+
+  const debouncedOnQueryChange = createMemo(() =>
+    debounce(props.onQueryChange, 250)
+  );
+
+  const onInput: TextFieldInputProps["onInput"] = (event) => {
+    const value = event.target.value;
+    setValue(value);
+    debouncedOnQueryChange()(value);
+  };
+
   return (
     <RadioGroupRoot name="issueId" defaultValue={String(props.defaultIssueId)}>
       <RadioGroupLabel>{t("dashboard.timeEntry.issue.label")}</RadioGroupLabel>
       <div class="flex flex-col gap-2">
-        <For each={props.options}>
-          {(option) => (
-            <RadioGroupItem value={String(option.id)}>
-              <RadioGroupItemInput />
-              <RadioGroupItemControl>
-                <RadioGroupItemIndicator />
-              </RadioGroupItemControl>
-              <div class="flex flex-col items-start justify-center">
-                <Show when={option.project}>
+        <TextFieldInput
+          onInput={onInput}
+          placeholder={t("dashboard.timeEntry.issue.placeholder")}
+          size="xs"
+          type="text"
+          value={value()}
+          variant="bordered"
+        />
+        <Suspense>
+          <For each={props.options}>
+            {(option) => (
+              <RadioGroupItem value={String(option.id)}>
+                <RadioGroupItemInput />
+                <RadioGroupItemControl>
+                  <RadioGroupItemIndicator />
+                </RadioGroupItemControl>
+                <div class="flex flex-col items-start justify-center">
                   <RadioGroupItemDescription>
-                    {option.project}
+                    {option.title}
                   </RadioGroupItemDescription>
-                </Show>
-                <RadioGroupItemLabel>{option.title}</RadioGroupItemLabel>
-              </div>
-            </RadioGroupItem>
-          )}
-        </For>
+                  <RadioGroupItemLabel>{option.subject}</RadioGroupItemLabel>
+                </div>
+              </RadioGroupItem>
+            )}
+          </For>
+        </Suspense>
       </div>
     </RadioGroupRoot>
   );
@@ -95,40 +112,10 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
 
   const [query, setQuery] = createSignal("");
 
-  const issuesQuery = createQuery(() => ({
-    enabled: query().length < 1,
-    queryFn: (context) => getIssuesServerQuery(context.queryKey),
-    queryKey: getIssuesKey({
-      assignedToId: "me",
-      sort: "project",
-      statusId: "open",
-    }),
-    select: (data) =>
-      data.issues.map((issue) => ({
-        id: issue.id,
-        project: issue.project.name,
-        title: issue.subject,
-      })),
-  }));
-
   const searchQuery = createQuery(() => ({
-    enabled: query().length > 0,
     queryFn: (context) => getSearchServerQuery(context.queryKey),
     queryKey: getSearchKey({ limit: 5, query: query() }),
-    select: (data) =>
-      data.results.map((result) => ({
-        id: result.id,
-        title: result.title,
-      })),
   }));
-
-  const options = createMemo(() => {
-    const issues = issuesQuery.data || [];
-    const searchResults = searchQuery.data || [];
-    return [...issues, ...searchResults];
-  });
-
-  const queryClient = useQueryClient();
 
   const onSubmit: JSX.IntrinsicElements["form"]["onSubmit"] = async (event) => {
     event.preventDefault();
@@ -140,11 +127,6 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
     if (!result.success) {
       return;
     }
-
-    await queryClient.prefetchQuery({
-      queryFn: (context) => getIssueServerQuery(context.queryKey),
-      queryKey: getIssueKey({ id: result.output }),
-    });
 
     props.onIssueChange(result.output);
   };
@@ -158,7 +140,7 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
       <RadioGroup
         defaultIssueId={props.issueId}
         onQueryChange={onQueryChange}
-        options={options()}
+        options={searchQuery.data || []}
         query={query()}
       />
       <div class="flex justify-end gap-2">
@@ -178,12 +160,12 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
   );
 };
 
-type IssuesProps = {
+type UpdateIssueDialogProps = {
   issueId: number;
   onIssueChange: (issueId: number) => void;
 };
 
-export const IssuesDialog: Component<IssuesProps> = (props) => {
+export const UpdateIssueDialog: Component<UpdateIssueDialogProps> = (props) => {
   const { t } = useI18n();
 
   const [isOpen, setIsOpen] = createSignal(false);

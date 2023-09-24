@@ -10,6 +10,7 @@ import {
 } from "valibot";
 import { getRMContext } from "./context";
 import { jsonFetcher } from "./fetcher";
+import { getIssues } from "./issues";
 import type { SearchResult } from "./types";
 
 const getSearchArgsSchema = () => {
@@ -42,7 +43,21 @@ export const getSearchServerQuery = server$(
       request: server$.request,
     });
 
-    return jsonFetcher<GetSearchResult>({
+    if (parsed.query.length === 0) {
+      const result = await getIssues({
+        assignedToId: "me",
+        context,
+        limit: parsed.limit,
+      });
+
+      return result.issues.map((issue) => ({
+        id: issue.id,
+        subject: issue.subject,
+        title: issue.project.name,
+      }));
+    }
+
+    const result = await jsonFetcher<GetSearchResult>({
       context,
       path: "/search.json",
       query: {
@@ -52,5 +67,12 @@ export const getSearchServerQuery = server$(
         q: parsed.query,
       },
     });
+
+    return result.results.map((result) => {
+      const [title, subject] = result.title.split(": ");
+      return { id: result.id, subject, title };
+    });
   }
 );
+
+export type SearchOption = Awaited<ReturnType<typeof getSearchServerQuery>>[0];

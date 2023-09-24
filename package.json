@@ -41,6 +41,7 @@
     "@kobalte/tailwindcss": "0.8.0",
     "@solid-primitives/i18n": "2.0.0",
     "@solid-primitives/memo": "1.3.4",
+    "@solid-primitives/scheduled": "^1.4.1",
     "@solid-primitives/storage": "2.1.1",
     "@solidjs/meta": "0.28.6",
     "@solidjs/router": "0.8.3",

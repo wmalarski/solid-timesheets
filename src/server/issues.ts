@@ -11,7 +11,7 @@ import {
   union,
   type Input,
 } from "valibot";
-import { getRMContext } from "./context";
+import { getRMContext, type RMContext } from "./context";
 import { jsonFetcher } from "./fetcher";
 import type { Issue } from "./types";
 
@@ -37,6 +37,23 @@ type GetIssuesResult = {
   limit: number;
 };
 
+type GetIssuesArgs = GetIssuesSchema & { context: RMContext };
+
+export const getIssues = (args: GetIssuesArgs) => {
+  return jsonFetcher<GetIssuesResult>({
+    context: args.context,
+    path: "/issues.json",
+    query: {
+      assigned_to_id: args.assignedToId,
+      issue_id: args.issueIds?.join(","),
+      limit: args.limit,
+      offset: args.offset,
+      sort: args.sort,
+      status_id: args.statusId,
+    },
+  });
+};
+
 export const getIssuesKey = (args: GetIssuesSchema) => {
   return ["getIssues", args] as const;
 };
@@ -50,18 +67,7 @@ export const getIssuesServerQuery = server$(
       request: server$.request,
     });
 
-    return jsonFetcher<GetIssuesResult>({
-      context,
-      path: "/issues.json",
-      query: {
-        assigned_to_id: parsed.assignedToId,
-        issue_id: parsed.issueIds?.join(","),
-        limit: parsed.limit,
-        offset: parsed.offset,
-        sort: parsed.sort,
-        status_id: parsed.statusId,
-      },
-    });
+    return getIssues({ context, ...parsed });
   }
 );
 
