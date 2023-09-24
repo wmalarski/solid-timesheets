@@ -1,6 +1,6 @@
 import { debounce } from "@solid-primitives/scheduled";
 import { createQuery } from "@tanstack/solid-query";
-import { IoCloseSharp, IoPencilSharp } from "solid-icons/io";
+import { IoAddSharp, IoCloseSharp, IoPencilSharp } from "solid-icons/io";
 import {
   For,
   Suspense,
@@ -42,10 +42,11 @@ import {
   getSearchServerQuery,
   type SearchOption,
 } from "~/server/search";
-import { IssueDetails } from "../../IssueDetails";
+import { createSheetEntryArgs, useTimeSheetContext } from "../EntriesStore";
+import { IssueDetails } from "../IssueDetails";
 
 type RadioGroupProps = {
-  defaultIssueId: number;
+  defaultIssueId?: number;
   onQueryChange: (query: string) => void;
   options: SearchOption[];
   query: string;
@@ -67,7 +68,11 @@ const RadioGroup: Component<RadioGroupProps> = (props) => {
   };
 
   return (
-    <RadioGroupRoot name="issueId" defaultValue={String(props.defaultIssueId)}>
+    <RadioGroupRoot
+      defaultValue={String(props.defaultIssueId)}
+      name="issueId"
+      required
+    >
       <RadioGroupLabel>{t("dashboard.timeEntry.issue.label")}</RadioGroupLabel>
       <div class="flex flex-col gap-2">
         <TextFieldInput
@@ -102,7 +107,7 @@ const RadioGroup: Component<RadioGroupProps> = (props) => {
 };
 
 type IssueSelectorProps = {
-  issueId: number;
+  issueId?: number;
   onCancelClick: VoidFunction;
   onIssueChange: (issueId: number) => void;
 };
@@ -114,7 +119,7 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
 
   const searchQuery = createQuery(() => ({
     queryFn: (context) => getSearchServerQuery(context.queryKey),
-    queryKey: getSearchKey({ limit: 5, query: query() }),
+    queryKey: getSearchKey({ limit: 10, query: query() }),
   }));
 
   const onSubmit: JSX.IntrinsicElements["form"]["onSubmit"] = async (event) => {
@@ -160,6 +165,45 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
   );
 };
 
+type PortalProps = {
+  issueId?: number;
+  onIsOpenChange: (isOpen: boolean) => void;
+  onIssueChange: (issueId: number) => void;
+  title: string;
+};
+
+const Portal: Component<PortalProps> = (props) => {
+  const onCancelClick = () => {
+    props.onIsOpenChange(false);
+  };
+
+  const onIssueChange = (issueId: number) => {
+    props.onIssueChange(issueId);
+    props.onIsOpenChange(false);
+  };
+
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPositioner>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{props.title}</DialogTitle>
+            <DialogCloseButton size="sm" variant="ghost" shape="square">
+              <IoCloseSharp />
+            </DialogCloseButton>
+          </DialogHeader>
+          <IssueSelector
+            onCancelClick={onCancelClick}
+            issueId={props.issueId}
+            onIssueChange={onIssueChange}
+          />
+        </DialogContent>
+      </DialogPositioner>
+    </DialogPortal>
+  );
+};
+
 type UpdateIssueDialogProps = {
   issueId: number;
   onIssueChange: (issueId: number) => void;
@@ -169,15 +213,6 @@ export const UpdateIssueDialog: Component<UpdateIssueDialogProps> = (props) => {
   const { t } = useI18n();
 
   const [isOpen, setIsOpen] = createSignal(false);
-
-  const onCancelClick = () => {
-    setIsOpen(false);
-  };
-
-  const onIssueChange = (issueId: number) => {
-    props.onIssueChange(issueId);
-    setIsOpen(false);
-  };
 
   return (
     <DialogRoot open={isOpen()} onOpenChange={setIsOpen}>
@@ -191,24 +226,54 @@ export const UpdateIssueDialog: Component<UpdateIssueDialogProps> = (props) => {
           <IoPencilSharp />
         </DialogTrigger>
       </div>
-      <DialogPortal>
-        <DialogOverlay />
-        <DialogPositioner>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{t("dashboard.timeEntry.issue.title")}</DialogTitle>
-              <DialogCloseButton size="sm" variant="ghost" shape="square">
-                <IoCloseSharp />
-              </DialogCloseButton>
-            </DialogHeader>
-            <IssueSelector
-              onCancelClick={onCancelClick}
-              issueId={props.issueId}
-              onIssueChange={onIssueChange}
-            />
-          </DialogContent>
-        </DialogPositioner>
-      </DialogPortal>
+      <Portal
+        issueId={props.issueId}
+        onIsOpenChange={setIsOpen}
+        onIssueChange={props.onIssueChange}
+        title={t("dashboard.timeEntry.issue.title")}
+      />
+    </DialogRoot>
+  );
+};
+
+type CreateIssueDialogProps = {
+  date: Date;
+};
+
+export const CreateIssueDialog: Component<CreateIssueDialogProps> = (props) => {
+  const { t } = useI18n();
+
+  const [isOpen, setIsOpen] = createSignal(false);
+
+  const { setState } = useTimeSheetContext();
+
+  const onIssueChange = (issueId: number) => {
+    createSheetEntryArgs({
+      args: {
+        comments: "",
+        hours: 0,
+        issueId,
+        spentOn: props.date,
+      },
+      setState,
+    });
+  };
+
+  return (
+    <DialogRoot open={isOpen()} onOpenChange={setIsOpen}>
+      <DialogTrigger
+        aria-label={t("dashboard.createDialog.title")}
+        shape="square"
+        size="sm"
+        variant="ghost"
+      >
+        <IoAddSharp />
+      </DialogTrigger>
+      <Portal
+        onIsOpenChange={setIsOpen}
+        onIssueChange={onIssueChange}
+        title={t("dashboard.createDialog.title")}
+      />
     </DialogRoot>
   );
 };

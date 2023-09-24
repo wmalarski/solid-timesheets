@@ -8,7 +8,7 @@ import {
   type TextFieldInputProps,
 } from "~/components/TextField";
 import { useI18n } from "~/contexts/I18nContext";
-import { UpdateIssueDialog } from "./IssuesDialog";
+import { UpdateIssueDialog } from "../IssuesDialog";
 
 type TimeEntryFieldsProps = {
   comments?: string;

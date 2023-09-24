@@ -20,9 +20,9 @@ import {
   sumTimeEntriesHoursByDay,
 } from "./TimeEntryGrid.utils";
 
-const CreateEntryMenu = lazy(() =>
-  import("./CreateEntryMenu").then((module) => ({
-    default: module.CreateEntryMenu,
+const CreateIssueDialog = lazy(() =>
+  import("../IssuesDialog").then((module) => ({
+    default: module.CreateIssueDialog,
   }))
 );
 
@@ -47,7 +47,7 @@ const HeaderCell: Component<HeaderCellProps> = (props) => {
         <span>{formatWeekday(props.date)}</span>
       </div>
       <Suspense>
-        <CreateEntryMenu date={props.date} />
+        <CreateIssueDialog date={props.date} />
       </Suspense>
     </GridCell>
   );
