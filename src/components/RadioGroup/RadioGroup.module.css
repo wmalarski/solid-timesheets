@@ -1,0 +1,4 @@
+.input:focus-visible + .control {
+  outline: 2px solid hsl(var(--p) / var(--tw-text-opacity));
+  outline-offset: 2px;
+}
