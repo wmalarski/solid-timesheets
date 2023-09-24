@@ -1,7 +1,6 @@
 import { createReducer } from "@solid-primitives/memo";
 import {
   createMutation,
-  createQuery,
   useIsMutating,
   useQueryClient,
 } from "@tanstack/solid-query";
@@ -11,7 +10,6 @@ import { Button } from "~/components/Button";
 import { Card, CardBody } from "~/components/Card";
 import { showToastAsync } from "~/components/Toast/showToastAsync";
 import { useI18n } from "~/contexts/I18nContext";
-import { getIssueKey, getIssueServerQuery } from "~/server/issues";
 import {
   getAllTimeEntriesKey,
   updateTimeEntryServerMutation,
@@ -20,6 +18,7 @@ import {
 import type { TimeEntry } from "~/server/types";
 import { CardHeader } from "../CardHeader";
 import { useTimeSheetContext, type UpdatingEntryData } from "../EntriesStore";
+import { IssueDetails } from "../IssueDetails";
 import { TimeEntryFields } from "../TimeEntryFields";
 import { TrackingRow } from "../TrackingToolbar";
 
@@ -34,26 +33,6 @@ const UpdatedCardMenu = lazy(() =>
     default: module.UpdatedCardMenu,
   }))
 );
-
-type DetailsProps = {
-  issueId: number;
-};
-
-const Details: Component<DetailsProps> = (props) => {
-  const issueQuery = createQuery(() => ({
-    queryFn: (context) => getIssueServerQuery(context.queryKey),
-    queryKey: getIssueKey({ id: props.issueId }),
-  }));
-
-  return (
-    <div class="flex flex-col gap-2">
-      <span class="text-xs font-semibold uppercase">
-        {issueQuery.data?.issue.project.name}
-      </span>
-      <span class="text-base">{issueQuery.data?.issue.subject}</span>
-    </div>
-  );
-};
 
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
@@ -219,7 +198,7 @@ export const StaticCard: Component<StaticCardProps> = (props) => {
             </Suspense>
           }
         />
-        <Details issueId={props.entry.issue.id} />
+        <IssueDetails issueId={props.entry.issue.id} />
         <Show when={isTrackingVisible()}>
           <div class="border-y-[1px] border-base-300 py-2">
             <TrackingRow timeEntryId={props.entry.id} />

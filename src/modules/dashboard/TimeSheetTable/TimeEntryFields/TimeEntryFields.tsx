@@ -9,9 +9,9 @@ import {
 } from "~/components/TextField";
 import { useI18n } from "~/contexts/I18nContext";
 
-const IssueCombobox = lazy(() =>
-  import("../IssueCombobox").then((module) => ({
-    default: module.IssueCombobox,
+const IssuesDialog = lazy(() =>
+  import("./IssuesDialog").then((module) => ({
+    default: module.IssuesDialog,
   }))
 );
 
@@ -53,7 +53,7 @@ export const TimeEntryFields: Component<TimeEntryFieldsProps> = (props) => {
           </TextFieldLabelText>
         </TextFieldLabel>
         <Suspense>
-          <IssueCombobox
+          <IssuesDialog
             issueId={props.issueId}
             onIssueChange={props.onIssueChange}
           />
