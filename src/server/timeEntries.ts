@@ -21,6 +21,8 @@ import type { TimeEntry } from "./types";
 const getTimeEntriesArgsSchema = () => {
   return object({
     from: optional(coercedDate()),
+    issueId: optional(coercedNumber()),
+    sort: optional(string()),
     to: optional(coercedDate()),
   });
 };
@@ -39,7 +41,9 @@ type GetTimeEntriesResult = {
 const getTimeEntries = async (args: GetTimeEntriesArgs) => {
   const base = {
     from: args.from && formatRequestDate(args.from),
+    issue_id: args.issueId,
     limit: 100,
+    sort: args.sort,
     to: args.to && formatRequestDate(args.to),
     user_id: args.context.session.id,
   };
