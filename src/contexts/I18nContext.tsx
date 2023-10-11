@@ -20,6 +20,7 @@ const en_dict = {
     createDialog: {
       title: "New",
     },
+    list: { title: "List" },
     report: "Download",
     reset: "Reset({{count}})",
     saveAll: "Save({{count}})",

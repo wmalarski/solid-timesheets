@@ -35,7 +35,7 @@ export const TopBar: Component = () => {
 
   return (
     <header class="flex w-screen justify-between border-b-[1px] border-base-300 p-2">
-      <nav>
+      <nav class="flex items-center gap-1">
         <LinkButton
           class="text-xl sm:text-2xl md:text-4xl"
           variant="ghost"
@@ -43,6 +43,14 @@ export const TopBar: Component = () => {
         >
           <IoTimerSharp />
           {t("dashboard.title")}
+        </LinkButton>
+        <LinkButton
+          class="text-md sm:text-lg md:text-xl"
+          variant="ghost"
+          size="sm"
+          href={paths.timeEntries}
+        >
+          {t("dashboard.list.title")}
         </LinkButton>
       </nav>
       <div class="flex items-center justify-center gap-4">
