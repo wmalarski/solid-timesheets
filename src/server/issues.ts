@@ -1,7 +1,6 @@
 import server$ from "solid-start/server";
 import {
   array,
-  coerce,
   literal,
   number,
   object,
@@ -11,6 +10,7 @@ import {
   union,
   type Input,
 } from "valibot";
+import { coercedNumber } from "~/utils/validation";
 import { getRMContext, type RMContext } from "./context";
 import { jsonFetcher } from "./fetcher";
 import type { Issue } from "./types";
@@ -18,9 +18,9 @@ import type { Issue } from "./types";
 const getIssuesArgsSchema = () => {
   return object({
     assignedToId: optional(union([number(), literal("me")])),
-    issueIds: optional(array(coerce(number(), Number))),
-    limit: optional(coerce(number(), Number)),
-    offset: optional(coerce(number(), Number)),
+    issueIds: optional(array(coercedNumber())),
+    limit: optional(coercedNumber()),
+    offset: optional(coercedNumber()),
     sort: optional(string()),
     statusId: optional(
       union([literal("open"), literal("closed"), literal("*")])
@@ -73,7 +73,7 @@ export const getIssuesServerQuery = server$(
 
 const getIssueArgsSchema = () => {
   return object({
-    id: coerce(number(), Number),
+    id: coercedNumber(),
   });
 };
 

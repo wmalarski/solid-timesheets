@@ -1,12 +1,18 @@
 import { createQuery } from "@tanstack/solid-query";
-import { Show, Suspense, createMemo, type Component } from "solid-js";
+import {
+  ErrorBoundary,
+  Show,
+  Suspense,
+  createMemo,
+  type Component,
+} from "solid-js";
 import {
   getTimeEntriesKey,
   getTimeEntriesServerQuery,
 } from "~/server/timeEntries";
 import { useListParams } from "./TimeSheetList.utils";
 
-export const TimeSheetTable: Component = () => {
+export const TimeSheetList: Component = () => {
   const { params } = useListParams();
 
   const queryKey = createMemo(() => {
@@ -22,10 +28,18 @@ export const TimeSheetTable: Component = () => {
   }));
 
   return (
-    <Suspense>
-      <Show when={timeEntriesQuery.data}>
-        {(data) => <pre>{JSON.stringify(data(), null, 2)}</pre>}
-      </Show>
-    </Suspense>
+    <ErrorBoundary
+      fallback={(error) => <pre>{JSON.stringify(error, null, 2)}</pre>}
+    >
+      <Suspense>
+        <Show when={timeEntriesQuery.data}>
+          {(data) => (
+            <pre class="h-full overflow-scroll">
+              {JSON.stringify(data(), null, 2)}
+            </pre>
+          )}
+        </Show>
+      </Suspense>
+    </ErrorBoundary>
   );
 };

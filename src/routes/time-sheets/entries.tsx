@@ -1,5 +1,5 @@
-import { TimeSheetTable } from "~/modules/dashboard/TimeSheetTable";
+import { TimeSheetList } from "~/modules/dashboard/TimeSheetList";
 
 export default function TimeEntries() {
-  return <TimeSheetTable />;
+  return <TimeSheetList />;
 }

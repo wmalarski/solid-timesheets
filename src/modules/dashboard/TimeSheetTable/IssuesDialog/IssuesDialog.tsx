@@ -9,7 +9,7 @@ import {
   type Component,
   type JSX,
 } from "solid-js";
-import { coerce, number, safeParseAsync } from "valibot";
+import { safeParseAsync } from "valibot";
 import { Button } from "~/components/Button";
 import {
   DialogCloseButton,
@@ -42,6 +42,7 @@ import {
   getSearchServerQuery,
   type SearchOption,
 } from "~/server/search";
+import { coercedNumber } from "~/utils/validation";
 import { createSheetEntryArgs, useTimeSheetContext } from "../EntriesStore";
 import { IssueDetails } from "../IssueDetails";
 
@@ -128,7 +129,7 @@ const IssueSelector: Component<IssueSelectorProps> = (props) => {
 
     const formData = new FormData(event.currentTarget);
     const rawIssueId = formData.get("issueId");
-    const result = await safeParseAsync(coerce(number(), Number), rawIssueId);
+    const result = await safeParseAsync(coercedNumber(), rawIssueId);
 
     if (!result.success) {
       return;

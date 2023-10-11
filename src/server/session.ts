@@ -3,14 +3,8 @@ import {
   createCookieSessionStorage,
   type FetchEvent,
 } from "solid-start";
-import {
-  coerce,
-  number,
-  object,
-  safeParseAsync,
-  string,
-  type Input,
-} from "valibot";
+import { object, safeParseAsync, string, type Input } from "valibot";
+import { coercedNumber } from "~/utils/validation";
 import { jsonFetcher } from "./fetcher";
 import type { User } from "./types";
 import { removeInvalidCharacters } from "./utils";
@@ -36,7 +30,7 @@ const tokenKey = "token";
 const sessionSchema = () => {
   return object({
     [fullNameKey]: string(),
-    [idKey]: coerce(number(), Number),
+    [idKey]: coercedNumber(),
     [tokenKey]: string(),
   });
 };

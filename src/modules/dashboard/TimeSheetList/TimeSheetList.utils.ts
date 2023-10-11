@@ -1,38 +1,25 @@
 import { createMemo } from "solid-js";
 import { useSearchParams } from "solid-start";
-import {
-  date,
-  object,
-  optional,
-  regex,
-  safeParse,
-  string,
-  transform,
-  type Output,
-} from "valibot";
+import { object, optional, safeParse, type Output } from "valibot";
 import { getPreviousMonth } from "~/utils/date";
 import { formatRequestDate } from "~/utils/format";
+import { coercedDate, coercedListOfNumbers } from "~/utils/validation";
 
 const currentDate = new Date();
 const previousMonthDate = getPreviousMonth(new Date());
 
 const paramsSchema = object({
-  from: optional(date(), previousMonthDate),
-  issues: optional(
-    transform(string([regex(/^(\d+,)*\d+$/)]), (value) =>
-      value.split(",").map(Number)
-    ),
-    ""
-  ),
-  to: optional(date(), currentDate),
+  from: optional(coercedDate(), previousMonthDate),
+  issues: optional(coercedListOfNumbers(), ""),
+  to: optional(coercedDate(), currentDate),
 });
 
 type ListSearchParams = Output<typeof paramsSchema>;
 
 const listSearchParamsDefault: ListSearchParams = {
-  from: currentDate,
+  from: previousMonthDate,
   issues: [],
-  to: previousMonthDate,
+  to: currentDate,
 };
 
 export const useListParams = () => {

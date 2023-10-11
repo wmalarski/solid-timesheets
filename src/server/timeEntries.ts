@@ -1,8 +1,6 @@
 import server$ from "solid-start/server";
 import {
   array,
-  coerce,
-  date,
   maxLength,
   merge,
   number,
@@ -15,14 +13,15 @@ import {
 } from "valibot";
 import { formatRequestDate } from "~/utils/format";
 import { buildSearchParams } from "~/utils/searchParams";
+import { coercedDate, coercedNumber } from "~/utils/validation";
 import { getRMContext, type RMContext } from "./context";
 import { fetcher, jsonFetcher, jsonRequestFetcher } from "./fetcher";
 import type { TimeEntry } from "./types";
 
 const getTimeEntriesArgsSchema = () => {
   return object({
-    from: optional(coerce(date(), (value) => new Date(String(value)))),
-    to: optional(coerce(date(), (value) => new Date(String(value)))),
+    from: optional(coercedDate()),
+    to: optional(coercedDate()),
   });
 };
 
@@ -86,7 +85,7 @@ export const getTimeEntriesServerQuery = server$(
 
 const getTimeEntryArgsSchema = () => {
   return object({
-    id: coerce(number(), Number),
+    id: coercedNumber(),
   });
 };
 
@@ -118,11 +117,11 @@ export const getTimeEntryServerQuery = server$(
 
 const createTimeEntryArgsSchema = () => {
   return object({
-    activityId: optional(coerce(number(), Number)),
+    activityId: optional(coercedNumber()),
     comments: optional(string([maxLength(255)]), ""),
-    hours: coerce(number(), Number),
-    issueId: coerce(number(), Number),
-    spentOn: coerce(date(), (value) => new Date(String(value))),
+    hours: coercedNumber(),
+    issueId: coercedNumber(),
+    spentOn: coercedDate(),
   });
 };
 
@@ -162,7 +161,7 @@ export const createTimeEntryServerMutation = server$(
 const updateTimeEntryArgsSchema = () => {
   return merge([
     partial(createTimeEntryArgsSchema()),
-    object({ id: number(), issueId: coerce(number(), Number) }),
+    object({ id: number(), issueId: coercedNumber() }),
   ]);
 };
 

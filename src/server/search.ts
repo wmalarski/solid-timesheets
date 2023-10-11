@@ -1,13 +1,6 @@
 import server$ from "solid-start/server";
-import {
-  coerce,
-  number,
-  object,
-  optional,
-  parseAsync,
-  string,
-  type Input,
-} from "valibot";
+import { object, optional, parseAsync, string, type Input } from "valibot";
+import { coercedNumber } from "~/utils/validation";
 import { getRMContext } from "./context";
 import { jsonFetcher } from "./fetcher";
 import { getIssues } from "./issues";
@@ -15,8 +8,8 @@ import type { SearchResult } from "./types";
 
 const getSearchArgsSchema = () => {
   return object({
-    limit: optional(coerce(number(), Number)),
-    offset: optional(coerce(number(), Number)),
+    limit: optional(coercedNumber()),
+    offset: optional(coercedNumber()),
     query: string(),
   });
 };
