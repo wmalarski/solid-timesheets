@@ -1,8 +1,7 @@
 import { Show, Suspense, lazy } from "solid-js";
-import { useRouteData } from "solid-start";
+import { Outlet, useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
 import { DashboardConfigContext } from "~/modules/dashboard/DashboardConfig";
-import { TimeSheetTable } from "~/modules/dashboard/TimeSheetTable";
 import { TopBar } from "~/modules/dashboard/TopBar";
 import { getSession } from "~/server/session";
 import { paths } from "~/utils/paths";
@@ -44,9 +43,7 @@ export default function TimeSheets() {
         <DashboardConfigContext.Provider value={result}>
           <main class="flex h-screen max-h-screen flex-col overflow-y-hidden">
             <TopBar />
-            <Suspense>
-              <TimeSheetTable />
-            </Suspense>
+            <Outlet />
             <Suspense>
               <PendingProcess />
               <ToastProvider />
