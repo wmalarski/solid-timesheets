@@ -11,15 +11,24 @@ import {
   getTimeEntriesServerQuery,
 } from "~/server/timeEntries";
 import { IssueFilterDialog } from "./IssueFilterDialog";
+import {
+  TimeEntryErroredList,
+  TimeEntryList,
+  TimeEntryLoadingList,
+} from "./TimeEntryList";
 import { useListParams } from "./TimeSheetList.utils";
 
 export const TimeSheetList: Component = () => {
   const { params, setParams } = useListParams();
 
   const queryKey = createMemo(() => {
-    const from = params().from;
-    const to = params().to;
-    return getTimeEntriesKey({ from, sort: "spent_on", to });
+    const value = params();
+    return getTimeEntriesKey({
+      from: value.from,
+      issueId: value.issue,
+      sort: "spent_on",
+      to: value.to,
+    });
   });
 
   const timeEntriesQuery = createQuery(() => ({
@@ -32,10 +41,8 @@ export const TimeSheetList: Component = () => {
   };
 
   return (
-    <ErrorBoundary
-      fallback={() => <pre>{JSON.stringify("error", null, 2)}</pre>}
-    >
-      <Suspense>
+    <ErrorBoundary fallback={() => <TimeEntryErroredList />}>
+      <Suspense fallback={<TimeEntryLoadingList />}>
         <Show when={timeEntriesQuery.data}>
           {(data) => (
             <div class="flex h-full flex-col overflow-scroll">
@@ -44,7 +51,7 @@ export const TimeSheetList: Component = () => {
                 onIssueChange={onIssueChange}
               />
               <pre>{JSON.stringify(params(), null, 2)}</pre>
-              <pre class="">{JSON.stringify(data(), null, 2)}</pre>
+              <TimeEntryList timeEntries={data()} />
             </div>
           )}
         </Show>

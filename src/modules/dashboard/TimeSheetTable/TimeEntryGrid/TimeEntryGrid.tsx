@@ -65,7 +65,7 @@ type HeaderProps = {
   days: Date[];
 };
 
-export const Header: Component<HeaderProps> = (props) => {
+const Header: Component<HeaderProps> = (props) => {
   return (
     <>
       <For each={props.days}>{(date) => <HeaderCell date={date} />}</For>

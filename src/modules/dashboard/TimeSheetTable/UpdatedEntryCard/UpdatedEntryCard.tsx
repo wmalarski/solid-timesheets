@@ -156,7 +156,7 @@ type StaticCardProps = {
   entry: TimeEntry;
 };
 
-export const StaticCard: Component<StaticCardProps> = (props) => {
+const StaticCard: Component<StaticCardProps> = (props) => {
   const { setState } = useTimeSheetContext();
 
   const isMutating = useIsMutating();
@@ -219,7 +219,7 @@ type EditingCardProps = {
   data: UpdatingEntryData;
 };
 
-export const EditingCard: Component<EditingCardProps> = (props) => {
+const EditingCard: Component<EditingCardProps> = (props) => {
   const { t } = useI18n();
 
   const { setState } = useTimeSheetContext();
