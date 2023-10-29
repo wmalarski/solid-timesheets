@@ -165,7 +165,7 @@ export const createTimeEntryServerMutation = server$(
 const updateTimeEntryArgsSchema = () => {
   return merge([
     partial(createTimeEntryArgsSchema()),
-    object({ id: number(), issueId: coercedNumber() }),
+    object({ id: number() }),
   ]);
 };
 
@@ -190,7 +190,6 @@ export const updateTimeEntryServerMutation = server$(
             activity_id: parsed.activityId,
             comments: parsed.comments,
             hours: parsed.hours,
-            issue_id: parsed.issueId,
             spent_on: parsed.spentOn && formatRequestDate(parsed.spentOn),
             user_id: context.session.id,
           },

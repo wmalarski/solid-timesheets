@@ -37,6 +37,7 @@ const UpdatedCardMenu = lazy(() =>
 type UpdateFormProps = {
   args: UpdateTimeEntryArgs;
   isPending: boolean;
+  issueId: number;
 };
 
 const UpdateForm: Component<UpdateFormProps> = (props) => {
@@ -59,7 +60,7 @@ const UpdateForm: Component<UpdateFormProps> = (props) => {
       comments={props.args.comments}
       hours={props.args.hours}
       isLoading={props.isPending}
-      issueId={props.args.issueId}
+      issueId={props.issueId}
       onCommentsChange={onCommentsChange}
       onHoursChange={onHoursChange}
       onIssueChange={onIssueChange}
@@ -249,7 +250,7 @@ const EditingCard: Component<EditingCardProps> = (props) => {
           <UpdateForm
             args={props.data.args}
             isPending={isPending()}
-            // issueId={props.entry.issue.id}
+            issueId={props.entry.issue.id}
           />
           <div class="flex justify-end gap-2">
             <Suspense>
